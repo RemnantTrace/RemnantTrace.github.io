@@ -365,7 +365,7 @@ nav a.active::after {
 
   position: relative;
 
-  font-size: clamp(58px, 6.4vw, 88px);
+  font-size: clamp(54px, 6vw, 82px);
 
   line-height: .91;
 
