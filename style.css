@@ -190,7 +190,7 @@ nav a::after {
   height: 1px;
 
   background: var(--green);
-
+ 
   transition: width .2s ease;
 }
 
