@@ -44,9 +44,11 @@ footer {
 header {
   padding:22px 0;
   border-bottom:1px solid var(--line);
+
   display:flex;
   align-items:center;
   justify-content:space-between;
+
   gap:30px;
 }
 
@@ -54,28 +56,36 @@ header {
   display:flex;
   align-items:center;
   flex-shrink:0;
+
   height:70px;
+
   overflow:visible;
 }
 
 .brand img {
   display:block;
+
   width:auto;
   height:70px;
+
   max-width:500px;
+
   object-fit:contain;
 }
 
 nav {
   display:flex;
   gap:26px;
+
   flex-wrap:wrap;
   justify-content:flex-end;
 }
 
 nav a {
   color:var(--muted);
+
   font:12px 'Space Mono',monospace;
+
   letter-spacing:.06em;
 }
 
@@ -95,26 +105,35 @@ nav a.active {
   display:grid;
 
   /*
-    Left side = text
-    Right side = image
+    Large text area on the left.
+    Smaller image area on the right.
   */
-  grid-template-columns:minmax(0,1fr) 410px;
+  grid-template-columns:minmax(0,1fr) 360px;
 
   align-items:center;
 
-  gap:70px;
+  gap:45px;
 
   position:relative;
+
   overflow:hidden;
 }
 
 .grid {
   position:absolute;
+
   inset:0;
 
   background-image:
-    linear-gradient(rgba(140,255,50,.035) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(140,255,50,.035) 1px,transparent 1px);
+    linear-gradient(
+      rgba(140,255,50,.035) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      rgba(140,255,50,.035) 1px,
+      transparent 1px
+    );
 
   background-size:55px 55px;
 
@@ -134,8 +153,12 @@ nav a.active {
 
 .hero-content {
   position:relative;
+
   z-index:2;
+
   min-width:0;
+
+  max-width:760px;
 }
 
 .eyebrow,
@@ -143,17 +166,24 @@ nav a.active {
 .card b,
 .archive span {
   font:11px 'Space Mono',monospace;
+
   color:var(--green);
+
   letter-spacing:.12em;
 }
 
 .hero h1,
 .pagehero h1 {
-  font-size:clamp(52px,8vw,104px);
+  font-size:clamp(52px,6.5vw,92px);
+
   line-height:.98;
+
   letter-spacing:-.055em;
-  max-width:950px;
+
+  max-width:760px;
+
   margin:18px 0 26px;
+
   position:relative;
 }
 
@@ -163,7 +193,9 @@ nav a.active {
 
 .lead {
   max-width:700px;
+
   color:var(--muted);
+
   font-size:18px;
 }
 
@@ -174,12 +206,15 @@ nav a.active {
 
 .hero-image {
   position:relative;
+
   z-index:2;
 
   width:100%;
 
   display:flex;
+
   justify-content:center;
+
   align-items:center;
 }
 
@@ -187,7 +222,8 @@ nav a.active {
   display:block;
 
   width:100%;
-  max-width:410px;
+
+  max-width:360px;
 
   height:auto;
 
@@ -214,25 +250,37 @@ nav a.active {
 
 .actions {
   display:flex;
+
   gap:12px;
+
   margin-top:28px;
+
   flex-wrap:wrap;
 }
 
 .btn {
   display:inline-block;
+
   padding:13px 19px;
+
   border:1px solid #454b45;
+
   font:12px 'Space Mono',monospace;
+
   letter-spacing:.04em;
+
   background:transparent;
+
   color:var(--text);
+
   cursor:pointer;
 }
 
 .btn.primary {
   background:var(--green);
+
   border-color:var(--green);
+
   color:#050505;
 }
 
@@ -247,6 +295,7 @@ nav a.active {
 
 .split {
   padding:110px 0;
+
   border-top:1px solid var(--line);
 
   display:grid;
@@ -260,13 +309,17 @@ nav a.active {
 
 .split h2 {
   font-size:clamp(34px,5vw,58px);
+
   line-height:1.08;
+
   letter-spacing:-.04em;
+
   margin:0 0 28px;
 }
 
 .split p {
   color:var(--muted);
+
   max-width:780px;
 }
 
@@ -277,30 +330,39 @@ nav a.active {
 
 .cards {
   display:grid;
+
   grid-template-columns:repeat(2,1fr);
+
   gap:14px;
 }
 
 .card {
   display:block;
+
   background:var(--panel);
+
   border:1px solid var(--line);
+
   padding:30px;
+
   min-height:200px;
 }
 
 .card:hover {
   border-color:#506047;
+
   transform:translateY(-3px);
 }
 
 .card h3 {
   font-size:23px;
+
   margin:24px 0 10px;
 }
 
 .card p {
   font-size:14px;
+
   margin:0;
 }
 
@@ -311,8 +373,14 @@ nav a.active {
 
 .research-cards {
   display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
+
+  grid-template-columns:repeat(
+    2,
+    minmax(0,1fr)
+  );
+
   gap:14px;
+
   width:100%;
 }
 
@@ -323,8 +391,11 @@ nav a.active {
 
 .research-card {
   display:block;
+
   width:100%;
+
   background:var(--panel);
+
   border:1px solid var(--line);
 
   min-height:220px;
@@ -338,11 +409,13 @@ nav a.active {
 
 .research-card:hover {
   border-color:#506047;
+
   transform:translateY(-3px);
 }
 
 .research-card[open] {
   border-color:#506047;
+
   transform:none;
 }
 
@@ -353,6 +426,7 @@ nav a.active {
 
 .research-card summary {
   list-style:none;
+
   cursor:pointer;
 }
 
@@ -366,11 +440,15 @@ nav a.active {
 
 .research-card summary {
   min-height:220px;
+
   padding:30px;
 
   display:flex;
+
   flex-direction:column;
+
   align-items:flex-start;
+
   justify-content:flex-start;
 }
 
@@ -385,6 +463,7 @@ nav a.active {
   color:var(--green);
 
   font:11px 'Space Mono',monospace;
+
   letter-spacing:.12em;
 }
 
@@ -397,7 +476,9 @@ nav a.active {
   margin:24px 0 0;
 
   font-size:23px;
+
   line-height:1.2;
+
   letter-spacing:-.02em;
 }
 
@@ -416,6 +497,7 @@ nav a.active {
   color:var(--muted);
 
   font:10px 'Space Mono',monospace;
+
   letter-spacing:.1em;
 
   transition:color .2s ease;
@@ -444,6 +526,7 @@ nav a.active {
   color:var(--muted);
 
   font-size:14px;
+
   line-height:1.75;
 
   max-width:780px;
@@ -462,6 +545,7 @@ nav a.active {
 
 .textlink {
   display:inline-block;
+
   margin-top:12px;
 
   color:var(--green);
@@ -484,16 +568,19 @@ nav a.active {
 
 .archive article {
   padding:26px 0;
+
   border-bottom:1px solid var(--line);
 }
 
 .archive h3 {
   margin:7px 0 4px;
+
   font-size:24px;
 }
 
 .archive p {
   margin:0;
+
   font-size:13px;
 }
 
@@ -512,6 +599,7 @@ label {
   color:var(--text);
 
   font:11px 'Space Mono',monospace;
+
   letter-spacing:.08em;
 
   text-transform:uppercase;
@@ -527,6 +615,7 @@ input,
 select,
 textarea {
   display:block;
+
   width:100%;
 
   margin-top:8px;
@@ -534,7 +623,9 @@ textarea {
   padding:14px 15px;
 
   background:var(--panel);
+
   border:1px solid var(--line);
+
   border-radius:0;
 
   color:var(--text);
@@ -573,6 +664,7 @@ textarea {
 
 footer {
   padding:50px 0 65px;
+
   border-top:1px solid var(--line);
 }
 
@@ -583,12 +675,15 @@ footer span {
 footer p,
 footer small {
   color:var(--muted);
+
   font-size:12px;
 }
 
 footer small {
   font:10px 'Space Mono',monospace;
+
   display:block;
+
   margin-top:35px;
 }
 
@@ -601,6 +696,7 @@ footer small {
 
   header {
     align-items:flex-start;
+
     flex-direction:column;
   }
 
@@ -610,27 +706,39 @@ footer small {
 
   .brand img {
     height:60px;
+
     max-width:420px;
   }
 
   nav {
     justify-content:flex-start;
+
     gap:14px 18px;
   }
+
+
+  /* =========================
+     MOBILE HERO
+     ========================= */
 
   .hero {
     min-height:72vh;
 
     grid-template-columns:1fr;
 
-    gap:45px;
+    gap:40px;
 
     padding:70px 0;
   }
 
+  .hero-content {
+    max-width:100%;
+  }
+
   .hero-image {
     justify-content:flex-start;
-    max-width:430px;
+
+    max-width:380px;
   }
 
   .hero-image img {
@@ -641,15 +749,32 @@ footer small {
     font-size:16px;
   }
 
+
+  /* =========================
+     MOBILE PAGE HERO
+     ========================= */
+
   .pagehero {
     padding:75px 0 80px;
   }
 
+
+  /* =========================
+     MOBILE SECTIONS
+     ========================= */
+
   .split {
     grid-template-columns:1fr;
+
     gap:30px;
+
     padding:80px 0;
   }
+
+
+  /* =========================
+     MOBILE CARDS
+     ========================= */
 
   .cards {
     grid-template-columns:1fr;
