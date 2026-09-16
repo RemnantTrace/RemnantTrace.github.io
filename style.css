@@ -119,7 +119,7 @@ header::after {
   display: flex;
   align-items: center;
 
-  height: 70px;
+  height: 76px;
 
   flex-shrink: 0;
 
@@ -130,7 +130,7 @@ header::after {
   display: block;
 
   width: auto;
-  height: 68px;
+  height: 74px;
 
   max-width: 360px;
 
