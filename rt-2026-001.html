@@ -1,1096 +1,1117 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
 
   <meta
     name="description"
-    content="RT-2026-001 — Research into Android device date manipulation, factory resets, temporal artifacts, and forensic timeline reconstruction."
+    content="RT-2026-001 — Google Device Date/Time Manipulation & Factory Resets. A RemnantTrace Forensics research note examining temporal artifacts in Android device investigations."
   >
 
-  <title>RT-2026-001 · Google Device Date Manipulation & Factory Resets | RemnantTrace Forensics</title>
+  <title>RT-2026-001 · Google Device Date/Time Manipulation & Factory Resets</title>
 
   <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-<!-- =========================================================
-     HEADER
-     ========================================================= -->
-
 <header>
 
-  <div class="header-inner">
+  <a href="index.html" class="brand">
+    <img
+      src="assets/remnanttrace-banner.png"
+      alt="RemnantTrace Forensics"
+    >
+  </a>
 
-    <a href="index.html" class="brand">
-      <img
-        src="assets/remnanttrace-banner.png"
-        alt="RemnantTrace Forensics"
-      >
-    </a>
-
-    <nav aria-label="Primary navigation">
-
-      <a href="index.html">Home</a>
-      <a href="about.html">About</a>
-      <a href="research.html">Research</a>
-      <a href="publications.html" class="active">Publications</a>
-      <a href="resources.html">Resources</a>
-      <a href="leadership.html">Leadership</a>
-      <a href="contact.html">Contact</a>
-
-    </nav>
-
-  </div>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="research.html">Research</a>
+    <a href="publications.html" class="active">Publications</a>
+    <a href="resources.html">Resources</a>
+    <a href="leadership.html">Leadership</a>
+    <a href="contact.html">Contact</a>
+  </nav>
 
 </header>
 
 
-<!-- =========================================================
-     RESEARCH HERO
-     ========================================================= -->
-
 <main>
 
-<section class="publication-hero">
+  <!-- =====================================================
+       PUBLICATION HERO
+       ===================================================== -->
 
-  <div class="publication-hero-inner">
+  <section class="pagehero">
 
-    <div class="publication-label">
-      RT-2026-001
-    </div>
-
-    <h1>
-      Google Device Date Manipulation
-      <span>&amp; Factory Resets</span>
-    </h1>
-
-    <p class="publication-subtitle">
-      Temporal artifacts, device-clock changes, factory-reset records,
-      and their implications for mobile forensic reconstruction.
+    <p class="eyebrow">
+      RT-2026-001 · RESEARCH NOTE · 2026
     </p>
 
-    <div class="publication-meta">
+    <h1>
+      Google Device Date/Time Manipulation &amp; Factory Resets
+    </h1>
 
-      <div>
-        <span>Publication Type</span>
-        <strong>Research Note</strong>
-      </div>
+    <p class="lead">
+      Examining how manually altered device clocks, factory resets,
+      and related temporal artifacts can complicate forensic timeline
+      reconstruction on Android devices.
+    </p>
 
-      <div>
-        <span>Published</span>
-        <strong>2026</strong>
-      </div>
+  </section>
 
-      <div>
-        <span>Focus</span>
-        <strong>Mobile Forensics</strong>
-      </div>
 
-      <div>
-        <span>Subject</span>
-        <strong>Temporal Analysis</strong>
+  <!-- =====================================================
+       ABSTRACT
+       ===================================================== -->
+
+  <section class="split">
+
+    <div class="label">
+      ABSTRACT
+    </div>
+
+    <div>
+
+      <h2>
+        A timestamp is evidence of what a system recorded.
+      </h2>
+
+      <p>
+        Digital forensic investigations frequently depend on timestamps
+        to reconstruct the sequence of events occurring on a device.
+        Those timestamps, however, are produced by systems whose
+        clocks, configuration states, synchronization behavior, and
+        underlying software may change over time.
+      </p>
+
+      <p>
+        This research note examines the forensic implications of
+        manually altered device date and time settings and factory
+        reset activity on Android devices. The focus is not on any
+        individual matter, but on the broader analytical problem:
+        determining what a timestamp actually establishes when the
+        device clock itself may not have reflected real-world time.
+      </p>
+
+      <p>
+        The central finding is straightforward:
+        <strong>
+          a device-generated timestamp should not automatically be
+          treated as proof of when the corresponding real-world event
+          occurred.
+        </strong>
+      </p>
+
+    </div>
+
+  </section>
+
+
+  <!-- =====================================================
+       INTRODUCTION
+       ===================================================== -->
+
+  <section class="split">
+
+    <div class="label">
+      01 / INTRODUCTION
+    </div>
+
+    <div>
+
+      <h2>
+        When the clock becomes part of the evidence.
+      </h2>
+
+      <p>
+        Modern mobile devices generate timestamps continuously.
+        Applications record creation and modification times, operating
+        systems maintain event histories, photographs contain metadata,
+        databases preserve activity records, and synchronization
+        services introduce additional temporal references.
+      </p>
+
+      <p>
+        In many examinations, these artifacts appear to provide a
+        straightforward chronological sequence. Investigators may
+        therefore rely on the apparent ordering of records when
+        determining what happened and when.
+      </p>
+
+      <p>
+        That assumption becomes more complicated when the device's
+        date, time, or time zone has been changed.
+      </p>
+
+      <p>
+        A device can continue generating internally consistent records
+        even while its clock is incorrect. As a result, a timeline may
+        look coherent while being displaced from actual chronological
+        time.
+      </p>
+
+    </div>
+
+  </section>
+
+
+  <!-- =====================================================
+       RESEARCH QUESTION
+       ===================================================== -->
+
+  <section class="split">
+
+    <div class="label">
+      02 / QUESTION
+    </div>
+
+    <div>
+
+      <h2>
+        What can a timestamp actually prove?
+      </h2>
+
+      <p>
+        This research examines several related questions:
+      </p>
+
+      <div class="cards">
+
+        <article class="card">
+
+          <b>01</b>
+
+          <h3>
+            Device Clock
+          </h3>
+
+          <p>
+            What happens to forensic interpretation when the device
+            clock does not correspond to actual time?
+          </p>
+
+        </article>
+
+
+        <article class="card">
+
+          <b>02</b>
+
+          <h3>
+            Factory Reset
+          </h3>
+
+          <p>
+            What temporal artifacts may remain associated with a
+            factory reset and subsequent device activity?
+          </p>
+
+        </article>
+
+
+        <article class="card">
+
+          <b>03</b>
+
+          <h3>
+            Timeline Integrity
+          </h3>
+
+          <p>
+            How can investigators distinguish a device-generated
+            timestamp from an independently corroborated event?
+          </p>
+
+        </article>
+
+
+        <article class="card">
+
+          <b>04</b>
+
+          <h3>
+            Examiner Activity
+          </h3>
+
+          <p>
+            How should investigator-created artifacts be separated
+            from activity that occurred before acquisition?
+          </p>
+
+        </article>
+
       </div>
 
     </div>
 
-  </div>
-
-</section>
+  </section>
 
 
-<!-- =========================================================
-     ARTICLE LAYOUT
-     ========================================================= -->
+  <!-- =====================================================
+       DEVICE TIME
+       ===================================================== -->
 
-<section class="publication">
+  <section class="split">
 
-  <div class="publication-layout">
+    <div class="label">
+      03 / DEVICE TIME
+    </div>
+
+    <div>
+
+      <h2>
+        Changing the clock changes the context.
+      </h2>
+
+      <p>
+        Android devices allow users to configure date, time, and time
+        zone settings. Depending on device configuration and
+        synchronization behavior, the displayed system time may
+        therefore differ from the time an investigator would expect
+        based on an independent reference.
+      </p>
+
+      <p>
+        This distinction matters because applications frequently rely
+        on the operating system's clock when creating or modifying
+        records.
+      </p>
+
+      <p>
+        If the clock has been moved forward, records may appear to have
+        occurred later than they actually did. If the clock has been
+        moved backward, events may appear to predate their real-world
+        occurrence.
+      </p>
+
+      <p>
+        The resulting artifacts are not necessarily false records.
+        They may accurately document what the device believed the time
+        to be when the record was created.
+      </p>
+
+      <p>
+        The forensic question is therefore not simply:
+        <em>“What time does the artifact show?”</em>
+      </p>
+
+      <p>
+        It is:
+        <strong>
+          “What evidence establishes that the device's clock was
+          accurate at that point in time?”
+        </strong>
+      </p>
+
+    </div>
+
+  </section>
 
 
-    <!-- =====================================================
-         SIDEBAR
-         ===================================================== -->
+  <!-- =====================================================
+       FACTORY RESETS
+       ===================================================== -->
 
-    <aside class="publication-sidebar">
+  <section class="split">
 
-      <div class="sidebar-block">
+    <div class="label">
+      04 / FACTORY RESETS
+    </div>
 
-        <span class="sidebar-label">
-          IN THIS RESEARCH
-        </span>
+    <div>
 
-        <nav aria-label="Research sections">
+      <h2>
+        A reset can create a temporal boundary.
+      </h2>
 
-          <a href="#abstract">Abstract</a>
-          <a href="#introduction">Introduction</a>
-          <a href="#research-question">Research Question</a>
-          <a href="#device-time">Device Time</a>
-          <a href="#factory-resets">Factory Resets</a>
-          <a href="#secondary-artifacts">Secondary Artifacts</a>
-          <a href="#developer-mode">Developer Mode</a>
-          <a href="#date-configuration">Date Configuration</a>
-          <a href="#forensic-impact">Forensic Impact</a>
-          <a href="#corroboration">Corroboration</a>
-          <a href="#analytical-distinction">Analytical Distinction</a>
-          <a href="#anti-forensics">Anti-Forensics</a>
-          <a href="#conclusion">Conclusion</a>
-          <a href="#references">References</a>
+      <p>
+        A factory reset removes or reinitializes significant portions
+        of the user environment. From a forensic perspective, this can
+        interrupt the continuity of artifacts that would otherwise
+        connect earlier activity with later activity.
+      </p>
 
-        </nav>
+      <p>
+        Reset-related artifacts may themselves contain timestamps.
+        Those timestamps can become important when attempting to
+        determine when the device was reset, what state it was in
+        beforehand, and what activity occurred afterward.
+      </p>
+
+      <p>
+        The difficulty arises when reset-related timestamps do not
+        align with independent evidence.
+      </p>
+
+      <p>
+        A reset timestamp should therefore be evaluated alongside
+        other available sources rather than treated as an isolated
+        chronological fact.
+      </p>
+
+    </div>
+
+  </section>
+
+
+  <!-- =====================================================
+       SECONDARY ARTIFACTS
+       ===================================================== -->
+
+  <section class="split">
+
+    <div class="label">
+      05 / ARTIFACTS
+    </div>
+
+    <div>
+
+      <h2>
+        The discrepancy often appears elsewhere.
+      </h2>
+
+      <p>
+        Device-clock manipulation may become visible only when
+        apparently unrelated artifacts are compared.
+      </p>
+
+      <div class="cards">
+
+        <article class="card">
+
+          <b>APPLICATION DATA</b>
+
+          <h3>
+            Databases
+          </h3>
+
+          <p>
+            Application databases may preserve timestamps that can be
+            compared against other records and external references.
+          </p>
+
+        </article>
+
+
+        <article class="card">
+
+          <b>SYSTEM DATA</b>
+
+          <h3>
+            Operating System Events
+          </h3>
+
+          <p>
+            System-level records may provide evidence of configuration
+            changes, clock adjustments, or other state transitions.
+          </p>
+
+        </article>
+
+
+        <article class="card">
+
+          <b>MEDIA</b>
+
+          <h3>
+            Photos &amp; Screenshots
+          </h3>
+
+          <p>
+            Media metadata and visible date information can sometimes
+            reveal inconsistencies within a larger timeline.
+          </p>
+
+        </article>
+
+
+        <article class="card">
+
+          <b>EXTERNAL SOURCES</b>
+
+          <h3>
+            Independent Records
+          </h3>
+
+          <p>
+            Cloud services, carrier records, network activity, and
+            other systems may provide separate temporal references.
+          </p>
+
+        </article>
 
       </div>
 
+    </div>
 
-      <div class="sidebar-block">
+  </section>
 
-        <span class="sidebar-label">
-          RESEARCH ID
-        </span>
 
-        <p>
-          RT-2026-001
-        </p>
+  <!-- =====================================================
+       DEVELOPER MODE
+       ===================================================== -->
+
+  <section class="split">
+
+    <div class="label">
+      06 / DEVELOPER MODE
+    </div>
+
+    <div>
+
+      <h2>
+        Configuration artifacts require context.
+      </h2>
+
+      <p>
+        Developer options and USB debugging can be significant
+        forensic observations, particularly when combined with other
+        evidence concerning device configuration or data transfer.
+      </p>
+
+      <p>
+        They should not, however, be interpreted independently as
+        evidence of malicious activity.
+      </p>
+
+      <p>
+        USB debugging may be enabled for legitimate development,
+        troubleshooting, device management, testing, or forensic
+        purposes. Its evidentiary significance depends on the broader
+        context in which it appears.
+      </p>
+
+    </div>
+
+  </section>
+
+
+  <!-- =====================================================
+       DATE CONFIGURATION
+       ===================================================== -->
+
+  <section class="split">
+
+    <div class="label">
+      07 / CONFIGURATION
+    </div>
+
+    <div>
+
+      <h2>
+        Date configuration can become a forensic artifact.
+      </h2>
+
+      <p>
+        When investigators identify evidence that a device's date or
+        time was changed, the change itself may become part of the
+        forensic timeline.
+      </p>
+
+      <p>
+        The important distinction is between three separate questions:
+      </p>
+
+      <div class="cards">
+
+        <article class="card">
+
+          <b>OBSERVATION</b>
+
+          <h3>
+            What was recorded?
+          </h3>
+
+          <p>
+            Identify the timestamp, configuration state, or system
+            artifact actually observed during examination.
+          </p>
+
+        </article>
+
+
+        <article class="card">
+
+          <b>INTERPRETATION</b>
+
+          <h3>
+            What does it mean?
+          </h3>
+
+          <p>
+            Determine what the artifact can reasonably establish about
+            the device and its chronological state.
+          </p>
+
+        </article>
+
+
+        <article class="card">
+
+          <b>CORROBORATION</b>
+
+          <h3>
+            What else agrees?
+          </h3>
+
+          <p>
+            Compare the observation with independent sources capable
+            of establishing actual chronological context.
+          </p>
+
+        </article>
+
+
+        <article class="card">
+
+          <b>INTENT</b>
+
+          <h3>
+            Why did it happen?
+          </h3>
+
+          <p>
+            Avoid assigning intent solely from a timestamp discrepancy.
+            Intent requires separate supporting evidence.
+          </p>
+
+        </article>
 
       </div>
 
+    </div>
 
-      <div class="sidebar-block">
+  </section>
 
-        <span class="sidebar-label">
-          CLASSIFICATION
-        </span>
 
-        <p>
-          Public Research
-        </p>
+  <!-- =====================================================
+       FORENSIC IMPACT
+       ===================================================== -->
+
+  <section class="split">
+
+    <div class="label">
+      08 / IMPACT
+    </div>
+
+    <div>
+
+      <h2>
+        A displaced clock can move an entire timeline.
+      </h2>
+
+      <p>
+        The effect of an incorrect device clock is not necessarily
+        limited to one artifact.
+      </p>
+
+      <p>
+        If multiple applications depend on the same system clock,
+        changing that clock can result in multiple records being
+        created with correspondingly displaced timestamps.
+      </p>
+
+      <p>
+        This can affect the apparent ordering of:
+      </p>
+
+      <div class="cards">
+
+        <article class="card">
+
+          <b>01</b>
+
+          <h3>
+            User Activity
+          </h3>
+
+          <p>
+            Application launches, file activity, searches, and other
+            device interactions.
+          </p>
+
+        </article>
+
+
+        <article class="card">
+
+          <b>02</b>
+
+          <h3>
+            Communications
+          </h3>
+
+          <p>
+            Messages, calls, notifications, and application
+            communication records.
+          </p>
+
+        </article>
+
+
+        <article class="card">
+
+          <b>03</b>
+
+          <h3>
+            Media
+          </h3>
+
+          <p>
+            Photos, screenshots, downloads, and associated metadata.
+          </p>
+
+        </article>
+
+
+        <article class="card">
+
+          <b>04</b>
+
+          <h3>
+            System Events
+          </h3>
+
+          <p>
+            Configuration changes, resets, synchronization events,
+            and other operating-system activity.
+          </p>
+
+        </article>
 
       </div>
 
-    </aside>
+    </div>
+
+  </section>
 
 
-    <!-- =====================================================
-         ARTICLE
-         ===================================================== -->
+  <!-- =====================================================
+       CORROBORATION
+       ===================================================== -->
 
-    <article class="publication-content">
+  <section class="split">
 
+    <div class="label">
+      09 / CORROBORATION
+    </div>
 
-      <!-- ===================================================
-           ABSTRACT
-           =================================================== -->
+    <div>
 
-      <section id="abstract" class="research-section">
+      <h2>
+        Independent clocks matter.
+      </h2>
 
-        <div class="section-marker">
-          01 / ABSTRACT
-        </div>
+      <p>
+        When temporal reliability is questioned, investigators should
+        seek evidence that does not depend exclusively on the same
+        device clock.
+      </p>
 
-        <h2>
-          When the device clock becomes part of the evidence
-        </h2>
+      <p>
+        Potential corroborating sources may include:
+      </p>
 
-        <p>
-          Mobile forensic investigations frequently depend on timestamps
-          generated by operating systems, applications, file systems,
-          databases, and cloud services. These timestamps are often
-          essential to reconstructing the sequence of events on a device.
-        </p>
+      <div class="cards">
 
-        <p>
-          The difficulty arises when the device's system clock does not
-          accurately represent real-world time. Android devices permit
-          configuration of date, time, and time-zone settings. A change
-          to those settings can affect the temporal context in which
-          subsequent artifacts are created.
-        </p>
+        <article class="card">
 
-        <p>
-          This research examines how device-clock discrepancies,
-          factory-reset records, screenshots, application artifacts,
-          developer settings, and external system records can interact
-          during forensic analysis.
-        </p>
+          <b>NETWORK</b>
 
-        <div class="research-callout">
-
-          <strong>Core observation</strong>
+          <h3>
+            Carrier &amp; Network Records
+          </h3>
 
           <p>
-            A timestamp generated by a device is evidence of what the
-            system recorded. It is not, by itself, conclusive proof of
-            when the underlying real-world event occurred.
+            External records may provide timestamps generated outside
+            the device being examined.
           </p>
 
-        </div>
+        </article>
 
-      </section>
 
+        <article class="card">
 
-      <!-- ===================================================
-           INTRODUCTION
-           =================================================== -->
+          <b>CLOUD</b>
 
-      <section id="introduction" class="research-section">
-
-        <div class="section-marker">
-          02 / INTRODUCTION
-        </div>
-
-        <h2>
-          Temporal evidence is contextual evidence
-        </h2>
-
-        <p>
-          Digital forensic timelines are constructed from numerous
-          sources. File-system timestamps, application databases,
-          message records, photographs, browser activity, operating
-          system logs, and cloud synchronization events may all
-          contribute to a reconstruction.
-        </p>
-
-        <p>
-          These sources are frequently treated as independent points
-          on a common timeline. That assumption becomes problematic
-          when the underlying device clock has been changed.
-        </p>
-
-        <p>
-          A manually altered clock can produce artifacts that appear
-          internally consistent while being displaced from actual
-          chronological time. Later artifacts may therefore contain
-          timestamps that are technically valid according to the device
-          while being inaccurate relative to an external reference.
-        </p>
-
-        <p>
-          The forensic problem is not simply identifying an incorrect
-          timestamp. It is determining which artifacts were affected,
-          when the clock changed, and which independent sources can
-          establish the correct temporal relationship.
-        </p>
-
-      </section>
-
-
-      <!-- ===================================================
-           RESEARCH QUESTION
-           =================================================== -->
-
-      <section id="research-question" class="research-section">
-
-        <div class="section-marker">
-          03 / RESEARCH QUESTION
-        </div>
-
-        <h2>
-          What happens when device time cannot be assumed?
-        </h2>
-
-        <p>
-          The research examines several related questions:
-        </p>
-
-        <ol class="research-list">
-
-          <li>
-            How can an altered device clock affect the interpretation
-            of mobile forensic artifacts?
-          </li>
-
-          <li>
-            What evidence may help identify a discrepancy between
-            device-recorded time and external chronological time?
-          </li>
-
-          <li>
-            How should factory-reset records be interpreted when
-            device-generated timestamps conflict with independent
-            evidence?
-          </li>
-
-          <li>
-            What secondary artifacts can help establish the sequence
-            of events?
-          </li>
-
-          <li>
-            How should investigators distinguish an observed temporal
-            discrepancy from an inference about why it occurred?
-          </li>
-
-        </ol>
-
-      </section>
-
-
-      <!-- ===================================================
-           DEVICE TIME
-           =================================================== -->
-
-      <section id="device-time" class="research-section">
-
-        <div class="section-marker">
-          04 / DEVICE TIME
-        </div>
-
-        <h2>
-          Device time and forensic timestamps
-        </h2>
-
-        <p>
-          Android devices maintain system date and time information
-          that is used by the operating system and applications when
-          generating records.
-        </p>
-
-        <p>
-          Depending on device configuration, date, time, and time-zone
-          settings may be obtained automatically or configured manually.
-          This creates an important forensic consideration: the
-          timestamp associated with an artifact may reflect the device's
-          clock rather than an independently verified source of time.
-        </p>
-
-        <p>
-          When the system clock is incorrect, artifacts created after
-          the change may inherit the incorrect temporal context.
-          This can affect the apparent ordering of events.
-        </p>
-
-        <div class="timeline">
-
-          <div class="timeline-item">
-
-            <span class="timeline-number">
-              01
-            </span>
-
-            <div>
-              <strong>Normal device time</strong>
-              <p>
-                The device records activity using its current system
-                clock.
-              </p>
-            </div>
-
-          </div>
-
-
-          <div class="timeline-item">
-
-            <span class="timeline-number">
-              02
-            </span>
-
-            <div>
-              <strong>Clock modification</strong>
-              <p>
-                The system date, time, or time zone is changed.
-              </p>
-            </div>
-
-          </div>
-
-
-          <div class="timeline-item">
-
-            <span class="timeline-number">
-              03
-            </span>
-
-            <div>
-              <strong>New artifacts</strong>
-              <p>
-                Subsequent artifacts may inherit the altered temporal
-                context.
-              </p>
-            </div>
-
-          </div>
-
-
-          <div class="timeline-item">
-
-            <span class="timeline-number">
-              04
-            </span>
-
-            <div>
-              <strong>External comparison</strong>
-              <p>
-                Investigators compare device timestamps against
-                independent sources.
-              </p>
-            </div>
-
-          </div>
-
-        </div>
-
-      </section>
-
-
-      <!-- ===================================================
-           FACTORY RESETS
-           =================================================== -->
-
-      <section id="factory-resets" class="research-section">
-
-        <div class="section-marker">
-          05 / FACTORY RESETS
-        </div>
-
-        <h2>
-          Factory resets and temporal reconstruction
-        </h2>
-
-        <p>
-          A factory reset can substantially alter the evidentiary
-          state of a mobile device. User data may be removed, system
-          state may change, and records associated with the reset may
-          remain available through other artifacts or forensic sources.
-        </p>
-
-        <p>
-          The timestamp associated with a reset should therefore be
-          evaluated alongside the surrounding evidence rather than
-          treated as an isolated fact.
-        </p>
-
-        <p>
-          A particularly important distinction is between the time
-          represented by a device-generated reset artifact and the time
-          established by an independent source.
-        </p>
-
-        <div class="comparison-list">
-
-          <div>
-
-            <span>DEVICE RECORD</span>
-
-            <p>
-              What timestamp does the device associate with the reset?
-            </p>
-
-          </div>
-
-
-          <div>
-
-            <span>EXTERNAL RECORD</span>
-
-            <p>
-              What independent evidence establishes the surrounding
-              chronology?
-            </p>
-
-          </div>
-
-
-          <div>
-
-            <span>FORENSIC STATE</span>
-
-            <p>
-              What was the state of the device when it was acquired?
-            </p>
-
-          </div>
-
-        </div>
-
-      </section>
-
-
-      <!-- ===================================================
-           SECONDARY ARTIFACTS
-           =================================================== -->
-
-      <section id="secondary-artifacts" class="research-section">
-
-        <div class="section-marker">
-          06 / SECONDARY ARTIFACTS
-        </div>
-
-        <h2>
-          Looking beyond the timestamp
-        </h2>
-
-        <p>
-          Temporal reconstruction becomes stronger when multiple
-          artifact classes are examined together.
-        </p>
-
-        <div class="evidence-grid">
-
-          <div class="evidence-card">
-
-            <span>01</span>
-
-            <h3>
-              Application databases
-            </h3>
-
-            <p>
-              Application records may contain timestamps, sequence
-              information, identifiers, or relationships that provide
-              additional context.
-            </p>
-
-          </div>
-
-
-          <div class="evidence-card">
-
-            <span>02</span>
-
-            <h3>
-              Operating system logs
-            </h3>
-
-            <p>
-              System-level records may document configuration changes,
-              system events, or other activity relevant to chronology.
-            </p>
-
-          </div>
-
-
-          <div class="evidence-card">
-
-            <span>03</span>
-
-            <h3>
-              Cloud records
-            </h3>
-
-            <p>
-              Cloud services can provide independently generated
-              timestamps or synchronization information.
-            </p>
-
-          </div>
-
-
-          <div class="evidence-card">
-
-            <span>04</span>
-
-            <h3>
-              External computers
-            </h3>
-
-            <p>
-              Computers interacting with a mobile device may contain
-              records that help establish when data was transferred,
-              accessed, or modified.
-            </p>
-
-          </div>
-
-
-          <div class="evidence-card">
-
-            <span>05</span>
-
-            <h3>
-              Network records
-            </h3>
-
-            <p>
-              Network infrastructure and service-provider records may
-              provide additional chronological reference points.
-            </p>
-
-          </div>
-
-
-          <div class="evidence-card">
-
-            <span>06</span>
-
-            <h3>
-              Other devices
-            </h3>
-
-            <p>
-              Related devices can provide corroborating evidence when
-              their timestamps can be independently established.
-            </p>
-
-          </div>
-
-        </div>
-
-      </section>
-
-
-      <!-- ===================================================
-           DEVELOPER MODE
-           =================================================== -->
-
-      <section id="developer-mode" class="research-section">
-
-        <div class="section-marker">
-          07 / DEVELOPER MODE
-        </div>
-
-        <h2>
-          Developer settings as forensic context
-        </h2>
-
-        <p>
-          Developer settings and USB debugging can be relevant when
-          evaluating the circumstances surrounding a device's state.
-        </p>
-
-        <p>
-          These settings can provide useful context concerning how a
-          device was configured or interacted with. They should not,
-          however, be interpreted in isolation.
-        </p>
-
-        <div class="research-callout">
-
-          <strong>Important distinction</strong>
+          <h3>
+            Synchronization Services
+          </h3>
 
           <p>
-            The presence of developer mode or USB debugging does not,
-            by itself, establish malicious activity, data manipulation,
-            or an intent to alter evidence.
+            Cloud-side records can provide an additional chronological
+            reference when available.
           </p>
 
-        </div>
-
-      </section>
+        </article>
 
 
-      <!-- ===================================================
-           DATE CONFIGURATION
-           =================================================== -->
+        <article class="card">
 
-      <section id="date-configuration" class="research-section">
+          <b>COMPUTERS</b>
 
-        <div class="section-marker">
-          08 / DATE CONFIGURATION
-        </div>
-
-        <h2>
-          Manual date and time configuration
-        </h2>
-
-        <p>
-          Android device configuration can allow users to modify date,
-          time, and time-zone settings under appropriate conditions.
-        </p>
-
-        <p>
-          From a forensic perspective, the important question is not
-          merely whether the device permits a clock change. The
-          relevant question is whether evidence demonstrates that a
-          clock discrepancy existed and how that discrepancy affected
-          the artifacts under examination.
-        </p>
-
-        <p>
-          A difference between device time and external time should
-          therefore be documented as an observed condition before any
-          conclusion is drawn regarding its cause.
-        </p>
-
-      </section>
-
-
-      <!-- ===================================================
-           FORENSIC IMPACT
-           =================================================== -->
-
-      <section id="forensic-impact" class="research-section">
-
-        <div class="section-marker">
-          09 / FORENSIC IMPACT
-        </div>
-
-        <h2>
-          What can become difficult to reconstruct?
-        </h2>
-
-        <div class="three-column">
-
-          <div>
-
-            <h3>
-              Event ordering
-            </h3>
-
-            <p>
-              Incorrect timestamps can make events appear to occur
-              before or after their actual chronological position.
-            </p>
-
-          </div>
-
-
-          <div>
-
-            <h3>
-              Artifact correlation
-            </h3>
-
-            <p>
-              Records from different systems may appear inconsistent
-              when they are compared without accounting for clock
-              differences.
-            </p>
-
-          </div>
-
-
-          <div>
-
-            <h3>
-              User activity
-            </h3>
-
-            <p>
-              Activity recorded by the device may require corroboration
-              before being assigned a precise real-world time.
-            </p>
-
-          </div>
-
-        </div>
-
-      </section>
-
-
-      <!-- ===================================================
-           CORROBORATION
-           =================================================== -->
-
-      <section id="corroboration" class="research-section">
-
-        <div class="section-marker">
-          10 / CORROBORATION
-        </div>
-
-        <h2>
-          Building a defensible timeline
-        </h2>
-
-        <p>
-          When device time is questionable, investigators should look
-          for independent temporal anchors.
-        </p>
-
-        <p>
-          Examples may include carrier records, cloud-service logs,
-          network records, external computer logs, application
-          databases, synchronized devices, and other sources capable
-          of establishing a chronological reference.
-        </p>
-
-        <div class="research-callout">
-
-          <strong>Corroboration principle</strong>
+          <h3>
+            External Systems
+          </h3>
 
           <p>
-            The more independent sources that support a temporal
-            relationship, the stronger the basis for reconstructing
-            chronology.
+            Computers and other devices involved in data transfer may
+            preserve independent event records.
           </p>
 
-        </div>
-
-        <p>
-          Corroboration should also account for known differences in
-          time zones, synchronization behavior, clock drift, logging
-          precision, and the possibility that an artifact was generated
-          after the device entered a different temporal state.
-        </p>
-
-      </section>
+        </article>
 
 
-      <!-- ===================================================
-           ANALYTICAL DISTINCTION
-           =================================================== -->
+        <article class="card">
 
-      <section id="analytical-distinction" class="research-section">
+          <b>APPLICATIONS</b>
 
-        <div class="section-marker">
-          11 / ANALYTICAL DISTINCTION
-        </div>
+          <h3>
+            Internal Databases
+          </h3>
 
-        <h2>
-          Observation is not intent
-        </h2>
+          <p>
+            Multiple application artifacts can be compared to identify
+            consistency or temporal conflicts.
+          </p>
 
-        <p>
-          One of the most important analytical distinctions in this
-          type of investigation is the difference between what the
-          evidence demonstrates and what an investigator believes may
-          explain it.
-        </p>
+        </article>
 
-        <div class="comparison-list">
+      </div>
 
-          <div>
+    </div>
 
-            <span>OBSERVED</span>
-
-            <p>
-              The device contains timestamps that conflict with an
-              independent chronological reference.
-            </p>
-
-          </div>
+  </section>
 
 
-          <div>
+  <!-- =====================================================
+       ANALYTICAL DISTINCTION
+       ===================================================== -->
 
-            <span>INTERPRETED</span>
+  <section class="split">
 
-            <p>
-              The discrepancy may be consistent with a change to the
-              device's date, time, or time-zone configuration.
-            </p>
+    <div class="label">
+      10 / ANALYSIS
+    </div>
 
-          </div>
+    <div>
 
+      <h2>
+        Observation is not the same as intent.
+      </h2>
 
-          <div>
+      <p>
+        A central forensic principle in temporal analysis is the need
+        to separate what was observed from what is inferred.
+      </p>
 
-            <span>NOT AUTOMATICALLY ESTABLISHED</span>
+      <p>
+        A timestamp discrepancy may establish that two records do not
+        agree. It does not, by itself, establish why they disagree.
+      </p>
 
-            <p>
-              The discrepancy alone does not establish who changed the
-              clock, why it was changed, or whether the change was
-              intended to affect evidence.
-            </p>
+      <p>
+        Possible explanations can include manual configuration,
+        synchronization behavior, time-zone changes, software
+        behavior, system restoration, examiner activity, or other
+        technical conditions.
+      </p>
 
-          </div>
+      <p>
+        Conclusions concerning intentional manipulation require
+        additional evidence beyond the existence of an inconsistent
+        timestamp.
+      </p>
 
-        </div>
+    </div>
 
-      </section>
-
-
-      <!-- ===================================================
-           ANTI-FORENSICS
-           =================================================== -->
-
-      <section id="anti-forensics" class="research-section">
-
-        <div class="section-marker">
-          12 / ANTI-FORENSICS
-        </div>
-
-        <h2>
-          Temporal manipulation as an anti-forensic consideration
-        </h2>
-
-        <p>
-          Changes to system time can be relevant to the broader study
-          of anti-forensic behavior because manipulating temporal
-          context may complicate reconstruction.
-        </p>
-
-        <p>
-          However, the presence of a temporal discrepancy should not
-          automatically be characterized as deliberate anti-forensic
-          activity.
-        </p>
-
-        <p>
-          An accurate forensic assessment should distinguish between
-          accidental configuration, synchronization problems,
-          administrative activity, testing, troubleshooting, and
-          intentional manipulation.
-        </p>
-
-        <p>
-          The evidence may establish that a clock was incorrect without
-          establishing the motivation behind that condition.
-        </p>
-
-      </section>
+  </section>
 
 
-      <!-- ===================================================
-           CONCLUSION
-           =================================================== -->
+  <!-- =====================================================
+       ANTI-FORENSICS
+       ===================================================== -->
 
-      <section id="conclusion" class="research-section">
+  <section class="split">
 
-        <div class="section-marker">
-          13 / CONCLUSION
-        </div>
+    <div class="label">
+      11 / ANTI-FORENSICS
+    </div>
 
-        <h2>
-          Reconstructing time requires more than reading timestamps
-        </h2>
+    <div>
 
-        <p>
-          Mobile forensic timelines are built from records generated
-          by systems that operate within their own temporal
-          environments.
-        </p>
+      <h2>
+        Temporal manipulation can complicate reconstruction.
+      </h2>
 
-        <p>
-          When the system clock is inaccurate, the resulting artifacts
-          may remain internally valid while becoming unreliable as
-          representations of real-world time.
-        </p>
+      <p>
+        In digital forensics, anti-forensic behavior broadly refers to
+        actions that interfere with the collection, interpretation, or
+        reliability of evidence.
+      </p>
 
-        <p>
-          Factory-reset records, application databases, screenshots,
-          system logs, developer settings, and other artifacts should
-          therefore be interpreted within the broader temporal context
-          of the device.
-        </p>
+      <p>
+        Changing a device clock can have temporal consequences because
+        subsequent records may inherit the altered system time.
+      </p>
 
-        <p>
-          The most defensible reconstruction does not rely on a single
-          timestamp. It evaluates the relationships between multiple
-          independent sources and clearly separates observed facts from
-          interpretation.
-        </p>
+      <p>
+        That does not mean every clock discrepancy constitutes
+        anti-forensic activity. The determination depends on the
+        circumstances, supporting evidence, and demonstrated purpose
+        of the activity.
+      </p>
 
-        <div class="final-statement">
+      <p>
+        From an examination perspective, the important issue is
+        recognizing when the device's temporal state may have affected
+        the artifacts being interpreted.
+      </p>
+
+    </div>
+
+  </section>
+
+
+  <!-- =====================================================
+       PRACTICAL FORENSIC APPROACH
+       ===================================================== -->
+
+  <section class="split">
+
+    <div class="label">
+      12 / APPROACH
+    </div>
+
+    <div>
+
+      <h2>
+        Build the timeline from more than one clock.
+      </h2>
+
+      <p>
+        When temporal inconsistencies are identified, a defensible
+        examination should document the device's observed state and
+        then compare its artifacts against independent evidence.
+      </p>
+
+      <div class="cards">
+
+        <article class="card">
+
+          <b>STEP 01</b>
+
+          <h3>
+            Preserve the Observation
+          </h3>
+
+          <p>
+            Document the device's displayed date, time, time zone, and
+            relevant configuration state.
+          </p>
+
+        </article>
+
+
+        <article class="card">
+
+          <b>STEP 02</b>
+
+          <h3>
+            Identify Conflicts
+          </h3>
+
+          <p>
+            Locate artifacts whose timestamps conflict with other
+            records or known events.
+          </p>
+
+        </article>
+
+
+        <article class="card">
+
+          <b>STEP 03</b>
+
+          <h3>
+            Establish External References
+          </h3>
+
+          <p>
+            Compare device-generated timestamps with independent
+            systems and records.
+          </p>
+
+        </article>
+
+
+        <article class="card">
+
+          <b>STEP 04</b>
+
+          <h3>
+            Separate Facts From Inference
+          </h3>
+
+          <p>
+            Clearly distinguish observed artifacts, technical
+            interpretation, and conclusions about intent.
+          </p>
+
+        </article>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- =====================================================
+       CONCLUSION
+       ===================================================== -->
+
+  <section class="split">
+
+    <div class="label">
+      13 / CONCLUSION
+    </div>
+
+    <div>
+
+      <h2>
+        Time itself can become evidence.
+      </h2>
+
+      <p>
+        Digital forensic timelines are only as reliable as the
+        assumptions underlying them.
+      </p>
+
+      <p>
+        When a device's system clock has been changed, timestamps that
+        would ordinarily appear straightforward can become
+        chronologically displaced. Factory resets can further disrupt
+        continuity by removing or reinitializing portions of the
+        device environment.
+      </p>
+
+      <p>
+        The appropriate response is not to discard device timestamps,
+        but to place them in context.
+      </p>
+
+      <p>
+        The strongest timeline is one in which device-generated
+        artifacts are compared against independent sources and
+        interpreted according to what the evidence actually
+        establishes.
+      </p>
+
+      <p>
+        A timestamp tells investigators what a system recorded.
+        Establishing when something actually happened requires the
+        broader evidentiary record.
+      </p>
+
+    </div>
+
+  </section>
+
+
+  <!-- =====================================================
+       REFERENCES
+       ===================================================== -->
+
+  <section class="split">
+
+    <div class="label">
+      REFERENCES
+    </div>
+
+    <div>
+
+      <h2>
+        Sources &amp; further reading.
+      </h2>
+
+      <div class="archive">
+
+        <article>
 
           <span>
-            REMNANTTRACE PRINCIPLE
+            GOOGLE SUPPORT
           </span>
 
-          <strong>
-            Every timestamp is evidence.
-            <br>
-            Not every timestamp is the truth.
-          </strong>
+          <h3>
+            Set date, time, and time zone on Pixel devices
+          </h3>
 
-        </div>
+          <p>
+            Google documentation concerning date, time, and time-zone
+            configuration on Pixel devices.
+          </p>
 
-      </section>
+          <a
+            class="textlink"
+            href="https://support.google.com/googlepixeltablet/answer/2841106?hl=en"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            VIEW SOURCE →
+          </a>
 
-
-      <!-- ===================================================
-           REFERENCES
-           =================================================== -->
-
-      <section id="references" class="research-section sources-section">
-
-        <div class="section-marker">
-          14 / REFERENCES
-        </div>
-
-        <h2>
-          Sources &amp; further reading
-        </h2>
-
-        <ol class="references">
-
-          <li>
-            Google Support.
-            <em>
-              Set date, time, and time zone on Google Pixel devices.
-            </em>
-            Google Support.
-            <a
-              href="https://support.google.com/googlepixeltablet/answer/2841106?hl=en"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              View source
-            </a>
-          </li>
-
-          <li>
-            Android Open Source Project.
-            <em>
-              Android platform documentation and system behavior.
-            </em>
-            Android Developers / AOSP.
-          </li>
-
-          <li>
-            National Institute of Standards and Technology.
-            <em>
-              Guidelines and technical resources concerning mobile
-              device forensics and digital evidence.
-            </em>
-            NIST.
-          </li>
-
-        </ol>
-
-      </section>
+        </article>
 
 
-      <!-- ===================================================
-           PUBLICATION FOOTER
-           =================================================== -->
+        <article>
 
-      <section class="publication-end">
+          <span>
+            REMNANTTRACE FORENSICS
+          </span>
 
-        <p>
-          RT-2026-001
-        </p>
+          <h3>
+            RT-2026-001
+          </h3>
 
-        <p>
-          RemnantTrace Forensics · 2026
-        </p>
+          <p>
+            Research note · Published 2026
+          </p>
 
-        <a href="publications.html">
-          ← Back to Publications
-        </a>
+        </article>
 
-      </section>
+      </div>
 
+    </div>
 
-    </article>
+  </section>
 
-  </div>
-
-</section>
 
 </main>
 
 
-<!-- =========================================================
+<!-- =====================================================
      FOOTER
-     ========================================================= -->
+     ===================================================== -->
 
 <footer>
 
-  <div class="footer-inner">
+  <b>
+    REMNANT<span>TRACE</span> FORENSICS
+  </b>
 
-    <div>
-      <strong>
-        RemnantTrace Forensics
-      </strong>
+  <p>
+    Independent digital forensics research.
+  </p>
 
-      <p>
-        Independent digital forensics research.
-      </p>
-    </div>
-
-    <div>
-      <span>
-        RT-2026-001
-      </span>
-    </div>
-
-  </div>
+  <small>
+    © 2026 RemnantTrace Forensics · All rights reserved.
+  </small>
 
 </footer>
-
 
 </body>
 </html>
