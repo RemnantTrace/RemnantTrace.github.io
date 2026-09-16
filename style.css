@@ -1,9 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
 
 :root {
-  --black:##000000;
-  --panel:#0b0d0b;
-  --line:#202520;
+  --black:#000000;
+  --panel:#050505;
+  --line:#181c18;
   --green:#8cff32;
   --text:#f3f5f2;
   --muted:#9da49d;
