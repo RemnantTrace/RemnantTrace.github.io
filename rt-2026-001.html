@@ -9,7 +9,9 @@
     content="RT-2026-001 — Google Device Date/Time Manipulation & Factory Resets. A RemnantTrace Forensics research note examining temporal artifacts in Android device investigations."
   >
 
-  <title>RT-2026-001 · Google Device Date/Time Manipulation & Factory Resets</title>
+  <title>
+    RT-2026-001 · Google Device Date/Time Manipulation &amp; Factory Resets
+  </title>
 
   <link rel="stylesheet" href="style.css">
 </head>
@@ -58,6 +60,11 @@
       Examining how manually altered device clocks, factory resets,
       and related temporal artifacts can complicate forensic timeline
       reconstruction on Android devices.
+    </p>
+
+    <p>
+      <strong>Meg Sissel</strong> · RemnantTrace Forensics<br>
+      Published September 16, 2026 · 10:00 AM CDT
     </p>
 
   </section>
@@ -175,75 +182,34 @@
       </h2>
 
       <p>
-        This research examines several related questions:
+        This research examines several related questions concerning
+        device clock behavior, factory reset activity, timeline
+        integrity, and examiner-created artifacts.
       </p>
 
-      <div class="cards">
+      <p>
+        <strong>Device Clock.</strong>
+        What happens to forensic interpretation when the device clock
+        does not correspond to actual time?
+      </p>
 
-        <article class="card">
+      <p>
+        <strong>Factory Reset.</strong>
+        What temporal artifacts may remain associated with a factory
+        reset and subsequent device activity?
+      </p>
 
-          <b>01</b>
+      <p>
+        <strong>Timeline Integrity.</strong>
+        How can investigators distinguish a device-generated timestamp
+        from an independently corroborated event?
+      </p>
 
-          <h3>
-            Device Clock
-          </h3>
-
-          <p>
-            What happens to forensic interpretation when the device
-            clock does not correspond to actual time?
-          </p>
-
-        </article>
-
-
-        <article class="card">
-
-          <b>02</b>
-
-          <h3>
-            Factory Reset
-          </h3>
-
-          <p>
-            What temporal artifacts may remain associated with a
-            factory reset and subsequent device activity?
-          </p>
-
-        </article>
-
-
-        <article class="card">
-
-          <b>03</b>
-
-          <h3>
-            Timeline Integrity
-          </h3>
-
-          <p>
-            How can investigators distinguish a device-generated
-            timestamp from an independently corroborated event?
-          </p>
-
-        </article>
-
-
-        <article class="card">
-
-          <b>04</b>
-
-          <h3>
-            Examiner Activity
-          </h3>
-
-          <p>
-            How should investigator-created artifacts be separated
-            from activity that occurred before acquisition?
-          </p>
-
-        </article>
-
-      </div>
+      <p>
+        <strong>Examiner Activity.</strong>
+        How should investigator-created artifacts be separated from
+        activity that occurred before acquisition?
+      </p>
 
     </div>
 
@@ -378,72 +344,29 @@
         apparently unrelated artifacts are compared.
       </p>
 
-      <div class="cards">
+      <p>
+        <strong>Application Data.</strong>
+        Application databases may preserve timestamps that can be
+        compared against other records and external references.
+      </p>
 
-        <article class="card">
+      <p>
+        <strong>System Data.</strong>
+        System-level records may provide evidence of configuration
+        changes, clock adjustments, or other state transitions.
+      </p>
 
-          <b>APPLICATION DATA</b>
+      <p>
+        <strong>Media.</strong>
+        Media metadata and visible date information can sometimes
+        reveal inconsistencies within a larger timeline.
+      </p>
 
-          <h3>
-            Databases
-          </h3>
-
-          <p>
-            Application databases may preserve timestamps that can be
-            compared against other records and external references.
-          </p>
-
-        </article>
-
-
-        <article class="card">
-
-          <b>SYSTEM DATA</b>
-
-          <h3>
-            Operating System Events
-          </h3>
-
-          <p>
-            System-level records may provide evidence of configuration
-            changes, clock adjustments, or other state transitions.
-          </p>
-
-        </article>
-
-
-        <article class="card">
-
-          <b>MEDIA</b>
-
-          <h3>
-            Photos &amp; Screenshots
-          </h3>
-
-          <p>
-            Media metadata and visible date information can sometimes
-            reveal inconsistencies within a larger timeline.
-          </p>
-
-        </article>
-
-
-        <article class="card">
-
-          <b>EXTERNAL SOURCES</b>
-
-          <h3>
-            Independent Records
-          </h3>
-
-          <p>
-            Cloud services, carrier records, network activity, and
-            other systems may provide separate temporal references.
-          </p>
-
-        </article>
-
-      </div>
+      <p>
+        <strong>External Sources.</strong>
+        Cloud services, carrier records, network activity, and other
+        systems may provide separate temporal references.
+      </p>
 
     </div>
 
@@ -515,72 +438,29 @@
         The important distinction is between three separate questions:
       </p>
 
-      <div class="cards">
+      <p>
+        <strong>Observation — What was recorded?</strong><br>
+        Identify the timestamp, configuration state, or system artifact
+        actually observed during examination.
+      </p>
 
-        <article class="card">
+      <p>
+        <strong>Interpretation — What does it mean?</strong><br>
+        Determine what the artifact can reasonably establish about the
+        device and its chronological state.
+      </p>
 
-          <b>OBSERVATION</b>
+      <p>
+        <strong>Corroboration — What else agrees?</strong><br>
+        Compare the observation with independent sources capable of
+        establishing actual chronological context.
+      </p>
 
-          <h3>
-            What was recorded?
-          </h3>
-
-          <p>
-            Identify the timestamp, configuration state, or system
-            artifact actually observed during examination.
-          </p>
-
-        </article>
-
-
-        <article class="card">
-
-          <b>INTERPRETATION</b>
-
-          <h3>
-            What does it mean?
-          </h3>
-
-          <p>
-            Determine what the artifact can reasonably establish about
-            the device and its chronological state.
-          </p>
-
-        </article>
-
-
-        <article class="card">
-
-          <b>CORROBORATION</b>
-
-          <h3>
-            What else agrees?
-          </h3>
-
-          <p>
-            Compare the observation with independent sources capable
-            of establishing actual chronological context.
-          </p>
-
-        </article>
-
-
-        <article class="card">
-
-          <b>INTENT</b>
-
-          <h3>
-            Why did it happen?
-          </h3>
-
-          <p>
-            Avoid assigning intent solely from a timestamp discrepancy.
-            Intent requires separate supporting evidence.
-          </p>
-
-        </article>
-
-      </div>
+      <p>
+        <strong>Intent — Why did it happen?</strong><br>
+        Avoid assigning intent solely from a timestamp discrepancy.
+        Intent requires separate supporting evidence.
+      </p>
 
     </div>
 
@@ -615,74 +495,34 @@
       </p>
 
       <p>
-        This can affect the apparent ordering of:
+        This can affect the apparent ordering of user activity,
+        communications, media, and system events.
       </p>
 
-      <div class="cards">
+      <p>
+        <strong>User Activity.</strong>
+        Application launches, file activity, searches, and other
+        device interactions may inherit the device's temporal state.
+      </p>
 
-        <article class="card">
+      <p>
+        <strong>Communications.</strong>
+        Messages, calls, notifications, and application communication
+        records may contain timestamps affected by the same system
+        clock.
+      </p>
 
-          <b>01</b>
+      <p>
+        <strong>Media.</strong>
+        Photos, screenshots, downloads, and associated metadata may
+        contribute additional timestamps to the resulting timeline.
+      </p>
 
-          <h3>
-            User Activity
-          </h3>
-
-          <p>
-            Application launches, file activity, searches, and other
-            device interactions.
-          </p>
-
-        </article>
-
-
-        <article class="card">
-
-          <b>02</b>
-
-          <h3>
-            Communications
-          </h3>
-
-          <p>
-            Messages, calls, notifications, and application
-            communication records.
-          </p>
-
-        </article>
-
-
-        <article class="card">
-
-          <b>03</b>
-
-          <h3>
-            Media
-          </h3>
-
-          <p>
-            Photos, screenshots, downloads, and associated metadata.
-          </p>
-
-        </article>
-
-
-        <article class="card">
-
-          <b>04</b>
-
-          <h3>
-            System Events
-          </h3>
-
-          <p>
-            Configuration changes, resets, synchronization events,
-            and other operating-system activity.
-          </p>
-
-        </article>
-
-      </div>
+      <p>
+        <strong>System Events.</strong>
+        Configuration changes, resets, synchronization events, and
+        other operating-system activity may also be affected.
+      </p>
 
     </div>
 
@@ -712,75 +552,35 @@
       </p>
 
       <p>
-        Potential corroborating sources may include:
+        Potential corroborating sources may include carrier and
+        network records, synchronization services, external
+        computers, other devices, and independent application
+        databases.
       </p>
 
-      <div class="cards">
+      <p>
+        <strong>Carrier &amp; Network Records.</strong>
+        External records may provide timestamps generated outside the
+        device being examined.
+      </p>
 
-        <article class="card">
+      <p>
+        <strong>Synchronization Services.</strong>
+        Cloud-side records can provide an additional chronological
+        reference when available.
+      </p>
 
-          <b>NETWORK</b>
+      <p>
+        <strong>External Systems.</strong>
+        Computers and other devices involved in data transfer may
+        preserve independent event records.
+      </p>
 
-          <h3>
-            Carrier &amp; Network Records
-          </h3>
-
-          <p>
-            External records may provide timestamps generated outside
-            the device being examined.
-          </p>
-
-        </article>
-
-
-        <article class="card">
-
-          <b>CLOUD</b>
-
-          <h3>
-            Synchronization Services
-          </h3>
-
-          <p>
-            Cloud-side records can provide an additional chronological
-            reference when available.
-          </p>
-
-        </article>
-
-
-        <article class="card">
-
-          <b>COMPUTERS</b>
-
-          <h3>
-            External Systems
-          </h3>
-
-          <p>
-            Computers and other devices involved in data transfer may
-            preserve independent event records.
-          </p>
-
-        </article>
-
-
-        <article class="card">
-
-          <b>APPLICATIONS</b>
-
-          <h3>
-            Internal Databases
-          </h3>
-
-          <p>
-            Multiple application artifacts can be compared to identify
-            consistency or temporal conflicts.
-          </p>
-
-        </article>
-
-      </div>
+      <p>
+        <strong>Internal Databases.</strong>
+        Multiple application artifacts can be compared to identify
+        consistency or temporal conflicts.
+      </p>
 
     </div>
 
@@ -898,72 +698,29 @@
         then compare its artifacts against independent evidence.
       </p>
 
-      <div class="cards">
+      <p>
+        <strong>Step 01 — Preserve the Observation.</strong>
+        Document the device's displayed date, time, time zone, and
+        relevant configuration state.
+      </p>
 
-        <article class="card">
+      <p>
+        <strong>Step 02 — Identify Conflicts.</strong>
+        Locate artifacts whose timestamps conflict with other records
+        or known events.
+      </p>
 
-          <b>STEP 01</b>
+      <p>
+        <strong>Step 03 — Establish External References.</strong>
+        Compare device-generated timestamps with independent systems
+        and records.
+      </p>
 
-          <h3>
-            Preserve the Observation
-          </h3>
-
-          <p>
-            Document the device's displayed date, time, time zone, and
-            relevant configuration state.
-          </p>
-
-        </article>
-
-
-        <article class="card">
-
-          <b>STEP 02</b>
-
-          <h3>
-            Identify Conflicts
-          </h3>
-
-          <p>
-            Locate artifacts whose timestamps conflict with other
-            records or known events.
-          </p>
-
-        </article>
-
-
-        <article class="card">
-
-          <b>STEP 03</b>
-
-          <h3>
-            Establish External References
-          </h3>
-
-          <p>
-            Compare device-generated timestamps with independent
-            systems and records.
-          </p>
-
-        </article>
-
-
-        <article class="card">
-
-          <b>STEP 04</b>
-
-          <h3>
-            Separate Facts From Inference
-          </h3>
-
-          <p>
-            Clearly distinguish observed artifacts, technical
-            interpretation, and conclusions about intent.
-          </p>
-
-        </article>
-
-      </div>
+      <p>
+        <strong>Step 04 — Separate Facts From Inference.</strong>
+        Clearly distinguish observed artifacts, technical
+        interpretation, and conclusions about intent.
+      </p>
 
     </div>
 
@@ -1092,10 +849,6 @@
 
 </main>
 
-
-<!-- =====================================================
-     FOOTER
-     ===================================================== -->
 
 <footer>
 
