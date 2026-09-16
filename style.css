@@ -98,7 +98,7 @@ nav a.active {
     Left side = text
     Right side = image
   */
-  grid-template-columns:minmax(0,1fr) 310px;
+  grid-template-columns:minmax(0,1fr) 410px;
 
   align-items:center;
 
