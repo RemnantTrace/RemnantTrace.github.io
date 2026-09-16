@@ -49,14 +49,14 @@ header {
   display:flex;
   align-items:center;
   flex-shrink:0;
-  height:32px;
+  height:36px;
 }
 
 .brand img {
   display:block;
-  height:24px;
+  height:30px;
   width:auto;
-  max-width:160px;
+  max-width:220px;
   object-fit:contain;
 }
 
@@ -313,12 +313,12 @@ footer small {
   }
 
   .brand {
-    height:30px;
+    height:32px;
   }
 
   .brand img {
-    height:22px;
-    max-width:150px;
+    height:27px;
+    max-width:190px;
   }
 
   nav {
