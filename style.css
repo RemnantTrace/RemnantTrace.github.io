@@ -112,15 +112,14 @@ nav a.active {
   display:grid;
 
   /*
-     More room for the headline.
-     The image gets its own substantial column
-     instead of being squeezed into a tiny box.
+     Large text area on the left.
+     Image gets its own column on the right.
   */
-  grid-template-columns:minmax(0,1.45fr) minmax(380px,.85fr);
+  grid-template-columns:minmax(0,1.7fr) minmax(360px,.8fr);
 
   align-items:center;
 
-  gap:25px;
+  gap:10px;
 
   position:relative;
 
@@ -181,7 +180,7 @@ nav a.active {
 
   min-width:0;
 
-  max-width:760px;
+  max-width:820px;
 
   padding:40px 0;
 }
@@ -208,7 +207,7 @@ nav a.active {
 
   letter-spacing:-.06em;
 
-  max-width:720px;
+  max-width:820px;
 
   margin:20px 0 28px;
 
@@ -217,7 +216,19 @@ nav a.active {
   font-weight:700;
 }
 
-.hero h1 span {
+/*
+   These two spans FORCE the headline
+   to stay on exactly two lines.
+*/
+
+.hero h1 .line-one,
+.hero h1 .line-two {
+  display:block;
+
+  white-space:nowrap;
+}
+
+.hero h1 .line-two {
   color:var(--green);
 }
 
@@ -317,11 +328,6 @@ nav a.active {
 
   align-items:center;
 
-  /*
-     Pull the image slightly toward the text.
-     This makes it feel like part of the hero,
-     rather than a separate card.
-  */
   margin-left:-15px;
 }
 
@@ -342,9 +348,6 @@ nav a.active {
   */
   mix-blend-mode:screen;
 
-  /*
-     Slightly larger visual presence.
-  */
   transform:scale(1.08);
 
   filter:
@@ -819,6 +822,7 @@ footer small {
 
   .hero-image img {
     width:100%;
+
     max-width:390px;
   }
 
@@ -887,6 +891,11 @@ footer small {
     line-height:.94;
 
     margin:18px 0 24px;
+  }
+
+  .hero h1 .line-one,
+  .hero h1 .line-two {
+    white-space:normal;
   }
 
   .lead {
