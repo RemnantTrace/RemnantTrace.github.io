@@ -1,1 +1,164 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Contact — RemnantTrace Forensics</title><link rel="stylesheet" href="style.css"></head><body><header><a class="brand" href="index.html">REMNANTTRACE <span>FORENSICS</span></a><nav><a href="about.html">About</a><a href="research.html">Research</a><a href="publications.html">Publications</a><a href="resources.html">Resources</a><a class="active" href="contact.html">Contact</a></nav></header><main><section class="pagehero"><p class="eyebrow">05 / CONTACT</p><h1>Research inquiries.</h1><p class="lead">Questions about research, collaboration, publications, technical resources, or educational opportunities can be submitted below.</p></section><section class="split"><div class="label">INQUIRY</div><div><form id="research-form" action="YOUR_GOOGLE_APPS_SCRIPT_URL" method="POST"><div class="form-grid"><label>Name <span>*</span><input name="name" required></label><label>Email <span>*</span><input type="email" name="email" required></label></div><label>Organization<input name="organization"></label><label>Inquiry Type <span>*</span><select name="inquiryType" required><option value="" disabled selected>Select an inquiry type</option><option>Research Collaboration</option><option>Research Question</option><option>Publication</option><option>Technical Resource</option><option>Dataset</option><option>Speaking / Education</option><option>Other</option></select></label><label>Message <span>*</span><textarea name="message" rows="8" required placeholder="Tell us about your inquiry..."></textarea></label><button class="btn primary" type="submit">Submit Inquiry</button><div id="status"></div></form></div></section></main><footer><b>REMNANTTRACE <span>FORENSICS</span></b><p>Independent Digital Forensics Research</p></footer><script>document.getElementById('research-form').addEventListener('submit',async e=>{e.preventDefault();const b=e.target.querySelector('button'),s=document.getElementById('status');b.disabled=true;b.textContent='Submitting...';try{await fetch(e.target.action,{method:'POST',body:new FormData(e.target),mode:'no-cors'});e.target.reset();s.textContent='Inquiry submitted successfully.'}catch(x){s.textContent='Something went wrong. Please try again.';s.className='error'}finally{b.disabled=false;b.textContent='Submit Inquiry'}});</script></body></html>
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Contact — RemnantTrace Forensics</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header>
+  <a class="brand" href="index.html">
+    REMNANTTRACE <span>FORENSICS</span>
+  </a>
+
+  <nav>
+    <a href="about.html">About</a>
+    <a href="research.html">Research</a>
+    <a href="publications.html">Publications</a>
+    <a href="resources.html">Resources</a>
+    <a class="active" href="contact.html">Contact</a>
+  </nav>
+</header>
+
+<main>
+
+<section class="pagehero">
+  <p class="eyebrow">05 / CONTACT</p>
+  <h1>Research inquiries.</h1>
+  <p class="lead">
+    Questions about research, collaboration, publications, technical resources,
+    or educational opportunities can be submitted below.
+  </p>
+</section>
+
+<section class="split">
+
+  <div class="label">INQUIRY</div>
+
+  <div>
+
+```
+<form
+  id="research-form"
+  action="https://script.google.com/macros/s/AKfycbyNUpC8DZdn5V4Nql9-I3e-n4Lr3eNk2w75sBfw6O6wgQ_2GU_YTqS7S3aH0dwnRCoY/exec"
+  method="POST"
+>
+
+  <div class="form-grid">
+
+    <label>
+      Name <span>*</span>
+      <input type="text" name="name" required>
+    </label>
+
+    <label>
+      Email <span>*</span>
+      <input type="email" name="email" required>
+    </label>
+
+  </div>
+
+  <label>
+    Organization
+    <input type="text" name="organization">
+  </label>
+
+  <label>
+    Inquiry Type <span>*</span>
+
+    <select name="inquiryType" required>
+      <option value="" disabled selected>Select an inquiry type</option>
+      <option value="Research Collaboration">Research Collaboration</option>
+      <option value="Research Question">Research Question</option>
+      <option value="Publication">Publication</option>
+      <option value="Technical Resource">Technical Resource</option>
+      <option value="Dataset">Dataset</option>
+      <option value="Speaking / Education">Speaking / Education</option>
+      <option value="Other">Other</option>
+    </select>
+
+  </label>
+
+  <label>
+    Message <span>*</span>
+
+    <textarea
+      name="message"
+      rows="8"
+      required
+      placeholder="Tell us about your inquiry..."
+    ></textarea>
+
+  </label>
+
+  <button class="btn primary" type="submit">
+    Submit Inquiry
+  </button>
+
+  <div id="status"></div>
+
+</form>
+```
+
+  </div>
+
+</section>
+
+</main>
+
+<footer>
+  <b>REMNANTTRACE <span>FORENSICS</span></b>
+  <p>Independent Digital Forensics Research</p>
+</footer>
+
+<script>
+
+const form = document.getElementById("research-form");
+const button = form.querySelector("button");
+const status = document.getElementById("status");
+
+form.addEventListener("submit", async function(event) {
+
+  event.preventDefault();
+
+  button.disabled = true;
+  button.textContent = "Submitting...";
+  status.textContent = "";
+  status.className = "";
+
+  try {
+
+    await fetch(form.action, {
+      method: "POST",
+      body: new FormData(form),
+      mode: "no-cors"
+    });
+
+    form.reset();
+
+    status.textContent = "Inquiry submitted successfully.";
+
+  } catch (error) {
+
+    status.textContent =
+      "Something went wrong. Please try again.";
+
+    status.className = "error";
+
+  } finally {
+
+    button.disabled = false;
+    button.textContent = "Submit Inquiry";
+
+  }
+
+});
+
+</script>
+
+</body>
+</html>
