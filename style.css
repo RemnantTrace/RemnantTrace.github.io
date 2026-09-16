@@ -49,14 +49,15 @@ header {
   display:flex;
   align-items:center;
   flex-shrink:0;
-  height:52px;
+  height:70px;
+  overflow:visible;
 }
 
 .brand img {
   display:block;
-  height:50px;
   width:auto;
-  max-width:360px;
+  height:70px;
+  max-width:500px;
   object-fit:contain;
 }
 
