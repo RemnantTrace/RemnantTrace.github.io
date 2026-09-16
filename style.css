@@ -140,6 +140,19 @@ nav a.active {
 
 
 /* =========================
+   PAGE HERO
+   ========================= */
+
+.pagehero {
+  padding:110px 0 95px;
+}
+
+.pagehero .lead {
+  max-width:700px;
+}
+
+
+/* =========================
    BUTTONS
    ========================= */
 
@@ -179,9 +192,16 @@ nav a.active {
 .split {
   padding:110px 0;
   border-top:1px solid var(--line);
+
   display:grid;
-  grid-template-columns:180px 1fr;
-  gap:55px;
+
+  /* Gives the cards more room */
+  grid-template-columns:150px 1fr;
+
+  /* Less awkward empty space between label and cards */
+  gap:35px;
+
+  align-items:start;
 }
 
 .split h2 {
@@ -232,25 +252,32 @@ nav a.active {
 
 
 /* =========================
-   RESEARCH DROPDOWN CARDS
+   RESEARCH CARDS
    ========================= */
 
 .research-cards {
   display:grid;
-  grid-template-columns:repeat(2,1fr);
+  grid-template-columns:repeat(2,minmax(0,1fr));
   gap:14px;
+  width:100%;
 }
 
 
-/* The actual box */
+/* =========================
+   RESEARCH CARD
+   ========================= */
 
 .research-card {
   display:block;
   width:100%;
   background:var(--panel);
   border:1px solid var(--line);
+
+  /* Consistent closed-card height */
   min-height:220px;
+
   overflow:hidden;
+
   transition:
     border-color .2s ease,
     transform .2s ease;
@@ -267,7 +294,9 @@ nav a.active {
 }
 
 
-/* Remove browser triangle */
+/* =========================
+   SUMMARY
+   ========================= */
 
 .research-card summary {
   list-style:none;
@@ -283,7 +312,14 @@ nav a.active {
 }
 
 
-/* Closed card layout */
+/*
+   IMPORTANT FIX:
+   Previously READ MORE used margin-top:auto.
+   That pushed it all the way toward the bottom
+   of the card and created the huge empty space.
+
+   Now everything flows naturally.
+*/
 
 .research-card summary {
   min-height:220px;
@@ -296,17 +332,23 @@ nav a.active {
 }
 
 
-/* Number */
+/* =========================
+   NUMBER
+   ========================= */
 
 .research-card summary b {
   display:block;
+
   color:var(--green);
+
   font:11px 'Space Mono',monospace;
   letter-spacing:.12em;
 }
 
 
-/* Title */
+/* =========================
+   TITLE
+   ========================= */
 
 .research-card h3 {
   margin:24px 0 0;
@@ -317,12 +359,21 @@ nav a.active {
 }
 
 
-/* Read more button */
+/* =========================
+   READ MORE
+   ========================= */
 
 .read-more {
   display:block;
-  margin-top:auto;
-  padding-top:25px;
+
+  /*
+    Keeps READ MORE underneath
+    the title instead of pushing
+    it to the bottom.
+  */
+  margin-top:58px;
+
+  padding-top:0;
 
   color:var(--muted);
 
@@ -341,18 +392,24 @@ nav a.active {
 }
 
 
-/* Expanded section inside the same box */
+/* =========================
+   EXPANDED RESEARCH CONTENT
+   ========================= */
 
 .research-content {
   border-top:1px solid var(--line);
-  padding:24px 30px 30px;
+
+  padding:26px 30px 30px;
 }
 
 .research-content p {
   color:var(--muted);
+
   font-size:14px;
   line-height:1.75;
+
   max-width:780px;
+
   margin:0 0 18px;
 }
 
@@ -368,9 +425,13 @@ nav a.active {
 .textlink {
   display:inline-block;
   margin-top:12px;
+
   color:var(--green);
+
   font:12px 'Space Mono',monospace;
+
   border-bottom:1px solid var(--green);
+
   padding-bottom:4px;
 }
 
@@ -409,10 +470,14 @@ form {
 
 label {
   display:block;
+
   color:var(--text);
+
   font:11px 'Space Mono',monospace;
   letter-spacing:.08em;
+
   text-transform:uppercase;
+
   margin-bottom:20px;
 }
 
@@ -425,13 +490,19 @@ select,
 textarea {
   display:block;
   width:100%;
+
   margin-top:8px;
+
   padding:14px 15px;
+
   background:var(--panel);
   border:1px solid var(--line);
   border-radius:0;
+
   color:var(--text);
+
   font:14px Inter,Arial,sans-serif;
+
   outline:none;
 }
 
@@ -447,7 +518,9 @@ textarea {
 
 #status {
   margin-top:18px;
+
   color:var(--green);
+
   font:12px 'Space Mono',monospace;
 }
 
@@ -515,14 +588,14 @@ footer small {
     font-size:16px;
   }
 
-  .split {
-    grid-template-columns:1fr;
-    gap:20px;
-    padding:80px 0;
-  }
-
   .pagehero {
     padding:75px 0 80px;
+  }
+
+  .split {
+    grid-template-columns:1fr;
+    gap:30px;
+    padding:80px 0;
   }
 
   .cards {
@@ -537,4 +610,7 @@ footer small {
     min-height:200px;
   }
 
+  .read-more {
+    margin-top:45px;
+  }
 }
