@@ -81,7 +81,10 @@
 
     <article>
 
-      <!-- ABSTRACT -->
+
+      <!-- ===================================================
+           ABSTRACT
+           =================================================== -->
 
       <h2>
         Abstract
@@ -123,7 +126,9 @@
       </p>
 
 
-      <!-- 1 -->
+      <!-- ===================================================
+           1. INTRODUCTION
+           =================================================== -->
 
       <h2>
         1. Introduction
@@ -157,7 +162,9 @@
       </p>
 
 
-      <!-- 2 -->
+      <!-- ===================================================
+           2. RESEARCH QUESTIONS
+           =================================================== -->
 
       <h2>
         2. Research Questions
@@ -193,7 +200,9 @@
       </p>
 
 
-      <!-- 3 -->
+      <!-- ===================================================
+           3. TEMPORAL BEHAVIOR
+           =================================================== -->
 
       <h2>
         3. Temporal Behavior of Device Clocks
@@ -227,10 +236,187 @@
       </p>
 
 
-      <!-- 4 -->
+      <!-- ===================================================
+           4. ILLUSTRATIVE ARTIFACT ANALYSIS
+           =================================================== -->
 
       <h2>
-        4. Factory Reset and Temporal Continuity
+        4. Illustrative Artifact Analysis
+      </h2>
+
+      <p>
+        The following examples demonstrate how temporal inconsistencies
+        may be evaluated during a forensic examination. The values and
+        descriptions in this section are intentionally generalized or
+        synthetic. They do not reproduce client identifiers, matter
+        names, serial numbers, locations, communications, or
+        case-specific evidence.
+      </p>
+
+      <p>
+        The purpose of these examples is to demonstrate forensic
+        reasoning rather than to establish a particular finding in an
+        individual matter.
+      </p>
+
+
+      <h3>
+        4.1 Conflicting values within a reset-related artifact
+      </h3>
+
+      <p>
+        Consider a hypothetical Android device containing a reset-related
+        boot record with two different temporal values:
+      </p>
+
+      <p>
+        <strong>Current device time:</strong>
+        10/27/20XX 8:41 PM
+        <br>
+        <strong>Recorded reset value:</strong>
+        12/14/20XX 8:06 AM
+      </p>
+
+      <p>
+        The presence of two different dates does not automatically mean
+        that two factory resets occurred. The values may represent
+        different temporal states maintained by the operating system.
+        One value may reflect the device's current temporal state while
+        another represents a reset-related value retained across
+        subsequent boots.
+      </p>
+
+      <p>
+        The discrepancy therefore becomes an investigative question.
+        An examiner would evaluate the provenance of each value, compare
+        the values with other artifacts, and determine whether the
+        device's clock configuration provides a technically plausible
+        explanation for the difference.
+      </p>
+
+      <p>
+        The important observation is not simply that the dates differ.
+        It is that the relationship between the values may indicate that
+        the device's temporal state requires further examination.
+      </p>
+
+
+      <h3>
+        4.2 User-visible dates in screenshots
+      </h3>
+
+      <p>
+        A second class of evidence may come from user-generated media.
+        Consider a hypothetical examination in which a system artifact
+        contains an unusual date and a screenshot created during the
+        same general period visibly displays a neighboring date.
+      </p>
+
+      <p>
+        For example, a system record might contain a date corresponding
+        to October 27, while a screenshot of the device interface
+        visibly displays October 28. A second screenshot may display
+        the same October 28 date.
+      </p>
+
+      <p>
+        The screenshots do not independently prove when the underlying
+        activity occurred. They do, however, provide additional
+        artifacts showing the temporal state displayed by the device.
+        Repeated observations can therefore be compared against
+        system-generated records and independent evidence.
+      </p>
+
+      <p>
+        This illustrates an important distinction: <strong>corroboration
+        does not necessarily mean agreement.</strong> A second artifact
+        can be valuable because it demonstrates that multiple records
+        share an unexpected temporal state.
+      </p>
+
+
+      <h3>
+        4.3 Developer Mode and USB debugging
+      </h3>
+
+      <p>
+        Consider an examination in which artifacts indicate that
+        Developer Options had previously been enabled and USB debugging
+        had been activated.
+      </p>
+
+      <p>
+        These observations establish that the relevant configuration
+        existed at some point. They do not, standing alone, establish
+        who enabled the settings, why they were enabled, or what
+        activity occurred while they were enabled.
+      </p>
+
+      <p>
+        Their significance may increase when configuration artifacts are
+        evaluated alongside other independent observations. For example,
+        a device may contain screenshots created while Developer Options
+        were enabled, configuration evidence associated with USB
+        debugging, and other artifacts exhibiting the same unusual
+        temporal pattern.
+      </p>
+
+      <p>
+        In that circumstance, the configuration evidence becomes one
+        component of a larger timeline rather than an isolated indicator
+        of user behavior.
+      </p>
+
+
+      <h3>
+        4.4 Examiner-induced temporal changes
+      </h3>
+
+      <p>
+        Temporal artifacts can also be created or modified during
+        forensic examination. Consider a device that has been reset and
+        subsequently presents a date and time that do not correspond to
+        the acquisition environment.
+      </p>
+
+      <p>
+        If the examiner must configure the device before acquisition can
+        proceed, the examiner may document an observed device state such
+        as:
+      </p>
+
+      <p>
+        <strong>Observed device state:</strong>
+        03/20/20XX 5:04 PM
+        <br>
+        <strong>Acquisition environment:</strong>
+        01/29/20XY 10:53 AM
+        <br>
+        <strong>Examiner action:</strong>
+        device clock adjusted for acquisition
+      </p>
+
+      <p>
+        The resulting change does not establish anything about the
+        original user's activity. Instead, it establishes a documented
+        alteration introduced during examination.
+      </p>
+
+      <p>
+        This example demonstrates why examiner actions must be documented
+        separately from original device activity. Without that
+        distinction, artifacts created during acquisition may later be
+        misinterpreted as evidence of activity occurring before the
+        examination.
+      </p>
+
+
+      <!-- ===================================================
+           5. FACTORY RESET
+           =================================================== -->
+
+      <h2>
+        5. Factory Reset and Temporal Continuity
       </h2>
 
       <p>
@@ -248,18 +434,18 @@
       </p>
 
       <p>
-        The analytical difficulty increases when reset-related
-        timestamps do not align with independent evidence. A timestamp
-        associated with a reset should therefore be evaluated as one
-        component of the timeline rather than treated as an isolated
-        chronological fact.
+        A reset timestamp should therefore be evaluated as one component
+        of the timeline rather than treated as an isolated chronological
+        fact.
       </p>
 
 
-      <!-- 5 -->
+      <!-- ===================================================
+           6. ARTIFACT SOURCES
+           =================================================== -->
 
       <h2>
-        5. Artifact Sources
+        6. Artifact Sources
       </h2>
 
       <p>
@@ -298,10 +484,12 @@
       </p>
 
 
-      <!-- 6 -->
+      <!-- ===================================================
+           7. CONFIGURATION
+           =================================================== -->
 
       <h2>
-        6. Configuration Artifacts and Developer Mode
+        7. Configuration Artifacts and Developer Mode
       </h2>
 
       <p>
@@ -315,16 +503,21 @@
         Their presence should not, however, be interpreted independently
         as evidence of malicious activity. USB debugging may be enabled
         for legitimate development, troubleshooting, device management,
-        testing, or forensic purposes. Its significance depends on the
-        surrounding evidence and the circumstances in which the
-        configuration was observed.
+        testing, or forensic purposes.
+      </p>
+
+      <p>
+        Its significance depends on the surrounding evidence and the
+        circumstances in which the configuration was observed.
       </p>
 
 
-      <!-- 7 -->
+      <!-- ===================================================
+           8. ANALYTICAL FRAMEWORK
+           =================================================== -->
 
       <h2>
-        7. Analytical Framework
+        8. Analytical Framework
       </h2>
 
       <p>
@@ -364,10 +557,12 @@
       </p>
 
 
-      <!-- 8 -->
+      <!-- ===================================================
+           9. TIMELINE RECONSTRUCTION
+           =================================================== -->
 
       <h2>
-        8. Effects on Timeline Reconstruction
+        9. Cross-Artifact Timeline Reconstruction
       </h2>
 
       <p>
@@ -379,26 +574,59 @@
       </p>
 
       <p>
-        Potentially affected evidence may include application launches,
-        file activity, searches, messages, calls, notifications,
-        screenshots, downloaded media, configuration changes,
-        synchronization events, and other operating-system activity.
+        The following simplified reconstruction demonstrates how an
+        examiner might approach a temporal discrepancy without assuming
+        that any individual device timestamp represents independent
+        chronological truth.
       </p>
 
       <p>
-        This does not mean that every timestamp associated with such
-        activity is necessarily unreliable. Rather, the temporal
-        provenance of the record must be considered. Investigators
-        should determine whether the timestamp originates from the
-        device itself, an application, a service-side system, or an
-        independent external source.
+        <strong>Example timeline:</strong>
+      </p>
+
+      <p>
+        <strong>Event A — Reset-related record:</strong>
+        Device contains a reset record associated with Date A.
+      </p>
+
+      <p>
+        <strong>Event B — Boot/current-time value:</strong>
+        A separate system value contains Date B, which differs from
+        Date A.
+      </p>
+
+      <p>
+        <strong>Event C — User-visible artifact:</strong>
+        A screenshot or other device-generated media displays Date C.
+      </p>
+
+      <p>
+        <strong>Event D — Independent record:</strong>
+        A carrier, cloud, network, computer, or other external record
+        establishes Date D independently of the examined device.
+      </p>
+
+      <p>
+        The examiner's task is not simply to select the date that appears
+        most plausible. Instead, each artifact should be evaluated
+        according to its temporal source, reliability, relationship to
+        the other artifacts, and independence from the potentially
+        altered device clock.
+      </p>
+
+      <p>
+        This approach can reveal whether an apparent chronological
+        sequence represents actual event ordering, a shared device-clock
+        state, examiner activity, or a combination of these conditions.
       </p>
 
 
-      <!-- 9 -->
+      <!-- ===================================================
+           10. INDEPENDENT CORROBORATION
+           =================================================== -->
 
       <h2>
-        9. Independent Corroboration
+        10. Independent Corroboration
       </h2>
 
       <p>
@@ -412,24 +640,29 @@
         outside the examined device. Cloud-side records may provide
         another chronological reference when service architecture
         permits. External computers and other devices involved in data
-        transfer may preserve independent event records. Multiple
-        application databases may also be compared to determine
-        whether temporal relationships remain consistent.
+        transfer may preserve independent event records.
       </p>
 
       <p>
+        Multiple application databases may also be compared to
+        determine whether temporal relationships remain consistent.
         Corroboration is particularly important when several artifacts
         share the same potentially compromised temporal source.
-        Agreement among those artifacts does not necessarily establish
-        independent accuracy if they all derive their timestamps from
-        the same device clock.
+      </p>
+
+      <p>
+        Agreement among several artifacts does not necessarily establish
+        independent accuracy if all of those artifacts derive their
+        timestamps from the same device clock.
       </p>
 
 
-      <!-- 10 -->
+      <!-- ===================================================
+           11. EXAMINER ACTIVITY
+           =================================================== -->
 
       <h2>
-        10. Examiner-Created Artifacts
+        11. Examiner-Created Artifacts
       </h2>
 
       <p>
@@ -442,10 +675,13 @@
       <p>
         The distinction becomes particularly important when evaluating
         timestamps after a device's date, time, time zone, or
-        configuration state has changed. Examination records should
-        therefore preserve sufficient documentation to establish what
-        actions were performed, when they were performed, and what
-        device state existed at the time.
+        configuration state has changed.
+      </p>
+
+      <p>
+        Examination records should therefore preserve sufficient
+        documentation to establish what actions were performed, when
+        they were performed, and what device state existed at the time.
       </p>
 
       <p>
@@ -455,10 +691,12 @@
       </p>
 
 
-      <!-- 11 -->
+      <!-- ===================================================
+           12. ANTI-FORENSIC CONSIDERATIONS
+           =================================================== -->
 
       <h2>
-        11. Anti-Forensic Considerations
+        12. Anti-Forensic Considerations
       </h2>
 
       <p>
@@ -484,10 +722,12 @@
       </p>
 
 
-      <!-- 12 -->
+      <!-- ===================================================
+           13. FORENSIC APPROACH
+           =================================================== -->
 
       <h2>
-        12. Forensic Approach
+        13. Forensic Approach
       </h2>
 
       <p>
@@ -516,10 +756,12 @@
       </p>
 
 
-      <!-- 13 -->
+      <!-- ===================================================
+           14. LIMITATIONS
+           =================================================== -->
 
       <h2>
-        13. Limitations
+        14. Limitations
       </h2>
 
       <p>
@@ -540,10 +782,12 @@
       </p>
 
 
-      <!-- 14 -->
+      <!-- ===================================================
+           15. CONCLUSION
+           =================================================== -->
 
       <h2>
-        14. Conclusion
+        15. Conclusion
       </h2>
 
       <p>
@@ -572,7 +816,9 @@
       </p>
 
 
-      <!-- REFERENCES -->
+      <!-- ===================================================
+           REFERENCES
+           =================================================== -->
 
       <h2>
         References
@@ -649,3 +895,4 @@
 
 </body>
 </html>
+
