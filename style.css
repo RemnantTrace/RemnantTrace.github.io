@@ -36,6 +36,11 @@ footer {
   margin:auto;
 }
 
+
+/* =========================
+   HEADER
+   ========================= */
+
 header {
   padding:22px 0;
   border-bottom:1px solid var(--line);
@@ -78,6 +83,11 @@ nav a:hover,
 nav a.active {
   color:var(--green);
 }
+
+
+/* =========================
+   HERO
+   ========================= */
 
 .hero {
   min-height:78vh;
@@ -128,6 +138,11 @@ nav a.active {
   font-size:18px;
 }
 
+
+/* =========================
+   BUTTONS
+   ========================= */
+
 .actions {
   display:flex;
   gap:12px;
@@ -156,6 +171,11 @@ nav a.active {
   transform:translateY(-1px);
 }
 
+
+/* =========================
+   SECTIONS
+   ========================= */
+
 .split {
   padding:110px 0;
   border-top:1px solid var(--line);
@@ -175,6 +195,11 @@ nav a.active {
   color:var(--muted);
   max-width:780px;
 }
+
+
+/* =========================
+   STANDARD CARDS
+   ========================= */
 
 .cards {
   display:grid;
@@ -205,6 +230,128 @@ nav a.active {
   margin:0;
 }
 
+
+/* =========================
+   RESEARCH CARDS
+   ========================= */
+
+.research-cards {
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:14px;
+}
+
+
+/* Individual research box */
+
+.research-card {
+  background:var(--panel);
+  border:1px solid var(--line);
+  min-height:220px;
+  transition:
+    border-color .2s ease,
+    transform .2s ease;
+}
+
+.research-card:hover {
+  border-color:#506047;
+}
+
+.research-card[open] {
+  border-color:#506047;
+}
+
+
+/* Clickable portion */
+
+.research-card summary {
+  list-style:none;
+  cursor:pointer;
+
+  padding:30px;
+
+  min-height:220px;
+
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+}
+
+.research-card summary::-webkit-details-marker {
+  display:none;
+}
+
+.research-card summary::marker {
+  display:none;
+}
+
+
+/* Number */
+
+.research-card summary b {
+  font:11px 'Space Mono',monospace;
+  color:var(--green);
+  letter-spacing:.12em;
+}
+
+
+/* Title */
+
+.research-card h3 {
+  font-size:23px;
+  line-height:1.2;
+  margin:24px 0 0;
+  letter-spacing:-.02em;
+}
+
+
+/* Read More / Read Less */
+
+.read-more {
+  margin-top:auto;
+  padding-top:25px;
+
+  color:var(--muted);
+
+  font:10px 'Space Mono',monospace;
+  letter-spacing:.1em;
+
+  transition:color .2s ease;
+}
+
+.research-card summary:hover .read-more {
+  color:var(--green);
+}
+
+.research-card[open] .read-more {
+  color:var(--green);
+}
+
+
+/* Expanded research text */
+
+.research-card-content {
+  padding:0 30px 30px;
+  border-top:1px solid var(--line);
+}
+
+.research-card-content p {
+  color:var(--muted);
+  font-size:14px;
+  line-height:1.75;
+  margin:20px 0 0;
+  max-width:780px;
+}
+
+.research-card-content p:first-child {
+  margin-top:24px;
+}
+
+
+/* =========================
+   TEXT LINKS
+   ========================= */
+
 .textlink {
   display:inline-block;
   margin-top:12px;
@@ -213,6 +360,11 @@ nav a.active {
   border-bottom:1px solid var(--green);
   padding-bottom:4px;
 }
+
+
+/* =========================
+   ARCHIVE
+   ========================= */
 
 .archive {
   border-top:1px solid var(--line);
@@ -232,6 +384,11 @@ nav a.active {
   margin:0;
   font-size:13px;
 }
+
+
+/* =========================
+   FORMS
+   ========================= */
 
 form {
   max-width:800px;
@@ -285,6 +442,11 @@ textarea {
   color:#ff7777!important;
 }
 
+
+/* =========================
+   FOOTER
+   ========================= */
+
 footer {
   padding:50px 0 65px;
   border-top:1px solid var(--line);
@@ -305,6 +467,11 @@ footer small {
   display:block;
   margin-top:35px;
 }
+
+
+/* =========================
+   MOBILE
+   ========================= */
 
 @media(max-width:760px) {
 
@@ -348,4 +515,13 @@ footer small {
   .cards {
     grid-template-columns:1fr;
   }
+
+  .research-cards {
+    grid-template-columns:1fr;
+  }
+
+  .research-card summary {
+    min-height:200px;
+  }
+
 }
