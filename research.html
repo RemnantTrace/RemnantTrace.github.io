@@ -28,6 +28,7 @@
 <main>
 
 <section class="pagehero">
+
   <p class="eyebrow">02 / RESEARCH</p>
 
   <h1>Areas of investigation.</h1>
@@ -36,41 +37,54 @@
     Research projects explore the technical conditions that produce, preserve,
     alter, and expose digital traces.
   </p>
+
 </section>
 
 
 <section class="split">
 
-  <div class="label">RESEARCH AREAS</div>
+  <div class="label">
+    RESEARCH AREAS
+  </div>
 
-  <div class="research-list">
+  <div class="research-cards">
 
 
-    <details class="research-item">
+    <!-- 01 -->
+
+    <details class="research-card">
 
       <summary>
-        <span class="research-number">01</span>
 
-        <span class="research-title">
+        <b>01</b>
+
+        <h3>
           Digital Forensics
-        </span>
+        </h3>
 
-        <span class="research-toggle">
+        <span class="read-more">
           READ MORE
         </span>
+
       </summary>
 
-      <div class="research-content">
+      <div class="research-card-content">
 
         <p>
-          Examining forensic artifacts, acquisition methods, analysis
-          techniques, and the behavior of digital evidence.
+          Research into forensic artifacts produced by operating systems,
+          applications, devices, and user activity.
         </p>
 
         <p>
-          Research may examine where artifacts are created, how they change,
-          what survives common user actions, and what acquisition or analysis
-          conditions affect their visibility.
+          Studies may examine where artifacts originate, what information
+          they contain, how they change over time, and which traces remain
+          after actions such as modification, deletion, synchronization,
+          or system changes.
+        </p>
+
+        <p>
+          Research considers the conditions under which an artifact appears,
+          changes, disappears, or remains available for forensic examination.
         </p>
 
       </div>
@@ -78,31 +92,41 @@
     </details>
 
 
-    <details class="research-item">
+    <!-- 02 -->
+
+    <details class="research-card">
 
       <summary>
-        <span class="research-number">02</span>
 
-        <span class="research-title">
+        <b>02</b>
+
+        <h3>
           Digital Evidence
-        </span>
+        </h3>
 
-        <span class="research-toggle">
+        <span class="read-more">
           READ MORE
         </span>
+
       </summary>
 
-      <div class="research-content">
+      <div class="research-card-content">
 
         <p>
-          Studying how information is created, stored, synchronized,
-          recovered, interpreted, and retained across digital systems.
+          Research examining how digital information moves through different
+          states from creation and storage to synchronization, modification,
+          deletion, recovery, and retention.
         </p>
 
         <p>
-          Research considers the transitions between creation, storage,
-          synchronization, modification, deletion, recovery, and
-          interpretation.
+          Studies may compare how the same information is represented across
+          devices, applications, file systems, cloud services, and other
+          digital environments.
+        </p>
+
+        <p>
+          Particular attention is given to transitions between systems and
+          the changes that occur as information moves between them.
         </p>
 
       </div>
@@ -110,30 +134,41 @@
     </details>
 
 
-    <details class="research-item">
+    <!-- 03 -->
+
+    <details class="research-card">
 
       <summary>
-        <span class="research-number">03</span>
 
-        <span class="research-title">
+        <b>03</b>
+
+        <h3>
           Emerging Technology
-        </span>
+        </h3>
 
-        <span class="research-toggle">
+        <span class="read-more">
           READ MORE
         </span>
+
       </summary>
 
-      <div class="research-content">
+      <div class="research-card-content">
 
         <p>
-          Investigating new platforms, applications, devices, services,
-          and technologies as their forensic footprints develop.
+          Investigation of newer platforms, applications, devices, services,
+          and technologies whose forensic characteristics are still developing.
         </p>
 
         <p>
-          Research can document unfamiliar artifacts and behaviors before
-          they become well understood by the broader forensic community.
+          Research may document previously uncharacterized artifacts,
+          behaviors, storage mechanisms, synchronization patterns, and other
+          technical traces.
+        </p>
+
+        <p>
+          Early examination can establish a documented baseline for how new
+          technologies behave before their forensic characteristics become
+          broadly understood.
         </p>
 
       </div>
@@ -141,31 +176,41 @@
     </details>
 
 
-    <details class="research-item">
+    <!-- 04 -->
+
+    <details class="research-card">
 
       <summary>
-        <span class="research-number">04</span>
 
-        <span class="research-title">
+        <b>04</b>
+
+        <h3>
           Forensic Methodology
-        </span>
+        </h3>
 
-        <span class="research-toggle">
+        <span class="read-more">
           READ MORE
         </span>
+
       </summary>
 
-      <div class="research-content">
+      <div class="research-card-content">
 
         <p>
-          Testing repeatable approaches and documenting the conditions,
-          limitations, and observations behind research findings.
+          Development and evaluation of repeatable approaches for examining
+          digital artifacts and evidence behavior.
         </p>
 
         <p>
-          Methods should identify inputs, environment, actions, acquisition
-          conditions, observations, and limitations so results can be
-          evaluated and repeated.
+          Experiments may define the system environment, inputs, user actions,
+          acquisition conditions, analytical methods, and expected observations
+          before testing begins.
+        </p>
+
+        <p>
+          Findings are documented alongside relevant limitations and
+          uncertainties so that observations can be evaluated, reproduced,
+          and compared across experiments.
         </p>
 
       </div>
@@ -180,7 +225,9 @@
 
 <section class="split">
 
-  <div class="label">PROJECT MODEL</div>
+  <div class="label">
+    PROJECT MODEL
+  </div>
 
   <div>
 
@@ -189,8 +236,8 @@
     </h2>
 
     <p>
-      Projects are structured around defined questions, controlled
-      conditions, documented observations, and transparent limitations.
+      Projects are structured around defined questions, controlled conditions,
+      documented observations, and transparent limitations.
     </p>
 
   </div>
@@ -215,6 +262,25 @@
   </small>
 
 </footer>
+
+
+<script>
+
+document.querySelectorAll('.research-card').forEach((card) => {
+
+  const toggle = card.querySelector('.read-more');
+
+  card.addEventListener('toggle', () => {
+
+    toggle.textContent = card.open
+      ? 'READ LESS'
+      : 'READ MORE';
+
+  });
+
+});
+
+</script>
 
 </body>
 </html>
