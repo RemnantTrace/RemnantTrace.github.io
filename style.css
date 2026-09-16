@@ -232,7 +232,7 @@ nav a.active {
 
 
 /* =========================
-   RESEARCH CARDS
+   RESEARCH DROPDOWN CARDS
    ========================= */
 
 .research-cards {
@@ -242,12 +242,15 @@ nav a.active {
 }
 
 
-/* Individual research box */
+/* The actual box */
 
 .research-card {
+  display:block;
+  width:100%;
   background:var(--panel);
   border:1px solid var(--line);
   min-height:220px;
+  overflow:hidden;
   transition:
     border-color .2s ease,
     transform .2s ease;
@@ -255,26 +258,20 @@ nav a.active {
 
 .research-card:hover {
   border-color:#506047;
+  transform:translateY(-3px);
 }
 
 .research-card[open] {
   border-color:#506047;
+  transform:none;
 }
 
 
-/* Clickable portion */
+/* Remove browser triangle */
 
 .research-card summary {
   list-style:none;
   cursor:pointer;
-
-  padding:30px;
-
-  min-height:220px;
-
-  display:flex;
-  flex-direction:column;
-  align-items:flex-start;
 }
 
 .research-card summary::-webkit-details-marker {
@@ -286,11 +283,25 @@ nav a.active {
 }
 
 
+/* Closed card layout */
+
+.research-card summary {
+  min-height:220px;
+  padding:30px;
+
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  justify-content:flex-start;
+}
+
+
 /* Number */
 
 .research-card summary b {
-  font:11px 'Space Mono',monospace;
+  display:block;
   color:var(--green);
+  font:11px 'Space Mono',monospace;
   letter-spacing:.12em;
 }
 
@@ -298,16 +309,18 @@ nav a.active {
 /* Title */
 
 .research-card h3 {
+  margin:24px 0 0;
+
   font-size:23px;
   line-height:1.2;
-  margin:24px 0 0;
   letter-spacing:-.02em;
 }
 
 
-/* Read More / Read Less */
+/* Read more button */
 
 .read-more {
+  display:block;
   margin-top:auto;
   padding-top:25px;
 
@@ -328,23 +341,23 @@ nav a.active {
 }
 
 
-/* Expanded research text */
+/* Expanded section inside the same box */
 
-.research-card-content {
-  padding:0 30px 30px;
+.research-content {
   border-top:1px solid var(--line);
+  padding:24px 30px 30px;
 }
 
-.research-card-content p {
+.research-content p {
   color:var(--muted);
   font-size:14px;
   line-height:1.75;
-  margin:20px 0 0;
   max-width:780px;
+  margin:0 0 18px;
 }
 
-.research-card-content p:first-child {
-  margin-top:24px;
+.research-content p:last-child {
+  margin-bottom:0;
 }
 
 
