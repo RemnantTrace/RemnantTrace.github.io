@@ -18,6 +18,7 @@
 html,
 body {
   margin:0;
+  padding:0;
   background:var(--black);
   color:var(--text);
   font-family:Inter,Arial,sans-serif;
@@ -37,12 +38,14 @@ footer {
 }
 
 
-/* =========================
+/* =========================================================
    HEADER
-   ========================= */
+   ========================================================= */
 
 header {
-  padding:22px 0;
+  height:102px;
+  padding:16px 0;
+
   border-bottom:1px solid var(--line);
 
   display:flex;
@@ -75,6 +78,8 @@ header {
 
 nav {
   display:flex;
+  align-items:center;
+
   gap:26px;
 
   flex-wrap:wrap;
@@ -87,6 +92,8 @@ nav a {
   font:12px 'Space Mono',monospace;
 
   letter-spacing:.06em;
+
+  transition:color .2s ease;
 }
 
 nav a:hover,
@@ -95,29 +102,37 @@ nav a.active {
 }
 
 
-/* =========================
+/* =========================================================
    HERO
-   ========================= */
+   ========================================================= */
 
 .hero {
-  min-height:78vh;
+  min-height:740px;
 
   display:grid;
 
   /*
-    Large text area on the left.
-    Smaller image area on the right.
+     More room for the headline.
+     The image gets its own substantial column
+     instead of being squeezed into a tiny box.
   */
-  grid-template-columns:minmax(0,1fr) 360px;
+  grid-template-columns:minmax(0,1.45fr) minmax(380px,.85fr);
 
   align-items:center;
 
-  gap:45px;
+  gap:25px;
 
   position:relative;
 
   overflow:hidden;
+
+  border-bottom:1px solid var(--line);
 }
+
+
+/* =========================================================
+   HERO GRID
+   ========================================================= */
 
 .grid {
   position:absolute;
@@ -139,17 +154,25 @@ nav a.active {
 
   mask-image:linear-gradient(
     to bottom,
-    black,
-    transparent 75%
+    black 0%,
+    black 45%,
+    transparent 100%
+  );
+
+  -webkit-mask-image:linear-gradient(
+    to bottom,
+    black 0%,
+    black 45%,
+    transparent 100%
   );
 
   pointer-events:none;
 }
 
 
-/* =========================
+/* =========================================================
    HERO CONTENT
-   ========================= */
+   ========================================================= */
 
 .hero-content {
   position:relative;
@@ -159,12 +182,13 @@ nav a.active {
   min-width:0;
 
   max-width:760px;
+
+  padding:40px 0;
 }
 
-.eyebrow,
-.label,
-.card b,
-.archive span {
+.eyebrow {
+  margin:0;
+
   font:11px 'Space Mono',monospace;
 
   color:var(--green);
@@ -172,88 +196,59 @@ nav a.active {
   letter-spacing:.12em;
 }
 
-.hero h1,
-.pagehero h1 {
-  font-size:clamp(52px,6.5vw,92px);
 
-  line-height:.98;
+/* =========================================================
+   HERO HEADLINE
+   ========================================================= */
 
-  letter-spacing:-.055em;
+.hero h1 {
+  font-size:clamp(56px,6.2vw,88px);
 
-  max-width:760px;
+  line-height:.94;
 
-  margin:18px 0 26px;
+  letter-spacing:-.06em;
+
+  max-width:720px;
+
+  margin:20px 0 28px;
 
   position:relative;
+
+  font-weight:700;
 }
 
 .hero h1 span {
   color:var(--green);
 }
 
+
+/* =========================================================
+   HERO DESCRIPTION
+   ========================================================= */
+
 .lead {
-  max-width:700px;
+  max-width:690px;
+
+  margin:0;
 
   color:var(--muted);
 
-  font-size:18px;
+  font-size:17px;
+
+  line-height:1.65;
 }
 
 
-/* =========================
-   HERO IMAGE
-   ========================= */
-
-.hero-image {
-  position:relative;
-
-  z-index:2;
-
-  width:100%;
-
-  display:flex;
-
-  justify-content:center;
-
-  align-items:center;
-}
-
-.hero-image img {
-  display:block;
-
-  width:100%;
-
-  max-width:360px;
-
-  height:auto;
-
-  object-fit:contain;
-}
-
-
-/* =========================
-   PAGE HERO
-   ========================= */
-
-.pagehero {
-  padding:110px 0 95px;
-}
-
-.pagehero .lead {
-  max-width:700px;
-}
-
-
-/* =========================
-   BUTTONS
-   ========================= */
+/* =========================================================
+   HERO BUTTONS
+   ========================================================= */
 
 .actions {
   display:flex;
 
   gap:12px;
 
-  margin-top:28px;
+  margin-top:30px;
 
   flex-wrap:wrap;
 }
@@ -274,6 +269,12 @@ nav a.active {
   color:var(--text);
 
   cursor:pointer;
+
+  transition:
+    background .2s ease,
+    border-color .2s ease,
+    color .2s ease,
+    transform .2s ease;
 }
 
 .btn.primary {
@@ -285,13 +286,122 @@ nav a.active {
 }
 
 .btn:hover {
-  transform:translateY(-1px);
+  transform:translateY(-2px);
+}
+
+.btn:not(.primary):hover {
+  border-color:var(--green);
+
+  color:var(--green);
 }
 
 
-/* =========================
+/* =========================================================
+   HERO IMAGE
+   ========================================================= */
+
+.hero-image {
+  position:relative;
+
+  z-index:2;
+
+  width:100%;
+
+  height:100%;
+
+  min-height:500px;
+
+  display:flex;
+
+  justify-content:center;
+
+  align-items:center;
+
+  /*
+     Pull the image slightly toward the text.
+     This makes it feel like part of the hero,
+     rather than a separate card.
+  */
+  margin-left:-15px;
+}
+
+.hero-image img {
+  display:block;
+
+  width:min(100%,480px);
+
+  max-width:480px;
+
+  height:auto;
+
+  object-fit:contain;
+
+  /*
+     Makes the black background of the PNG
+     visually disappear into the page.
+  */
+  mix-blend-mode:screen;
+
+  /*
+     Slightly larger visual presence.
+  */
+  transform:scale(1.08);
+
+  filter:
+    drop-shadow(0 0 25px rgba(140,255,50,.08));
+
+  transition:transform .3s ease;
+}
+
+.hero-image img:hover {
+  transform:scale(1.11);
+}
+
+
+/* =========================================================
+   PAGE HERO
+   ========================================================= */
+
+.pagehero {
+  padding:110px 0 95px;
+}
+
+.pagehero h1 {
+  font-size:clamp(52px,6.5vw,92px);
+
+  line-height:.98;
+
+  letter-spacing:-.055em;
+
+  max-width:760px;
+
+  margin:18px 0 26px;
+}
+
+.pagehero .lead {
+  max-width:700px;
+}
+
+
+/* =========================================================
+   SHARED LABELS
+   ========================================================= */
+
+.eyebrow,
+.label,
+.card b,
+.archive span {
+  font:11px 'Space Mono',monospace;
+
+  color:var(--green);
+
+  letter-spacing:.12em;
+}
+
+
+/* =========================================================
    SECTIONS
-   ========================= */
+   ========================================================= */
 
 .split {
   padding:110px 0;
@@ -324,9 +434,9 @@ nav a.active {
 }
 
 
-/* =========================
+/* =========================================================
    STANDARD CARDS
-   ========================= */
+   ========================================================= */
 
 .cards {
   display:grid;
@@ -346,6 +456,10 @@ nav a.active {
   padding:30px;
 
   min-height:200px;
+
+  transition:
+    border-color .2s ease,
+    transform .2s ease;
 }
 
 .card:hover {
@@ -367,9 +481,9 @@ nav a.active {
 }
 
 
-/* =========================
+/* =========================================================
    RESEARCH CARDS
-   ========================= */
+   ========================================================= */
 
 .research-cards {
   display:grid;
@@ -383,11 +497,6 @@ nav a.active {
 
   width:100%;
 }
-
-
-/* =========================
-   RESEARCH CARD
-   ========================= */
 
 .research-card {
   display:block;
@@ -420,25 +529,15 @@ nav a.active {
 }
 
 
-/* =========================
-   SUMMARY
-   ========================= */
+/* =========================================================
+   RESEARCH SUMMARY
+   ========================================================= */
 
 .research-card summary {
   list-style:none;
 
   cursor:pointer;
-}
 
-.research-card summary::-webkit-details-marker {
-  display:none;
-}
-
-.research-card summary::marker {
-  display:none;
-}
-
-.research-card summary {
   min-height:220px;
 
   padding:30px;
@@ -452,10 +551,18 @@ nav a.active {
   justify-content:flex-start;
 }
 
+.research-card summary::-webkit-details-marker {
+  display:none;
+}
 
-/* =========================
-   NUMBER
-   ========================= */
+.research-card summary::marker {
+  display:none;
+}
+
+
+/* =========================================================
+   RESEARCH NUMBER
+   ========================================================= */
 
 .research-card summary b {
   display:block;
@@ -468,9 +575,9 @@ nav a.active {
 }
 
 
-/* =========================
-   TITLE
-   ========================= */
+/* =========================================================
+   RESEARCH TITLE
+   ========================================================= */
 
 .research-card h3 {
   margin:24px 0 0;
@@ -483,9 +590,9 @@ nav a.active {
 }
 
 
-/* =========================
+/* =========================================================
    READ MORE
-   ========================= */
+   ========================================================= */
 
 .read-more {
   display:block;
@@ -512,9 +619,9 @@ nav a.active {
 }
 
 
-/* =========================
+/* =========================================================
    EXPANDED RESEARCH CONTENT
-   ========================= */
+   ========================================================= */
 
 .research-content {
   border-top:1px solid var(--line);
@@ -539,9 +646,9 @@ nav a.active {
 }
 
 
-/* =========================
+/* =========================================================
    TEXT LINKS
-   ========================= */
+   ========================================================= */
 
 .textlink {
   display:inline-block;
@@ -555,12 +662,18 @@ nav a.active {
   border-bottom:1px solid var(--green);
 
   padding-bottom:4px;
+
+  transition:opacity .2s ease;
+}
+
+.textlink:hover {
+  opacity:.75;
 }
 
 
-/* =========================
+/* =========================================================
    ARCHIVE
-   ========================= */
+   ========================================================= */
 
 .archive {
   border-top:1px solid var(--line);
@@ -585,9 +698,9 @@ nav a.active {
 }
 
 
-/* =========================
+/* =========================================================
    FORMS
-   ========================= */
+   ========================================================= */
 
 form {
   max-width:800px;
@@ -658,9 +771,9 @@ textarea {
 }
 
 
-/* =========================
+/* =========================================================
    FOOTER
-   ========================= */
+   ========================================================= */
 
 footer {
   padding:50px 0 65px;
@@ -688,16 +801,47 @@ footer small {
 }
 
 
-/* =========================
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media(max-width:950px) {
+
+  .hero {
+    grid-template-columns:minmax(0,1fr) 330px;
+
+    gap:10px;
+  }
+
+  .hero h1 {
+    font-size:clamp(52px,7vw,76px);
+  }
+
+  .hero-image img {
+    width:100%;
+    max-width:390px;
+  }
+
+  nav {
+    gap:18px;
+  }
+}
+
+
+/* =========================================================
    MOBILE
-   ========================= */
+   ========================================================= */
 
 @media(max-width:760px) {
 
   header {
+    height:auto;
+
     align-items:flex-start;
 
     flex-direction:column;
+
+    padding:18px 0 20px;
   }
 
   .brand {
@@ -717,51 +861,84 @@ footer small {
   }
 
 
-  /* =========================
+  /* -------------------------
      MOBILE HERO
-     ========================= */
+     ------------------------- */
 
   .hero {
-    min-height:72vh;
+    min-height:auto;
 
     grid-template-columns:1fr;
 
-    gap:40px;
+    gap:10px;
 
-    padding:70px 0;
+    padding:65px 0 70px;
   }
 
   .hero-content {
     max-width:100%;
+
+    padding:0;
   }
 
-  .hero-image {
-    justify-content:flex-start;
+  .hero h1 {
+    font-size:clamp(52px,15vw,78px);
 
-    max-width:380px;
-  }
+    line-height:.94;
 
-  .hero-image img {
-    max-width:100%;
+    margin:18px 0 24px;
   }
 
   .lead {
     font-size:16px;
+
+    line-height:1.65;
+  }
+
+  .actions {
+    margin-top:26px;
   }
 
 
-  /* =========================
+  /* -------------------------
+     MOBILE IMAGE
+     ------------------------- */
+
+  .hero-image {
+    min-height:0;
+
+    height:auto;
+
+    justify-content:center;
+
+    margin:20px 0 0;
+  }
+
+  .hero-image img {
+    width:min(100%,420px);
+
+    max-width:420px;
+
+    transform:none;
+  }
+
+  .hero-image img:hover {
+    transform:none;
+  }
+
+
+  /* -------------------------
      MOBILE PAGE HERO
-     ========================= */
+     ------------------------- */
 
   .pagehero {
     padding:75px 0 80px;
   }
 
 
-  /* =========================
+  /* -------------------------
      MOBILE SECTIONS
-     ========================= */
+     ------------------------- */
 
   .split {
     grid-template-columns:1fr;
@@ -772,9 +949,9 @@ footer small {
   }
 
 
-  /* =========================
+  /* -------------------------
      MOBILE CARDS
-     ========================= */
+     ------------------------- */
 
   .cards {
     grid-template-columns:1fr;
