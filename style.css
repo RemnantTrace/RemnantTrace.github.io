@@ -44,18 +44,17 @@ header {
   justify-content:space-between;
   gap:30px;
 }
-
 .brand {
-  display:flex;
-  align-items:center;
-  flex-shrink:0;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
 }
 
 .brand img {
-  display:block;
-  height:42px;
-  width:auto;
-  max-width:280px;
+  display: block;
+  height: 30px;
+  width: auto;
+  max-width: 200px;
 }
 
 nav {
