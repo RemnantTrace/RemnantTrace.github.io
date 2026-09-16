@@ -91,9 +91,19 @@ nav a.active {
 
 .hero {
   min-height:78vh;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
+
+  display:grid;
+
+  /*
+    Left side = text
+    Right side = image
+  */
+  grid-template-columns:minmax(0,1fr) 410px;
+
+  align-items:center;
+
+  gap:70px;
+
   position:relative;
   overflow:hidden;
 }
@@ -101,12 +111,31 @@ nav a.active {
 .grid {
   position:absolute;
   inset:0;
+
   background-image:
     linear-gradient(rgba(140,255,50,.035) 1px,transparent 1px),
     linear-gradient(90deg,rgba(140,255,50,.035) 1px,transparent 1px);
+
   background-size:55px 55px;
-  mask-image:linear-gradient(to bottom,black,transparent 75%);
+
+  mask-image:linear-gradient(
+    to bottom,
+    black,
+    transparent 75%
+  );
+
   pointer-events:none;
+}
+
+
+/* =========================
+   HERO CONTENT
+   ========================= */
+
+.hero-content {
+  position:relative;
+  z-index:2;
+  min-width:0;
 }
 
 .eyebrow,
@@ -136,6 +165,33 @@ nav a.active {
   max-width:700px;
   color:var(--muted);
   font-size:18px;
+}
+
+
+/* =========================
+   HERO IMAGE
+   ========================= */
+
+.hero-image {
+  position:relative;
+  z-index:2;
+
+  width:100%;
+
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+.hero-image img {
+  display:block;
+
+  width:100%;
+  max-width:410px;
+
+  height:auto;
+
+  object-fit:contain;
 }
 
 
@@ -195,10 +251,8 @@ nav a.active {
 
   display:grid;
 
-  /* Gives the cards more room */
   grid-template-columns:150px 1fr;
 
-  /* Less awkward empty space between label and cards */
   gap:35px;
 
   align-items:start;
@@ -273,7 +327,6 @@ nav a.active {
   background:var(--panel);
   border:1px solid var(--line);
 
-  /* Consistent closed-card height */
   min-height:220px;
 
   overflow:hidden;
@@ -310,16 +363,6 @@ nav a.active {
 .research-card summary::marker {
   display:none;
 }
-
-
-/*
-   IMPORTANT FIX:
-   Previously READ MORE used margin-top:auto.
-   That pushed it all the way toward the bottom
-   of the card and created the huge empty space.
-
-   Now everything flows naturally.
-*/
 
 .research-card summary {
   min-height:220px;
@@ -366,11 +409,6 @@ nav a.active {
 .read-more {
   display:block;
 
-  /*
-    Keeps READ MORE underneath
-    the title instead of pushing
-    it to the bottom.
-  */
   margin-top:58px;
 
   padding-top:0;
@@ -582,6 +620,21 @@ footer small {
 
   .hero {
     min-height:72vh;
+
+    grid-template-columns:1fr;
+
+    gap:45px;
+
+    padding:70px 0;
+  }
+
+  .hero-image {
+    justify-content:flex-start;
+    max-width:430px;
+  }
+
+  .hero-image img {
+    max-width:100%;
   }
 
   .lead {
