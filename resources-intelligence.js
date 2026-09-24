@@ -1,9 +1,17 @@
 /* =========================================================
    REMNANTTRACE INTELLIGENCE
-   RansomLook API interface
+   RansomLook interface
    ========================================================= */
 
-const RT_API = "https://www.ransomlook.io/api/";
+/*
+ * PUT YOUR GOOGLE APPS SCRIPT /exec URL HERE
+ *
+ * Example:
+ * https://script.google.com/macros/s/XXXXXXXX/exec
+ */
+
+const RT_PROXY =
+  "YOUR_GOOGLE_APPS_SCRIPT_EXEC_URL";
 
 
 const searchInput =
@@ -36,33 +44,116 @@ const filters =
 
 let currentResults = [];
 
-let currentType = "all";
-
 
 /* =========================================================
-   API REQUEST
+   JSONP REQUEST
    ========================================================= */
 
-async function rtFetch(endpoint) {
+function rtFetch(action, parameter = "") {
 
-  const response = await fetch(
-    `${RT_API}${endpoint}`,
-    {
-      method: "GET",
+  return new Promise((resolve, reject) => {
 
-      headers: {
-        "Accept": "application/json"
+    const callbackName =
+      "rtCallback_" +
+      Date.now() +
+      "_" +
+      Math.random()
+        .toString(36)
+        .substring(2);
+
+    const script =
+      document.createElement("script");
+
+    const timeout =
+      setTimeout(() => {
+
+        cleanup();
+
+        reject(
+          new Error(
+            "Request timed out."
+          )
+        );
+
+      }, 20000);
+
+
+    function cleanup() {
+
+      clearTimeout(timeout);
+
+      if (script.parentNode) {
+        script.parentNode.removeChild(script);
       }
+
+      try {
+        delete window[callbackName];
+      } catch (e) {
+        window[callbackName] = undefined;
+      }
+
     }
-  );
 
-  if (!response.ok) {
-    throw new Error(
-      `API request failed: ${response.status}`
-    );
-  }
 
-  return await response.json();
+    window[callbackName] =
+      function(data) {
+
+        cleanup();
+
+        if (
+          data &&
+          data.error
+        ) {
+
+          reject(
+            new Error(data.error)
+          );
+
+          return;
+        }
+
+        resolve(data);
+
+      };
+
+
+    let url =
+      RT_PROXY +
+      "?action=" +
+      encodeURIComponent(action) +
+      "&callback=" +
+      encodeURIComponent(callbackName);
+
+
+    if (parameter) {
+
+      url +=
+        "&q=" +
+        encodeURIComponent(parameter);
+
+    }
+
+
+    script.src = url;
+
+    script.onerror =
+      function() {
+
+        cleanup();
+
+        reject(
+          new Error(
+            "Unable to contact the intelligence service."
+          )
+        );
+
+      };
+
+
+    document.body.appendChild(script);
+
+  });
+
 }
 
 
@@ -72,7 +163,10 @@ async function rtFetch(endpoint) {
 
 function escapeHTML(value) {
 
-  if (value === null || value === undefined) {
+  if (
+    value === null ||
+    value === undefined
+  ) {
     return "";
   }
 
@@ -82,6 +176,7 @@ function escapeHTML(value) {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
+
 }
 
 
@@ -95,10 +190,17 @@ function formatDate(value) {
     return "DATE UNKNOWN";
   }
 
-  const date = new Date(value);
+  const date =
+    new Date(value);
 
-  if (Number.isNaN(date.getTime())) {
+  if (
+    Number.isNaN(
+      date.getTime()
+    )
+  ) {
+
     return escapeHTML(value);
+
   }
 
   return date.toLocaleString(
@@ -111,6 +213,57 @@ function formatDate(value) {
       minute: "2-digit"
     }
   );
+
+}
+
+
+/* =========================================================
+   NORMALIZE RESPONSE
+   ========================================================= */
+
+function normalizeArray(data) {
+
+  if (Array.isArray(data)) {
+    return data;
+  }
+
+  if (
+    data &&
+    Array.isArray(data.results)
+  ) {
+    return data.results;
+  }
+
+  if (
+    data &&
+    Array.isArray(data.posts)
+  ) {
+    return data.posts;
+  }
+
+  if (
+    data &&
+    Array.isArray(data.groups)
+  ) {
+    return data.groups;
+  }
+
+  if (
+    data &&
+    Array.isArray(data.actors)
+  ) {
+    return data.actors;
+  }
+
+  if (
+    data &&
+    Array.isArray(data.markets)
+  ) {
+    return data.markets;
+  }
+
+  return [];
+
 }
 
 
@@ -127,6 +280,7 @@ function showLoading() {
   `;
 
   resultsCount.textContent = "";
+
 }
 
 
@@ -143,6 +297,7 @@ function showError(message) {
   `;
 
   resultsCount.textContent = "";
+
 }
 
 
@@ -158,42 +313,108 @@ function showEmpty(message) {
     </div>
   `;
 
-  resultsCount.textContent = "0 RESULTS";
+  resultsCount.textContent =
+    "0 RESULTS";
+
 }
 
 
 /* =========================================================
-   SEARCH POSTS
+   SEARCH
    ========================================================= */
 
-async function searchPosts(query) {
+async function performSearch() {
 
-  const encoded =
-    encodeURIComponent(query);
+  const query =
+    searchInput.value.trim();
 
-  return await rtFetch(
-    `/search?query=${encoded}`
-  );
+
+  if (!query) {
+
+    loadRecent();
+
+    return;
+
+  }
+
+
+  if (query.length < 2) {
+
+    showEmpty(
+      "Enter at least two characters."
+    );
+
+    return;
+
+  }
+
+
+  showLoading();
+
+
+  resultsTitle.textContent =
+    "SEARCH / " + query;
+
+
+  try {
+
+    const data =
+      await rtFetch(
+        "search",
+        query
+      );
+
+
+    currentResults =
+      normalizeArray(data);
+
+
+    renderPosts(
+      currentResults,
+      "SEARCH RESULTS"
+    );
+
+
+  } catch (error) {
+
+    console.error(error);
+
+    showError(
+      "Search could not be completed."
+    );
+
+  }
+
 }
 
 
 /* =========================================================
-   LOAD RECENT POSTS
+   RECENT POSTS
    ========================================================= */
 
 async function loadRecent() {
 
   showLoading();
 
+  resultsTitle.textContent =
+    "RECENT ACTIVITY";
+
+
   try {
 
     const data =
-      await rtFetch("/posts?days=3");
+      await rtFetch("recent");
+
 
     currentResults =
-      Array.isArray(data) ? data : [];
+      normalizeArray(data);
 
-    renderPosts(currentResults);
+
+    renderPosts(
+      currentResults,
+      "RECENT ACTIVITY"
+    );
+
 
   } catch (error) {
 
@@ -212,207 +433,88 @@ async function loadRecent() {
    RENDER POSTS
    ========================================================= */
 
-function renderPosts(posts) {
+function renderPosts(
+  posts,
+  title
+) {
 
   resultsTitle.textContent =
-    "RECENT ACTIVITY";
+    title;
+
 
   resultsCount.textContent =
     `${posts.length} RESULTS`;
 
+
   if (!posts.length) {
-
-    showEmpty(
-      "No recent intelligence was returned."
-    );
-
-    return;
-  }
-
-
-  results.innerHTML =
-    posts.map((post, index) => {
-
-      const group =
-        post.group_name || "UNKNOWN GROUP";
-
-      const title =
-        post.post_title || "UNTITLED POST";
-
-      const discovered =
-        post.discovered || "";
-
-      return `
-
-        <article
-          class="rt-result"
-          data-index="${index}"
-        >
-
-          <div class="rt-result-type">
-            POST
-          </div>
-
-          <div>
-
-            <h3 class="rt-result-title">
-              ${escapeHTML(title)}
-            </h3>
-
-            <div class="rt-result-meta">
-              GROUP /
-              ${escapeHTML(group)}
-            </div>
-
-          </div>
-
-          <div class="rt-result-date">
-            ${formatDate(discovered)}
-          </div>
-
-        </article>
-
-      `;
-
-    }).join("");
-
-
-  document
-    .querySelectorAll(".rt-result")
-    .forEach(item => {
-
-      item.addEventListener(
-        "click",
-        () => {
-
-          const index =
-            Number(item.dataset.index);
-
-          showPostDetail(
-            currentResults[index]
-          );
-
-        }
-      );
-
-    });
-
-}
-
-
-/* =========================================================
-   SEARCH
-   ========================================================= */
-
-async function performSearch() {
-
-  const query =
-    searchInput.value.trim();
-
-  if (!query) {
-
-    loadRecent();
-
-    return;
-  }
-
-
-  showLoading();
-
-  resultsTitle.textContent =
-    `SEARCH / ${query}`;
-
-
-  try {
-
-    const data =
-      await searchPosts(query);
-
-    currentResults =
-      Array.isArray(data) ? data : [];
-
-    renderSearchResults(
-      currentResults
-    );
-
-  } catch (error) {
-
-    console.error(error);
-
-    showError(
-      "Search could not be completed."
-    );
-
-  }
-
-}
-
-
-/* =========================================================
-   SEARCH RESULTS
-   ========================================================= */
-
-function renderSearchResults(items) {
-
-  resultsTitle.textContent =
-    "SEARCH RESULTS";
-
-  resultsCount.textContent =
-    `${items.length} RESULTS`;
-
-
-  if (!items.length) {
 
     showEmpty(
       "No matching intelligence was found."
     );
 
     return;
+
   }
 
 
   results.innerHTML =
-    items.map((item, index) => {
+    posts.map(
+      (post, index) => {
 
-      const group =
-        item.group_name || "UNKNOWN GROUP";
+        const group =
+          post.group_name ||
+          post.group ||
+          "UNKNOWN GROUP";
 
-      const title =
-        item.post_title || "UNTITLED POST";
 
-      return `
+        const title =
+          post.post_title ||
+          post.title ||
+          post.name ||
+          "UNTITLED POST";
 
-        <article
-          class="rt-result"
-          data-index="${index}"
-        >
 
-          <div class="rt-result-type">
-            VICTIM / POST
-          </div>
+        const discovered =
+          post.discovered ||
+          post.date ||
+          post.created ||
+          "";
 
-          <div>
 
-            <h3 class="rt-result-title">
-              ${escapeHTML(title)}
-            </h3>
+        return `
 
-            <div class="rt-result-meta">
-              GROUP /
-              ${escapeHTML(group)}
+          <article
+            class="rt-result"
+            data-index="${index}"
+          >
+
+            <div class="rt-result-type">
+              POST
             </div>
 
-          </div>
+            <div>
 
-          <div class="rt-result-date">
-            ${formatDate(item.discovered)}
-          </div>
+              <h3 class="rt-result-title">
+                ${escapeHTML(title)}
+              </h3>
 
-        </article>
+              <div class="rt-result-meta">
+                GROUP /
+                ${escapeHTML(group)}
+              </div>
 
-      `;
+            </div>
 
-    }).join("");
+            <div class="rt-result-date">
+              ${formatDate(discovered)}
+            </div>
+
+          </article>
+
+        `;
+
+      }
+    ).join("");
 
 
   document
@@ -424,7 +526,10 @@ function renderSearchResults(items) {
         () => {
 
           const index =
-            Number(item.dataset.index);
+            Number(
+              item.dataset.index
+            );
+
 
           showPostDetail(
             currentResults[index]
@@ -449,7 +554,28 @@ function showPostDetail(post) {
   }
 
 
+  const group =
+    post.group_name ||
+    post.group ||
+    "Unknown";
+
+
+  const title =
+    post.post_title ||
+    post.title ||
+    post.name ||
+    "Untitled Post";
+
+
+  const discovered =
+    post.discovered ||
+    post.date ||
+    post.created ||
+    "";
+
+
   detail.hidden = false;
+
 
   detailContent.innerHTML = `
 
@@ -460,9 +586,7 @@ function showPostDetail(post) {
       </div>
 
       <h3>
-        ${escapeHTML(
-          post.post_title || "Untitled Post"
-        )}
+        ${escapeHTML(title)}
       </h3>
 
     </div>
@@ -479,9 +603,7 @@ function showPostDetail(post) {
           </div>
 
           <div class="rt-detail-field-value">
-            ${escapeHTML(
-              post.group_name || "Unknown"
-            )}
+            ${escapeHTML(group)}
           </div>
 
         </div>
@@ -494,9 +616,7 @@ function showPostDetail(post) {
           </div>
 
           <div class="rt-detail-field-value">
-            ${formatDate(
-              post.discovered
-            )}
+            ${formatDate(discovered)}
           </div>
 
         </div>
@@ -517,30 +637,7 @@ function showPostDetail(post) {
 
 
 /* =========================================================
-   BACK
-   ========================================================= */
-
-backButton.addEventListener(
-  "click",
-  () => {
-
-    detail.hidden = true;
-
-    window.scrollTo({
-      top:
-        document
-          .querySelector(".rt-results-wrapper")
-          .offsetTop - 100,
-
-      behavior: "smooth"
-    });
-
-  }
-);
-
-
-/* =========================================================
-   FILTER BUTTONS
+   FILTERS
    ========================================================= */
 
 filters.forEach(filter => {
@@ -550,16 +647,24 @@ filters.forEach(filter => {
     async () => {
 
       filters.forEach(button => {
-        button.classList.remove("active");
+
+        button.classList.remove(
+          "active"
+        );
+
       });
 
-      filter.classList.add("active");
 
-      currentType =
+      filter.classList.add(
+        "active"
+      );
+
+
+      const type =
         filter.dataset.type;
 
 
-      if (currentType === "all") {
+      if (type === "all") {
 
         await loadRecent();
 
@@ -568,10 +673,14 @@ filters.forEach(filter => {
       }
 
 
-      /*
-       * Groups, actors, and markets use their
-       * dedicated RansomLook API namespaces.
-       */
+      if (type === "posts") {
+
+        await loadRecent();
+
+        return;
+
+      }
+
 
       showLoading();
 
@@ -581,47 +690,44 @@ filters.forEach(filter => {
         let data;
 
 
-        if (currentType === "groups") {
+        if (type === "groups") {
 
           data =
-            await rtFetch("/groups");
+            await rtFetch("groups");
 
           renderNameList(
-            data,
+            normalizeArray(data),
             "GROUPS"
           );
 
         }
 
 
-        else if (currentType === "actors") {
+        else if (type === "actors") {
 
           data =
-            await rtFetch("/actors");
-
-          renderActorList(data);
-
-        }
-
-
-        else if (currentType === "markets") {
-
-          data =
-            await rtFetch("/markets");
+            await rtFetch("actors");
 
           renderNameList(
-            data,
-            "MARKETS"
+            normalizeArray(data),
+            "ACTORS"
           );
 
         }
 
 
-        else if (currentType === "posts") {
+        else if (type === "markets") {
 
-          await loadRecent();
+          data =
+            await rtFetch("markets");
+
+          renderNameList(
+            normalizeArray(data),
+            "MARKETS"
+          );
 
         }
+
 
       } catch (error) {
 
@@ -634,33 +740,19 @@ filters.forEach(filter => {
       }
 
     }
-
   );
 
 });
 
 
 /* =========================================================
-   GROUP / MARKET LIST
+   NAME LIST
    ========================================================= */
 
-function renderNameList(data, type) {
-
-  let items = [];
-
-
-  if (Array.isArray(data)) {
-    items = data;
-  }
-
-  else if (data && Array.isArray(data.groups)) {
-    items = data.groups;
-  }
-
-  else if (data && Array.isArray(data.markets)) {
-    items = data.markets;
-  }
-
+function renderNameList(
+  items,
+  type
+) {
 
   resultsTitle.textContent =
     type;
@@ -677,432 +769,101 @@ function renderNameList(data, type) {
     );
 
     return;
+
   }
 
 
   results.innerHTML =
-    items.map((item, index) => {
+    items.map(
+      (item, index) => {
 
-      const name =
-        typeof item === "string"
-          ? item
-          : item.name ||
-            item.group_name ||
-            item.market_name ||
-            "Unknown";
+        const name =
+          typeof item === "string"
+            ? item
+            : item.name ||
+              item.group_name ||
+              item.market_name ||
+              item.handle ||
+              "Unknown";
 
 
-      return `
+        return `
 
-        <article
-          class="rt-result"
-          data-name="${escapeHTML(name)}"
-        >
+          <article
+            class="rt-result"
+            data-index="${index}"
+          >
 
-          <div class="rt-result-type">
-            ${type === "GROUPS"
-              ? "GROUP"
-              : "MARKET"}
-          </div>
-
-          <div>
-
-            <h3 class="rt-result-title">
-              ${escapeHTML(name)}
-            </h3>
-
-            <div class="rt-result-meta">
-              REMNANTTRACE INTELLIGENCE INDEX
+            <div class="rt-result-type">
+              ${escapeHTML(
+                type === "ACTORS"
+                  ? "ACTOR"
+                  : type === "GROUPS"
+                    ? "GROUP"
+                    : "MARKET"
+              )}
             </div>
 
-          </div>
 
-          <div class="rt-result-date">
-            PROFILE
-          </div>
+            <div>
 
-        </article>
+              <h3 class="rt-result-title">
+                ${escapeHTML(name)}
+              </h3>
 
-      `;
+              <div class="rt-result-meta">
+                REMNANTTRACE INTELLIGENCE INDEX
+              </div>
 
-    }).join("");
-
-
-  document
-    .querySelectorAll(".rt-result")
-    .forEach(item => {
-
-      item.addEventListener(
-        "click",
-        () => {
-
-          const name =
-            item.dataset.name;
-
-          showEntityDetail(
-            name,
-            type
-          );
-
-        }
-      );
-
-    });
-
-}
-
-
-/* =========================================================
-   ACTORS
-   ========================================================= */
-
-function renderActorList(data) {
-
-  let actors = [];
-
-
-  if (Array.isArray(data)) {
-    actors = data;
-  }
-
-  else if (
-    data &&
-    Array.isArray(data.actors)
-  ) {
-    actors = data.actors;
-  }
-
-
-  resultsTitle.textContent =
-    "ACTORS";
-
-
-  resultsCount.textContent =
-    `${actors.length} RESULTS`;
-
-
-  if (!actors.length) {
-
-    showEmpty(
-      "No threat actors were returned."
-    );
-
-    return;
-  }
-
-
-  results.innerHTML =
-    actors.map(actor => {
-
-      const name =
-        typeof actor === "string"
-          ? actor
-          : actor.name ||
-            actor.handle ||
-            "Unknown";
-
-
-      return `
-
-        <article
-          class="rt-result"
-          data-name="${escapeHTML(name)}"
-        >
-
-          <div class="rt-result-type">
-            ACTOR
-          </div>
-
-          <div>
-
-            <h3 class="rt-result-title">
-              ${escapeHTML(name)}
-            </h3>
-
-            <div class="rt-result-meta">
-              THREAT ACTOR PROFILE
             </div>
 
-          </div>
 
-          <div class="rt-result-date">
-            PROFILE
-          </div>
+            <div class="rt-result-date">
+              PROFILE
+            </div>
 
-        </article>
+          </article>
 
-      `;
+        `;
 
-    }).join("");
+      }
+    ).join("");
+
+}
 
 
-  document
-    .querySelectorAll(".rt-result")
-    .forEach(item => {
+/* =========================================================
+   BACK
+   ========================================================= */
 
-      item.addEventListener(
-        "click",
-        () => {
+backButton.addEventListener(
+  "click",
+  () => {
 
-          showEntityDetail(
-            item.dataset.name,
-            "ACTORS"
-          );
+    detail.hidden = true;
 
-        }
+
+    const wrapper =
+      document.querySelector(
+        ".rt-results-wrapper"
       );
 
-    });
 
-}
+    if (wrapper) {
 
+      window.scrollTo({
 
-/* =========================================================
-   ENTITY DETAIL
-   ========================================================= */
+        top:
+          wrapper.offsetTop - 100,
 
-async function showEntityDetail(
-  name,
-  type
-) {
+        behavior: "smooth"
 
-  detail.hidden = false;
-
-  detailContent.innerHTML = `
-
-    <div class="rt-detail-header">
-
-      <div class="rt-detail-type">
-        ${escapeHTML(
-          type.slice(0, -1)
-        )}
-      </div>
-
-      <h3>
-        ${escapeHTML(name)}
-      </h3>
-
-    </div>
-
-    <div class="rt-detail-body">
-
-      <div class="rt-loading">
-        RETRIEVING PROFILE...
-      </div>
-
-    </div>
-
-  `;
-
-
-  detail.scrollIntoView({
-    behavior: "smooth",
-    block: "start"
-  });
-
-
-  try {
-
-    let data;
-
-
-    if (type === "GROUPS") {
-
-      data =
-        await rtFetch(
-          `/group/${encodeURIComponent(name)}`
-        );
-
-    }
-
-
-    else if (type === "ACTORS") {
-
-      data =
-        await rtFetch(
-          `/actor/${encodeURIComponent(name)}`
-        );
-
-    }
-
-
-    else {
-
-      data = {
-        name: name
-      };
-
-    }
-
-
-    renderEntityDetail(
-      data,
-      name,
-      type
-    );
-
-
-  } catch (error) {
-
-    console.error(error);
-
-    detailContent.innerHTML += `
-
-      <div class="rt-detail-body">
-
-        <div class="rt-error">
-          Profile information could not be retrieved.
-        </div>
-
-      </div>
-
-    `;
-
-  }
-
-}
-
-
-/* =========================================================
-   RENDER ENTITY DETAIL
-   ========================================================= */
-
-function renderEntityDetail(
-  data,
-  fallbackName,
-  type
-) {
-
-  const name =
-    data?.name ||
-    fallbackName;
-
-
-  let fields = [];
-
-
-  if (type === "GROUPS") {
-
-    const locations =
-      data?.[0]?.locations ||
-      data?.locations ||
-      [];
-
-
-    fields.push({
-      label: "GROUP",
-      value: name
-    });
-
-
-    fields.push({
-      label: "LOCATIONS",
-      value: Array.isArray(locations)
-        ? locations.length
-        : "Unknown"
-    });
-
-
-    if (Array.isArray(locations)) {
-
-      const available =
-        locations.filter(
-          location =>
-            location &&
-            location.available
-        ).length;
-
-
-      fields.push({
-        label: "AVAILABLE LOCATIONS",
-        value: available
       });
 
     }
 
   }
-
-
-  else if (type === "ACTORS") {
-
-    fields.push({
-      label: "ACTOR",
-      value: name
-    });
-
-
-    const aliases =
-      data?.aliases || [];
-
-
-    fields.push({
-      label: "ALIASES",
-      value:
-        Array.isArray(aliases)
-          ? aliases.join(", ") || "None listed"
-          : aliases || "None listed"
-    });
-
-
-    const relations =
-      data?.relations?.groups || [];
-
-
-    fields.push({
-      label: "RELATED GROUPS",
-      value:
-        Array.isArray(relations)
-          ? relations.join(", ") || "None listed"
-          : relations || "None listed"
-    });
-
-  }
-
-
-  detailContent.innerHTML = `
-
-    <div class="rt-detail-header">
-
-      <div class="rt-detail-type">
-        ${escapeHTML(
-          type.slice(0, -1)
-        )}
-      </div>
-
-      <h3>
-        ${escapeHTML(name)}
-      </h3>
-
-    </div>
-
-
-    <div class="rt-detail-body">
-
-      <div class="rt-detail-grid">
-
-        ${fields.map(field => `
-
-          <div class="rt-detail-field">
-
-            <div class="rt-detail-field-label">
-              ${escapeHTML(field.label)}
-            </div>
-
-            <div class="rt-detail-field-value">
-              ${escapeHTML(field.value)}
-            </div>
-
-          </div>
-
-        `).join("")}
-
-      </div>
-
-    </div>
-
-  `;
-
-}
+);
 
 
 /* =========================================================
