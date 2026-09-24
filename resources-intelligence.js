@@ -3,7 +3,7 @@
    RansomLook API interface
    ========================================================= */
 
-const RT_API = "https://www.ransomlook.io/api";
+const RT_API = "https://www.ransomlook.io/api/";
 
 
 const searchInput =
