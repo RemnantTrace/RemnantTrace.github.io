@@ -1,10 +1,70 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>Resources — RemnantTrace Forensics</title>
+
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="resources-intelligence.css">
+
+</head>
+
+
+<body>
+
+
+<header>
+
+  <a class="brand" href="index.html">
+    <img
+      src="assets/remnanttrace-banner.png"
+      alt="RemnantTrace Forensics"
+    >
+  </a>
+
+  <nav>
+
+    <a href="index.html">Home</a>
+
+    <a href="about.html">About</a>
+
+    <a href="research.html">Research</a>
+
+    <a href="publications.html">Publications</a>
+
+    <a class="active" href="resources.html">Resources</a>
+
+    <a href="leadership.html">Leadership</a>
+
+    <a href="contact.html">Contact</a>
+
+  </nav>
+
+</header>
+
+
 <main>
+
+
+  <!-- =====================================================
+       PAGE HERO
+       ===================================================== -->
 
   <section class="pagehero">
 
-    <p class="eyebrow">04 / RESOURCES</p>
+    <p class="eyebrow">
+      04 / RESOURCES
+    </p>
 
-    <h1>Resources.</h1>
+    <h1>
+      Resources.
+    </h1>
 
     <p>
       Independent resources for digital forensics,
@@ -14,54 +74,102 @@
   </section>
 
 
-  <!-- RESOURCE LIBRARY -->
+
+  <!-- =====================================================
+       RESOURCE LIBRARY
+       ===================================================== -->
 
   <section class="resource-grid">
 
+
     <a class="resource-card" href="#">
-      <span class="resource-number">01</span>
-      <h2>Datasets.</h2>
+
+      <span class="resource-number">
+        01
+      </span>
+
+      <h2>
+        Datasets.
+      </h2>
+
       <p>
         Public datasets and forensic research material
         for analysis and experimentation.
       </p>
+
     </a>
 
+
+
     <a class="resource-card" href="#">
-      <span class="resource-number">02</span>
-      <h2>Tools.</h2>
+
+      <span class="resource-number">
+        02
+      </span>
+
+      <h2>
+        Tools.
+      </h2>
+
       <p>
         Tools and utilities relevant to digital
         forensics and investigative research.
       </p>
+
     </a>
 
+
+
     <a class="resource-card" href="#">
-      <span class="resource-number">03</span>
-      <h2>Methodology.</h2>
+
+      <span class="resource-number">
+        03
+      </span>
+
+      <h2>
+        Methodology.
+      </h2>
+
       <p>
         Research methods, workflows, and forensic
         methodology references.
       </p>
+
     </a>
 
+
+
     <a class="resource-card" href="#">
-      <span class="resource-number">04</span>
-      <h2>Education.</h2>
+
+      <span class="resource-number">
+        04
+      </span>
+
+      <h2>
+        Education.
+      </h2>
+
       <p>
         Educational material covering digital evidence,
         forensic techniques, and emerging technologies.
       </p>
+
     </a>
+
 
   </section>
 
 
-  <!-- OPEN INTELLIGENCE -->
+
+  <!-- =====================================================
+       OPEN INTELLIGENCE
+       ===================================================== -->
 
   <section class="rt-intel">
 
+
     <div class="rt-intel-header">
+
 
       <div>
 
@@ -69,7 +177,9 @@
           05 / OPEN INTELLIGENCE
         </p>
 
-        <h2>Threat Intelligence.</h2>
+        <h2>
+          Threat Intelligence.
+        </h2>
 
         <p class="rt-intel-description">
           Search publicly available ransomware intelligence,
@@ -79,26 +189,37 @@
 
       </div>
 
+
+
       <div class="rt-intel-status">
 
         <span class="rt-status-dot"></span>
 
-        <span>LIVE DATA</span>
+        <span>
+          LIVE DATA
+        </span>
 
       </div>
+
 
     </div>
 
 
-    <!-- SEARCH -->
+
+    <!-- ===================================================
+         SEARCH
+         =================================================== -->
 
     <div class="rt-search-panel">
+
 
       <div class="rt-search-label">
         SEARCH INTELLIGENCE
       </div>
 
+
       <div class="rt-search-row">
+
 
         <input
           type="search"
@@ -107,6 +228,7 @@
           autocomplete="off"
         >
 
+
         <button
           type="button"
           id="rt-search-button"
@@ -114,19 +236,28 @@
           SEARCH
         </button>
 
+
       </div>
 
+
       <div class="rt-search-hint">
+
         Search is performed against publicly available
         RansomLook intelligence.
+
       </div>
+
 
     </div>
 
 
-    <!-- FILTERS -->
+
+    <!-- ===================================================
+         FILTERS
+         =================================================== -->
 
     <div class="rt-filters">
+
 
       <button
         class="rt-filter active"
@@ -136,6 +267,7 @@
         ALL
       </button>
 
+
       <button
         class="rt-filter"
         data-type="groups"
@@ -143,6 +275,7 @@
       >
         GROUPS
       </button>
+
 
       <button
         class="rt-filter"
@@ -152,6 +285,7 @@
         ACTORS
       </button>
 
+
       <button
         class="rt-filter"
         data-type="markets"
@@ -159,6 +293,7 @@
       >
         MARKETS
       </button>
+
 
       <button
         class="rt-filter"
@@ -168,41 +303,58 @@
         VICTIMS / POSTS
       </button>
 
+
     </div>
 
 
-    <!-- RESULTS -->
+
+    <!-- ===================================================
+         RESULTS
+         =================================================== -->
 
     <div class="rt-results-wrapper">
 
+
       <div class="rt-results-heading">
+
 
         <span id="rt-results-title">
           RECENT ACTIVITY
         </span>
 
+
         <span id="rt-results-count"></span>
+
 
       </div>
 
+
+
       <div id="rt-results">
+
 
         <div class="rt-loading">
           Loading intelligence...
         </div>
 
+
       </div>
+
 
     </div>
 
 
-    <!-- DETAIL VIEW -->
+
+    <!-- ===================================================
+         DETAIL VIEW
+         =================================================== -->
 
     <div
       id="rt-detail"
       class="rt-detail"
       hidden
     >
+
 
       <button
         type="button"
@@ -212,26 +364,82 @@
         ← BACK TO RESULTS
       </button>
 
+
       <div id="rt-detail-content"></div>
+
 
     </div>
 
 
-    <!-- ATTRIBUTION -->
+
+    <!-- ===================================================
+         ATTRIBUTION
+         =================================================== -->
 
     <div class="rt-attribution">
 
-      <span>DATA SOURCE</span>
+
+      <span>
+        DATA SOURCE
+      </span>
+
 
       <p>
+
         Open ransomware intelligence.
         Data is presented through the RemnantTrace research
         interface and remains subject to the source's
         availability and collection methodology.
+
       </p>
+
 
     </div>
 
+
   </section>
 
+
 </main>
+
+
+
+<!-- =======================================================
+     FOOTER
+     ======================================================= -->
+
+<footer>
+
+
+  <b>
+
+    REMNANTTRACE
+    <span>FORENSICS</span>
+
+  </b>
+
+
+  <p>
+    Independent Digital Forensics Research
+  </p>
+
+
+  <small>
+    © 2026 RemnantTrace Forensics. All rights reserved.
+  </small>
+
+
+</footer>
+
+
+
+<!-- =======================================================
+     INTELLIGENCE SCRIPT
+     ======================================================= -->
+
+<script src="resources-intelligence.js?v=2"></script>
+
+
+</body>
+
+</html>
