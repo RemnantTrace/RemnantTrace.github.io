@@ -4,7 +4,7 @@
    ========================================================= */
 
 const RT_PROXY =
-  "https://script.google.com/macros/s/AKfycbyYotjS0BlsFxo5FXwOAJ7w1QVbnSqLsfWdCIJ4Z7eh1kkCNHDLbSpYQxuEU9p0aVwyuQ/exec";
+  "https://script.google.com/macros/s/AKfycbwE_8EVl8qOTHCLvRLIUsGXeW530hQ1tLrftGLO5xARuQn8TYxLIBNGxuyne6rR0pYcNw/exec";
 
 
 const searchInput =
