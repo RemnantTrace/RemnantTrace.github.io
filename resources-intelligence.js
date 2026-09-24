@@ -601,7 +601,6 @@ async function loadRecent() {
 
 }
 
-
 /* =========================================================
    SEARCH
    ========================================================= */
@@ -612,7 +611,147 @@ async function performSearch() {
     searchInput.value.trim();
 
 
+  /*
+   * Determine which filter is currently active.
+   */
+
+  const activeFilter =
+    document.querySelector(
+      ".rt-filter.active"
+    );
+
+
+  const filterType =
+    activeFilter
+      ? activeFilter.dataset.type
+      : "all";
+
+
+  /*
+   * Empty search:
+   *
+   * ALL / POSTS -> recent posts
+   * GROUPS      -> complete group index
+   * ACTORS      -> complete actor index
+   * MARKETS     -> complete market index
+   */
+
   if (!query) {
+
+    if (
+      filterType === "groups"
+    ) {
+
+      showLoading();
+
+      try {
+
+        const data =
+          await rtFetch(
+            "groups"
+          );
+
+        const items =
+          normalizeArray(data);
+
+        renderNameList(
+          items,
+          "GROUPS"
+        );
+
+      } catch (error) {
+
+        console.error(
+          "Group index error:",
+          error
+        );
+
+        showError(error);
+
+      }
+
+      return;
+
+    }
+
+
+    if (
+      filterType === "actors"
+    ) {
+
+      showLoading();
+
+      try {
+
+        const data =
+          await rtFetch(
+            "actors"
+          );
+
+        const items =
+          normalizeArray(data);
+
+        renderNameList(
+          items,
+          "ACTORS"
+        );
+
+      } catch (error) {
+
+        console.error(
+          "Actor index error:",
+          error
+        );
+
+        showError(error);
+
+      }
+
+      return;
+
+    }
+
+
+    if (
+      filterType === "markets"
+    ) {
+
+      showLoading();
+
+      try {
+
+        const data =
+          await rtFetch(
+            "markets"
+          );
+
+        const items =
+          normalizeArray(data);
+
+        renderNameList(
+          items,
+          "MARKETS"
+        );
+
+      } catch (error) {
+
+        console.error(
+          "Market index error:",
+          error
+        );
+
+        showError(error);
+
+      }
+
+      return;
+
+    }
+
+
+    /*
+     * ALL or POSTS with no query.
+     */
 
     await loadRecent();
 
@@ -620,6 +759,10 @@ async function performSearch() {
 
   }
 
+
+  /*
+   * Require at least two characters.
+   */
 
   if (
     query.length < 2
@@ -647,6 +790,411 @@ async function performSearch() {
 
 
   try {
+
+
+    /* =====================================================
+       GROUP SEARCH
+       ===================================================== */
+
+    if (
+      filterType === "groups"
+    ) {
+
+      const data =
+        await rtFetch(
+          "groups"
+        );
+
+
+      const groups =
+        normalizeArray(data);
+
+
+      const normalizedQuery =
+        query.toLowerCase();
+
+
+      const matchingGroups =
+        groups.filter(
+          group => {
+
+            const name =
+              getObjectName(
+                group
+              );
+
+
+            return String(name)
+              .toLowerCase()
+              .includes(
+                normalizedQuery
+              );
+
+          }
+        );
+
+
+      renderNameList(
+        matchingGroups,
+        "GROUPS"
+      );
+
+
+      return;
+
+    }
+
+
+    /* =====================================================
+       ACTOR SEARCH
+       ===================================================== */
+
+    if (
+      filterType === "actors"
+    ) {
+
+      const data =
+        await rtFetch(
+          "actors"
+        );
+
+
+      const actors =
+        normalizeArray(data);
+
+
+      const normalizedQuery =
+        query.toLowerCase();
+
+
+      const matchingActors =
+        actors.filter(
+          actor => {
+
+            const name =
+              getObjectName(
+                actor
+              );
+
+
+            return String(name)
+              .toLowerCase()
+              .includes(
+                normalizedQuery
+              );
+
+          }
+        );
+
+
+      renderNameList(
+        matchingActors,
+        "ACTORS"
+      );
+
+
+      return;
+
+    }
+
+
+    /* =====================================================
+       MARKET SEARCH
+       ===================================================== */
+
+    if (
+      filterType === "markets"
+    ) {
+
+      const data =
+        await rtFetch(
+          "markets"
+        );
+
+
+      const markets =
+        normalizeArray(data);
+
+
+      const normalizedQuery =
+        query.toLowerCase();
+
+
+      const matchingMarkets =
+        markets.filter(
+          market => {
+
+            const name =
+              getObjectName(
+                market
+              );
+
+
+            return String(name)
+              .toLowerCase()
+              .includes(
+                normalizedQuery
+              );
+
+          }
+        );
+
+
+      renderNameList(
+        matchingMarkets,
+        "MARKETS"
+      );
+
+
+      return;
+
+    }
+
+
+    /* =====================================================
+       POST SEARCH
+       ===================================================== */
+
+    if (
+      filterType === "posts"
+    ) {
+
+      const data =
+        await rtFetch(
+          "search",
+          query
+        );
+
+
+      currentResults =
+        normalizeArray(data);
+
+
+      renderPosts(
+        currentResults
+      );
+
+
+      return;
+
+    }
+
+
+    /* =====================================================
+       ALL SEARCH
+       ===================================================== */
+
+    if (
+      filterType === "all"
+    ) {
+
+      /*
+       * Search the three indexes and the post
+       * search independently.
+       *
+       * This is important because RansomLook's
+       * generic search endpoint returns observed
+       * posts, not group/actor/market profiles.
+       */
+
+      const [
+        groupsData,
+        actorsData,
+        marketsData,
+        postsData
+      ] =
+        await Promise.all([
+          rtFetch("groups"),
+          rtFetch("actors"),
+          rtFetch("markets"),
+          rtFetch("search", query)
+        ]);
+
+
+      const normalizedQuery =
+        query.toLowerCase();
+
+
+      /*
+       * Filter GROUPS.
+       */
+
+      const matchingGroups =
+        normalizeArray(
+          groupsData
+        ).filter(
+          group => {
+
+            const name =
+              getObjectName(
+                group
+              );
+
+
+            return String(name)
+              .toLowerCase()
+              .includes(
+                normalizedQuery
+              );
+
+          }
+        );
+
+
+      /*
+       * Filter ACTORS.
+       */
+
+      const matchingActors =
+        normalizeArray(
+          actorsData
+        ).filter(
+          actor => {
+
+            const name =
+              getObjectName(
+                actor
+              );
+
+
+            return String(name)
+              .toLowerCase()
+              .includes(
+                normalizedQuery
+              );
+
+          }
+        );
+
+
+      /*
+       * Filter MARKETS.
+       */
+
+      const matchingMarkets =
+        normalizeArray(
+          marketsData
+        ).filter(
+          market => {
+
+            const name =
+              getObjectName(
+                market
+              );
+
+
+            return String(name)
+              .toLowerCase()
+              .includes(
+                normalizedQuery
+              );
+
+          }
+        );
+
+
+      /*
+       * Posts are already filtered by the
+       * RansomLook search endpoint.
+       */
+
+      const matchingPosts =
+        normalizeArray(
+          postsData
+        );
+
+
+      /*
+       * Build one combined result set.
+       *
+       * Profiles remain actual profile objects
+       * so clicking them opens the profile.
+       */
+
+      const combined = [];
+
+
+      matchingGroups.forEach(
+        group => {
+
+          combined.push({
+
+            __rtType:
+              "GROUP",
+
+            __rtItem:
+              group
+
+          });
+
+        }
+      );
+
+
+      matchingActors.forEach(
+        actor => {
+
+          combined.push({
+
+            __rtType:
+              "ACTOR",
+
+            __rtItem:
+              actor
+
+          });
+
+        }
+      );
+
+
+      matchingMarkets.forEach(
+        market => {
+
+          combined.push({
+
+            __rtType:
+              "MARKET",
+
+            __rtItem:
+              market
+
+          });
+
+        }
+      );
+
+
+      matchingPosts.forEach(
+        post => {
+
+          combined.push({
+
+            __rtType:
+              "POST",
+
+            __rtItem:
+              post
+
+          });
+
+        }
+      );
+
+
+      renderAllSearchResults(
+        combined
+      );
+
+
+      return;
+
+    }
+
+
+    /*
+     * Safety fallback.
+     */
 
     const data =
       await rtFetch(
@@ -677,6 +1225,259 @@ async function performSearch() {
 
 }
 
+/* =========================================================
+   ALL SEARCH RESULTS
+   ========================================================= */
+
+function renderAllSearchResults(
+  items
+) {
+
+  currentResults =
+    items;
+
+
+  resultsCount.textContent =
+    `${items.length} RESULTS`;
+
+
+  if (!items.length) {
+
+    showEmpty(
+      "No matching intelligence was found."
+    );
+
+    return;
+
+  }
+
+
+  results.innerHTML =
+    items
+      .map(
+        (entry, index) => {
+
+          const type =
+            entry.__rtType;
+
+
+          const item =
+            entry.__rtItem;
+
+
+          let title =
+            getObjectName(
+              item
+            );
+
+
+          let label =
+            "INTELLIGENCE";
+
+
+          let meta =
+            "REMNANTTRACE INTELLIGENCE INDEX";
+
+
+          if (
+            type === "GROUP"
+          ) {
+
+            label =
+              "RANSOMWARE GROUP";
+
+            meta =
+              "GROUP PROFILE";
+
+          }
+
+
+          if (
+            type === "ACTOR"
+          ) {
+
+            label =
+              "THREAT ACTOR";
+
+            meta =
+              "ACTOR PROFILE";
+
+          }
+
+
+          if (
+            type === "MARKET"
+          ) {
+
+            label =
+              "MARKET";
+
+            meta =
+              "MARKET PROFILE";
+
+          }
+
+
+          if (
+            type === "POST"
+          ) {
+
+            label =
+              "POST";
+
+            meta =
+              "OBSERVED VICTIM / POST";
+
+            title =
+              getPostTitle(
+                item
+              );
+
+          }
+
+
+          return `
+
+            <article
+              class="rt-result rt-all-search-result"
+              data-index="${index}"
+            >
+
+              <div class="rt-result-type">
+                ${escapeHTML(label)}
+              </div>
+
+              <div>
+
+                <h3 class="rt-result-title">
+                  ${escapeHTML(title)}
+                </h3>
+
+                <div class="rt-result-meta">
+                  ${escapeHTML(meta)}
+                </div>
+
+              </div>
+
+              <div class="rt-result-date">
+
+                ${
+                  type === "POST"
+                    ? escapeHTML(
+                        formatDate(
+                          getPostDate(
+                            item
+                          )
+                        )
+                      )
+                    : "VIEW PROFILE →"
+                }
+
+              </div>
+
+            </article>
+
+          `;
+
+        }
+      )
+      .join("");
+
+
+  document
+    .querySelectorAll(
+      ".rt-all-search-result"
+    )
+    .forEach(
+      card => {
+
+        card.addEventListener(
+          "click",
+          () => {
+
+            const index =
+              Number(
+                card.dataset.index
+              );
+
+
+            const entry =
+              currentResults[
+                index
+              ];
+
+
+            if (!entry) {
+              return;
+            }
+
+
+            const item =
+              entry.__rtItem;
+
+
+            if (
+              entry.__rtType ===
+              "GROUP"
+            ) {
+
+              showGroupProfile(
+                item,
+                card
+              );
+
+              return;
+
+            }
+
+
+            if (
+              entry.__rtType ===
+              "ACTOR"
+            ) {
+
+              showActorProfile(
+                item
+              );
+
+              return;
+
+            }
+
+
+            if (
+              entry.__rtType ===
+              "MARKET"
+            ) {
+
+              showMarketProfile(
+                item
+              );
+
+              return;
+
+            }
+
+
+            if (
+              entry.__rtType ===
+              "POST"
+            ) {
+
+              showPostDetail(
+                item,
+                card
+              );
+
+            }
+
+          }
+        );
+
+      }
+    );
+
+}
 
 /* =========================================================
    POST RENDERER
