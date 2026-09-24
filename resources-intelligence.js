@@ -4,25 +4,51 @@
    ========================================================= */
 
 const RT_PROXY =
-  "https://script.google.com/macros/s/AKfycbwE8_8EVl8qOTHCLvRLIUsGXeW530hQ1tLrftGLO5xARuQn8TYxLIBNGxuyne6rR0pYcNw/exec";
+  "https://script.google.com/macros/s/AKfycbwE_8EVl8qOTHCLvRLIUsGXeW530hQ1tLrftGLO5xARuQn8TYxLIBNGxuyne6rR0pYcNw/exec";
+
 
 /* =========================================================
    ELEMENTS
    ========================================================= */
 
-const searchInput = document.getElementById("rt-search");
-const searchButton = document.getElementById("rt-search-button");
-const results = document.getElementById("rt-results");
-const resultsTitle = document.getElementById("rt-results-title");
-const resultsCount = document.getElementById("rt-results-count");
-const detail = document.getElementById("rt-detail");
-const detailContent = document.getElementById("rt-detail-content");
-const backButton = document.getElementById("rt-back");
-const filters = document.querySelectorAll(".rt-filter");
+const searchInput =
+  document.getElementById("rt-search");
+
+const searchButton =
+  document.getElementById("rt-search-button");
+
+const results =
+  document.getElementById("rt-results");
+
+const resultsTitle =
+  document.getElementById("rt-results-title");
+
+const resultsCount =
+  document.getElementById("rt-results-count");
+
+const detail =
+  document.getElementById("rt-detail");
+
+const detailContent =
+  document.getElementById("rt-detail-content");
+
+const backButton =
+  document.getElementById("rt-back");
+
+const filters =
+  document.querySelectorAll(".rt-filter");
+
+
+/* =========================================================
+   STATE
+   ========================================================= */
 
 let currentResults = [];
+
 let currentView = "posts";
+
 let currentProfileType = "";
+
 let currentProfile = null;
 
 
@@ -31,7 +57,11 @@ let currentProfile = null;
    ========================================================= */
 
 function escapeHTML(value) {
-  if (value === null || value === undefined) {
+
+  if (
+    value === null ||
+    value === undefined
+  ) {
     return "";
   }
 
@@ -45,49 +75,29 @@ function escapeHTML(value) {
 
 
 /* =========================================================
-   SAFE VALUE HELPERS
+   SAFE URL
    ========================================================= */
 
-function isObject(value) {
-  return value !== null && typeof value === "object";
-}
+function safeURL(value) {
 
-function isPlainObject(value) {
-  return (
-    value !== null &&
-    typeof value === "object" &&
-    !Array.isArray(value)
-  );
-}
-
-function cleanString(value) {
-  if (value === null || value === undefined) {
+  if (
+    value === null ||
+    value === undefined
+  ) {
     return "";
   }
 
-  if (typeof value === "string") {
-    return value.trim();
+  const url =
+    String(value).trim();
+
+  if (
+    url.startsWith("http://") ||
+    url.startsWith("https://")
+  ) {
+    return url;
   }
 
-  return String(value).trim();
-}
-
-function firstValue(object, keys, fallback = "") {
-  if (!object || typeof object !== "object") {
-    return fallback;
-  }
-
-  for (const key of keys) {
-    if (
-      object[key] !== undefined &&
-      object[key] !== null &&
-      object[key] !== ""
-    ) {
-      return object[key];
-    }
-  }
-
-  return fallback;
+  return "";
 }
 
 
@@ -96,343 +106,289 @@ function firstValue(object, keys, fallback = "") {
    ========================================================= */
 
 function formatDate(value) {
+
   if (!value) {
     return "DATE UNKNOWN";
   }
 
-  const date = new Date(value);
+  const date =
+    new Date(value);
 
-  if (Number.isNaN(date.getTime())) {
+  if (
+    Number.isNaN(
+      date.getTime()
+    )
+  ) {
     return escapeHTML(value);
   }
 
-  return date.toLocaleString(undefined, {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit"
-  });
-}
-
-
-/* =========================================================
-   URL HELPERS
-   ========================================================= */
-
-function looksLikeURL(value) {
-  if (!value) {
-    return false;
-  }
-
-  const text = String(value).trim();
-
-  return (
-    /^https?:\/\//i.test(text) ||
-    /^www\./i.test(text) ||
-    /\.onion([/:?#]|$)/i.test(text)
+  return date.toLocaleString(
+    undefined,
+    {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit"
+    }
   );
 }
 
-function normalizeURL(value) {
+
+/* =========================================================
+   SHORT DATE
+   ========================================================= */
+
+function formatShortDate(value) {
+
   if (!value) {
-    return "";
+    return "UNKNOWN";
   }
 
-  const text = String(value).trim();
+  const date =
+    new Date(value);
 
-  if (/^www\./i.test(text)) {
-    return "http://" + text;
+  if (
+    Number.isNaN(
+      date.getTime()
+    )
+  ) {
+    return escapeHTML(value);
   }
 
-  return text;
-}
-
-function getURLFromObject(object) {
-  if (!object || typeof object !== "object") {
-    return "";
-  }
-
-  const keys = [
-    "url",
-    "uri",
-    "link",
-    "href",
-    "address",
-    "site",
-    "website",
-    "location",
-    "slug"
-  ];
-
-  for (const key of keys) {
-    const value = object[key];
-
-    if (typeof value === "string" && looksLikeURL(value)) {
-      return normalizeURL(value);
+  return date.toLocaleDateString(
+    undefined,
+    {
+      year: "numeric",
+      month: "short",
+      day: "numeric"
     }
-  }
-
-  return "";
+  );
 }
 
 
 /* =========================================================
-   RECURSIVE OBJECT WALKER
+   API REQUEST
    ========================================================= */
 
-/*
-  RansomLook can return nested structures.
+function rtFetch(
+  action,
+  query = ""
+) {
 
-  Instead of assuming:
-      group.locations[0].url
+  return new Promise(
+    (resolve, reject) => {
 
-  this walks the COMPLETE response and looks for
-  objects that contain URL/location information.
-*/
+      const callbackName =
+        "rt_" +
+        Date.now() +
+        "_" +
+        Math.random()
+          .toString(36)
+          .slice(2);
 
-function walkObject(value, callback, path = []) {
-  if (value === null || value === undefined) {
-    return;
-  }
+      const script =
+        document.createElement(
+          "script"
+        );
 
-  callback(value, path);
-
-  if (Array.isArray(value)) {
-    value.forEach((item, index) => {
-      walkObject(item, callback, path.concat(index));
-    });
-
-    return;
-  }
-
-  if (typeof value === "object") {
-    Object.keys(value).forEach(key => {
-      walkObject(
-        value[key],
-        callback,
-        path.concat(key)
-      );
-    });
-  }
-}
+      let finished = false;
 
 
-/* =========================================================
-   RECURSIVELY COLLECT LOCATION RECORDS
-   ========================================================= */
+      const timeout =
+        setTimeout(() => {
 
-function collectLocationRecords(data) {
-  const records = [];
-  const seen = new WeakSet();
+          if (finished) {
+            return;
+          }
 
-  walkObject(data, (value, path) => {
-    if (!isPlainObject(value)) {
-      return;
-    }
+          finished = true;
 
-    if (seen.has(value)) {
-      return;
-    }
+          cleanup();
 
-    seen.add(value);
+          reject(
+            new Error(
+              "The intelligence service timed out."
+            )
+          );
 
-    const url = getURLFromObject(value);
-
-    const locationKeys = [
-      "available",
-      "status",
-      "uptime",
-      "uptime30d",
-      "uptime_30d",
-      "health",
-      "lastscrape",
-      "last_scrape",
-      "lastSeen",
-      "last_seen",
-      "screen",
-      "screenshot",
-      "screenshots",
-      "slug"
-    ];
-
-    const hasLocationField =
-      locationKeys.some(key =>
-        Object.prototype.hasOwnProperty.call(value, key)
-      );
-
-    /*
-      A record qualifies if it has a URL or enough
-      infrastructure-specific fields to identify it
-      as a RansomLook location record.
-    */
-
-    if (url || hasLocationField) {
-      records.push({
-        object: value,
-        path
-      });
-    }
-  });
-
-  return deduplicateLocationRecords(records);
-}
+        }, 30000);
 
 
-/* =========================================================
-   DEDUPLICATE LOCATIONS
-   ========================================================= */
+      function cleanup() {
 
-function deduplicateLocationRecords(records) {
-  const output = [];
-  const seen = new Set();
+        clearTimeout(timeout);
 
-  records.forEach(record => {
-    const object = record.object;
+        if (
+          script &&
+          script.parentNode
+        ) {
+          script.parentNode
+            .removeChild(script);
+        }
 
-    const url =
-      getURLFromObject(object) ||
-      cleanString(
-        firstValue(object, [
-          "slug",
-          "address",
-          "location"
-        ])
-      );
+        try {
 
-    const identity = [
-      url,
-      cleanString(
-        firstValue(object, [
-          "available",
-          "status"
-        ])
-      ),
-      cleanString(
-        firstValue(object, [
-          "lastscrape",
-          "last_scrape"
-        ])
-      )
-    ].join("|");
+          delete window[
+            callbackName
+          ];
 
-    if (seen.has(identity)) {
-      return;
-    }
+        } catch (error) {
 
-    seen.add(identity);
+          window[
+            callbackName
+          ] = undefined;
 
-    output.push(record);
-  });
-
-  return output;
-}
-
-
-/* =========================================================
-   FIND ARRAYS RECURSIVELY
-   ========================================================= */
-
-function findArraysByKey(data, possibleKeys) {
-  const matches = [];
-  const wanted = possibleKeys.map(key => key.toLowerCase());
-
-  walkObject(data, (value, path) => {
-    if (!Array.isArray(value)) {
-      return;
-    }
-
-    const lastPathPart =
-      path.length
-        ? String(path[path.length - 1]).toLowerCase()
-        : "";
-
-    if (wanted.includes(lastPathPart)) {
-      matches.push(value);
-    }
-  });
-
-  return matches;
-}
-
-
-/* =========================================================
-   FIND POSTS RECURSIVELY
-   ========================================================= */
-
-function collectPosts(data) {
-  const posts = [];
-
-  const postArrays = findArraysByKey(data, [
-    "posts",
-    "activity",
-    "activities"
-  ]);
-
-  postArrays.forEach(array => {
-    array.forEach(item => {
-      if (item && typeof item === "object") {
-        posts.push(item);
+        }
       }
-    });
-  });
-
-  return deduplicateObjects(posts);
-}
 
 
-/* =========================================================
-   FIND FILE SERVERS
-   ========================================================= */
+      window[
+        callbackName
+      ] = function(data) {
 
-function collectFileServers(data) {
-  const servers = [];
+        if (finished) {
+          return;
+        }
 
-  const arrays = findArraysByKey(data, [
-    "fileservers",
-    "file_servers",
-    "fileservers",
-    "fileServers"
-  ]);
+        finished = true;
 
-  arrays.forEach(array => {
-    array.forEach(item => {
-      if (item && typeof item === "object") {
-        servers.push(item);
+        cleanup();
+
+
+        if (
+          data &&
+          data.error
+        ) {
+
+          reject(
+            new Error(
+              data.error
+            )
+          );
+
+          return;
+        }
+
+
+        resolve(data);
+
+      };
+
+
+      let url =
+        RT_PROXY +
+        "?action=" +
+        encodeURIComponent(action) +
+        "&prefix=" +
+        encodeURIComponent(callbackName);
+
+
+      if (query) {
+
+        url +=
+          "&q=" +
+          encodeURIComponent(query);
+
       }
-    });
-  });
 
-  return deduplicateObjects(servers);
+
+      script.src = url;
+
+
+      script.onerror =
+        function() {
+
+          if (finished) {
+            return;
+          }
+
+          finished = true;
+
+          cleanup();
+
+          reject(
+            new Error(
+              "The Google Apps Script proxy could not be reached."
+            )
+          );
+
+        };
+
+
+      document.body.appendChild(
+        script
+      );
+
+    }
+  );
 }
 
 
 /* =========================================================
-   DEDUPLICATE OBJECTS
+   NORMALIZE API RESPONSE
    ========================================================= */
 
-function deduplicateObjects(items) {
-  const output = [];
-  const seen = new Set();
+function normalizeArray(data) {
 
-  items.forEach(item => {
-    let identity;
+  if (
+    Array.isArray(data)
+  ) {
+    return data;
+  }
 
-    try {
-      identity = JSON.stringify(item);
-    } catch (error) {
-      identity = String(item);
-    }
 
-    if (seen.has(identity)) {
-      return;
-    }
+  if (
+    data &&
+    Array.isArray(
+      data.results
+    )
+  ) {
+    return data.results;
+  }
 
-    seen.add(identity);
-    output.push(item);
-  });
 
-  return output;
+  if (
+    data &&
+    Array.isArray(
+      data.posts
+    )
+  ) {
+    return data.posts;
+  }
+
+
+  if (
+    data &&
+    Array.isArray(
+      data.groups
+    )
+  ) {
+    return data.groups;
+  }
+
+
+  if (
+    data &&
+    Array.isArray(
+      data.actors
+    )
+  ) {
+    return data.actors;
+  }
+
+
+  if (
+    data &&
+    Array.isArray(
+      data.markets
+    )
+  ) {
+    return data.markets;
+  }
+
+
+  return [];
 }
 
 
@@ -441,13 +397,18 @@ function deduplicateObjects(items) {
    ========================================================= */
 
 function getObjectName(item) {
-  if (typeof item === "string") {
+
+  if (
+    typeof item === "string"
+  ) {
     return item;
   }
+
 
   if (!item) {
     return "UNKNOWN";
   }
+
 
   return (
     item.name ||
@@ -472,6 +433,14 @@ function getObjectName(item) {
    ========================================================= */
 
 function getGroupName(post) {
+
+  if (
+    typeof post === "string"
+  ) {
+    return post;
+  }
+
+
   return (
     post.group_name ||
     post.group ||
@@ -487,6 +456,7 @@ function getGroupName(post) {
    ========================================================= */
 
 function getPostTitle(post) {
+
   return (
     post.post_title ||
     post.title ||
@@ -504,6 +474,7 @@ function getPostTitle(post) {
    ========================================================= */
 
 function getPostDate(post) {
+
   return (
     post.discovered ||
     post.date ||
@@ -517,175 +488,19 @@ function getPostDate(post) {
 
 
 /* =========================================================
-   API REQUEST
-   ========================================================= */
-
-function rtFetch(action, query = "") {
-  return new Promise((resolve, reject) => {
-    const callbackName =
-      "rt_" +
-      Date.now() +
-      "_" +
-      Math.random()
-        .toString(36)
-        .slice(2);
-
-    const script =
-      document.createElement("script");
-
-    let finished = false;
-
-    const timeout =
-      setTimeout(() => {
-        if (finished) {
-          return;
-        }
-
-        finished = true;
-        cleanup();
-
-        reject(
-          new Error(
-            "The intelligence service timed out."
-          )
-        );
-      }, 30000);
-
-    function cleanup() {
-      clearTimeout(timeout);
-
-      if (
-        script &&
-        script.parentNode
-      ) {
-        script.parentNode.removeChild(script);
-      }
-
-      try {
-        delete window[callbackName];
-      } catch (error) {
-        window[callbackName] =
-          undefined;
-      }
-    }
-
-    window[callbackName] =
-      function(data) {
-        if (finished) {
-          return;
-        }
-
-        finished = true;
-        cleanup();
-
-        if (
-          data &&
-          data.error
-        ) {
-          reject(
-            new Error(data.error)
-          );
-          return;
-        }
-
-        resolve(data);
-      };
-
-    let url =
-      RT_PROXY +
-      "?action=" +
-      encodeURIComponent(action) +
-      "&prefix=" +
-      encodeURIComponent(callbackName);
-
-    if (query) {
-      url +=
-        "&q=" +
-        encodeURIComponent(query);
-    }
-
-    script.src = url;
-
-    script.onerror =
-      function() {
-        if (finished) {
-          return;
-        }
-
-        finished = true;
-        cleanup();
-
-        reject(
-          new Error(
-            "The Google Apps Script proxy could not be reached."
-          )
-        );
-      };
-
-    document.body.appendChild(script);
-  });
-}
-
-
-/* =========================================================
-   NORMALIZE API RESPONSE
-   ========================================================= */
-
-function normalizeArray(data) {
-  if (Array.isArray(data)) {
-    return data;
-  }
-
-  if (
-    data &&
-    Array.isArray(data.results)
-  ) {
-    return data.results;
-  }
-
-  if (
-    data &&
-    Array.isArray(data.posts)
-  ) {
-    return data.posts;
-  }
-
-  if (
-    data &&
-    Array.isArray(data.groups)
-  ) {
-    return data.groups;
-  }
-
-  if (
-    data &&
-    Array.isArray(data.actors)
-  ) {
-    return data.actors;
-  }
-
-  if (
-    data &&
-    Array.isArray(data.markets)
-  ) {
-    return data.markets;
-  }
-
-  return [];
-}
-
-
-/* =========================================================
    LOADING
    ========================================================= */
 
 function showLoading() {
+
   results.innerHTML =
     `<div class="rt-loading">
       QUERYING INTELLIGENCE...
     </div>`;
 
-  resultsCount.textContent = "";
+  resultsCount.textContent =
+    "";
+
 }
 
 
@@ -694,13 +509,16 @@ function showLoading() {
    ========================================================= */
 
 function showError(error) {
+
   const message =
     error instanceof Error
       ? error.message
       : String(error);
 
+
   results.innerHTML = `
     <div class="rt-error">
+
       <strong>
         INTELLIGENCE REQUEST FAILED
       </strong>
@@ -708,10 +526,14 @@ function showError(error) {
       <br><br>
 
       ${escapeHTML(message)}
+
     </div>
   `;
 
-  resultsCount.textContent = "";
+
+  resultsCount.textContent =
+    "";
+
 }
 
 
@@ -720,6 +542,7 @@ function showError(error) {
    ========================================================= */
 
 function showEmpty(message) {
+
   results.innerHTML =
     `<div class="rt-empty">
       ${escapeHTML(message)}
@@ -727,6 +550,7 @@ function showEmpty(message) {
 
   resultsCount.textContent =
     "0 RESULTS";
+
 }
 
 
@@ -735,32 +559,46 @@ function showEmpty(message) {
    ========================================================= */
 
 async function loadRecent() {
-  currentView = "posts";
+
+  currentView =
+    "posts";
+
 
   showLoading();
+
 
   resultsTitle.textContent =
     "RECENT ACTIVITY";
 
+
   try {
+
     const data =
-      await rtFetch("recent");
+      await rtFetch(
+        "recent"
+      );
+
 
     currentResults =
       normalizeArray(data);
+
 
     renderPosts(
       currentResults
     );
 
+
   } catch (error) {
+
     console.error(
       "RemnantTrace intelligence error:",
       error
     );
 
     showError(error);
+
   }
+
 }
 
 
@@ -769,51 +607,74 @@ async function loadRecent() {
    ========================================================= */
 
 async function performSearch() {
+
   const query =
     searchInput.value.trim();
 
+
   if (!query) {
+
     await loadRecent();
+
     return;
+
   }
 
-  if (query.length < 2) {
+
+  if (
+    query.length < 2
+  ) {
+
     showEmpty(
       "Enter at least two characters."
     );
 
     return;
+
   }
 
-  currentView = "search";
+
+  currentView =
+    "search";
+
 
   showLoading();
 
+
   resultsTitle.textContent =
-    "SEARCH / " + query;
+    "SEARCH / " +
+    query;
+
 
   try {
+
     const data =
       await rtFetch(
         "search",
         query
       );
 
+
     currentResults =
       normalizeArray(data);
+
 
     renderPosts(
       currentResults
     );
 
+
   } catch (error) {
+
     console.error(
       "Search error:",
       error
     );
 
     showError(error);
+
   }
+
 }
 
 
@@ -822,62 +683,76 @@ async function performSearch() {
    ========================================================= */
 
 function renderPosts(posts) {
+
   resultsCount.textContent =
     `${posts.length} RESULTS`;
 
+
   if (!posts.length) {
+
     showEmpty(
       "No matching intelligence was found."
     );
 
     return;
+
   }
 
+
   results.innerHTML =
-    posts.map(
-      (post, index) => {
+    posts
+      .map(
+        (post, index) => {
 
-        const group =
-          getGroupName(post);
+          const group =
+            getGroupName(post);
 
-        const title =
-          getPostTitle(post);
+          const title =
+            getPostTitle(post);
 
-        const date =
-          getPostDate(post);
+          const date =
+            getPostDate(post);
 
-        return `
-          <article
-            class="rt-result"
-            data-index="${index}"
-          >
 
-            <div class="rt-result-type">
-              POST
-            </div>
+          return `
+            <article
+              class="rt-result"
+              data-index="${index}"
+            >
 
-            <div>
-              <h3 class="rt-result-title">
-                ${escapeHTML(title)}
-              </h3>
-
-              <div class="rt-result-meta">
-                GROUP /
-                ${escapeHTML(group)}
+              <div class="rt-result-type">
+                POST
               </div>
-            </div>
 
-            <div class="rt-result-date">
-              ${formatDate(date)}
-            </div>
+              <div>
 
-          </article>
-        `;
-      }
-    ).join("");
+                <h3 class="rt-result-title">
+                  ${escapeHTML(title)}
+                </h3>
+
+                <div class="rt-result-meta">
+                  GROUP /
+                  ${escapeHTML(group)}
+                </div>
+
+              </div>
+
+              <div class="rt-result-date">
+                ${formatDate(date)}
+              </div>
+
+            </article>
+          `;
+
+        }
+      )
+      .join("");
+
 
   document
-    .querySelectorAll(".rt-result")
+    .querySelectorAll(
+      ".rt-result"
+    )
     .forEach(item => {
 
       item.addEventListener(
@@ -889,13 +764,17 @@ function renderPosts(posts) {
               item.dataset.index
             );
 
+
           showPostDetail(
             currentResults[index],
             item
           );
+
         }
       );
+
     });
+
 }
 
 
@@ -907,12 +786,14 @@ function showPostDetail(
   post,
   resultElement
 ) {
+
   if (
     !post ||
     !resultElement
   ) {
     return;
   }
+
 
   const group =
     getGroupName(post);
@@ -923,12 +804,14 @@ function showPostDetail(
   const date =
     getPostDate(post);
 
+
   const description =
     post.description ||
     post.content ||
     post.text ||
     post.body ||
     "";
+
 
   document
     .querySelectorAll(
@@ -939,13 +822,19 @@ function showPostDetail(
         element.remove()
     );
 
+
   const inlineDetail =
-    document.createElement("div");
+    document.createElement(
+      "div"
+    );
+
 
   inlineDetail.className =
     "rt-inline-detail";
 
+
   inlineDetail.innerHTML = `
+
     <div class="rt-detail-header">
 
       <div class="rt-detail-type">
@@ -958,11 +847,13 @@ function showPostDetail(
 
     </div>
 
+
     <div class="rt-detail-body">
 
       <div class="rt-detail-grid">
 
         <div class="rt-detail-field">
+
           <div class="rt-detail-field-label">
             GROUP
           </div>
@@ -970,9 +861,12 @@ function showPostDetail(
           <div class="rt-detail-field-value">
             ${escapeHTML(group)}
           </div>
+
         </div>
 
+
         <div class="rt-detail-field">
+
           <div class="rt-detail-field-label">
             FIRST OBSERVED
           </div>
@@ -980,9 +874,11 @@ function showPostDetail(
           <div class="rt-detail-field-value">
             ${formatDate(date)}
           </div>
+
         </div>
 
       </div>
+
 
       ${
         description
@@ -1006,17 +902,21 @@ function showPostDetail(
       }
 
     </div>
+
   `;
+
 
   resultElement.insertAdjacentElement(
     "afterend",
     inlineDetail
   );
 
+
   inlineDetail.scrollIntoView({
     behavior: "smooth",
     block: "nearest"
   });
+
 }
 
 
@@ -1028,69 +928,83 @@ function renderNameList(
   items,
   type
 ) {
-  currentResults = items;
+
+  currentResults =
+    items;
 
   currentProfileType =
     type;
 
+
   resultsTitle.textContent =
     type;
+
 
   resultsCount.textContent =
     `${items.length} RESULTS`;
 
+
   if (!items.length) {
+
     showEmpty(
       `No ${type.toLowerCase()} were returned.`
     );
 
     return;
+
   }
 
+
   results.innerHTML =
-    items.map(
-      (item, index) => {
+    items
+      .map(
+        (item, index) => {
 
-        const name =
-          getObjectName(item);
+          const name =
+            getObjectName(item);
 
-        const profileType =
-          type === "GROUPS"
-            ? "RANSOMWARE GROUP"
-            : type === "ACTORS"
-              ? "THREAT ACTOR"
-              : "MARKET";
 
-        return `
-          <article
-            class="rt-result rt-profile-result"
-            data-index="${index}"
-          >
+          const profileType =
+            type === "GROUPS"
+              ? "RANSOMWARE GROUP"
+              : type === "ACTORS"
+                ? "THREAT ACTOR"
+                : "MARKET";
 
-            <div class="rt-result-type">
-              ${profileType}
-            </div>
 
-            <div>
+          return `
+            <article
+              class="rt-result rt-profile-result"
+              data-index="${index}"
+            >
 
-              <h3 class="rt-result-title">
-                ${escapeHTML(name)}
-              </h3>
-
-              <div class="rt-result-meta">
-                REMNANTTRACE INTELLIGENCE INDEX
+              <div class="rt-result-type">
+                ${profileType}
               </div>
 
-            </div>
+              <div>
 
-            <div class="rt-result-date">
-              VIEW PROFILE →
-            </div>
+                <h3 class="rt-result-title">
+                  ${escapeHTML(name)}
+                </h3>
 
-          </article>
-        `;
-      }
-    ).join("");
+                <div class="rt-result-meta">
+                  REMNANTTRACE INTELLIGENCE INDEX
+                </div>
+
+              </div>
+
+              <div class="rt-result-date">
+                VIEW PROFILE →
+              </div>
+
+            </article>
+          `;
+
+        }
+      )
+      .join("");
+
 
   document
     .querySelectorAll(
@@ -1107,33 +1021,136 @@ function renderNameList(
               card.dataset.index
             );
 
+
           const item =
             currentResults[index];
+
 
           if (
             currentProfileType ===
             "GROUPS"
           ) {
-            showGroupProfile(item);
-          }
 
-          else if (
+            showGroupProfile(
+              item,
+              card
+            );
+
+          } else if (
             currentProfileType ===
             "ACTORS"
           ) {
-            showActorProfile(item);
-          }
 
-          else if (
+            showActorProfile(
+              item
+            );
+
+          } else if (
             currentProfileType ===
             "MARKETS"
           ) {
-            showMarketProfile(item);
+
+            showMarketProfile(
+              item
+            );
+
           }
 
         }
       );
+
     });
+
+}
+
+
+/* =========================================================
+   GENERIC PROFILE VIEW
+   ========================================================= */
+
+function openProfileView(
+  type,
+  item
+) {
+
+  currentProfileType =
+    type;
+
+  currentProfile =
+    item;
+
+
+  results.style.display =
+    "none";
+
+
+  const heading =
+    document.querySelector(
+      ".rt-results-heading"
+    );
+
+
+  if (heading) {
+    heading.style.display =
+      "none";
+  }
+
+
+  const filterContainer =
+    document.querySelector(
+      ".rt-filters"
+    );
+
+
+  if (filterContainer) {
+    filterContainer.style.display =
+      "none";
+  }
+
+
+  detail.hidden =
+    false;
+
+
+  detailContent.innerHTML = `
+
+    <div class="rt-profile">
+
+      <div class="rt-profile-header">
+
+        <div class="rt-detail-type">
+          ${escapeHTML(type)}
+        </div>
+
+        <h2 class="rt-profile-title">
+          ${escapeHTML(
+            getObjectName(item)
+          )}
+        </h2>
+
+        <div class="rt-profile-subtitle">
+          REMNANTTRACE INTELLIGENCE PROFILE
+        </div>
+
+      </div>
+
+
+      <div class="rt-profile-content">
+
+        ${renderProfileFields(item)}
+
+      </div>
+
+    </div>
+
+  `;
+
+
+  detail.scrollIntoView({
+    behavior: "smooth",
+    block: "start"
+  });
+
 }
 
 
@@ -1142,9 +1159,13 @@ function renderNameList(
    ========================================================= */
 
 function renderProfileFields(item) {
-  if (typeof item === "string") {
+
+  if (
+    typeof item === "string"
+  ) {
 
     return `
+
       <div class="rt-profile-section">
 
         <div class="rt-profile-section-title">
@@ -1152,38 +1173,51 @@ function renderProfileFields(item) {
         </div>
 
         <div class="rt-detail-field">
+
           <div class="rt-detail-field-value">
             ${escapeHTML(item)}
           </div>
+
         </div>
 
       </div>
+
     `;
+
   }
+
 
   if (!item) {
 
     return `
+
       <div class="rt-empty">
         No profile information was returned.
       </div>
+
     `;
+
   }
 
+
   const ignoredKeys = [
+
     "name",
+
     "group_name",
+
     "groupName",
+
     "actor_name",
+
     "actorName",
+
     "market_name",
-    "marketName",
-    "locations",
-    "posts",
-    "activity",
-    "fileservers",
-    "file_servers"
+
+    "marketName"
+
   ];
+
 
   const fields =
     Object.entries(item)
@@ -1211,12 +1245,15 @@ function renderProfileFields(item) {
           }
 
           return true;
+
         }
       );
+
 
   if (!fields.length) {
 
     return `
+
       <div class="rt-profile-section">
 
         <div class="rt-profile-section-title">
@@ -1233,10 +1270,14 @@ function renderProfileFields(item) {
         </div>
 
       </div>
+
     `;
+
   }
 
+
   return `
+
     <div class="rt-profile-section">
 
       <div class="rt-profile-section-title">
@@ -1245,294 +1286,903 @@ function renderProfileFields(item) {
 
       <div class="rt-profile-grid">
 
-        ${fields.map(
-          ([key, value]) => {
+        ${
 
-            const label =
-              key
-                .replace(/_/g, " ")
-                .replace(/\b\w/g, char =>
-                  char.toUpperCase()
-                );
+          fields
+            .map(
+              ([key, value]) => {
 
-            return `
-              <div class="rt-detail-field">
+                const label =
+                  key
+                    .replace(
+                      /_/g,
+                      " "
+                    )
+                    .replace(
+                      /\b\w/g,
+                      char =>
+                        char.toUpperCase()
+                    );
 
-                <div class="rt-detail-field-label">
-                  ${escapeHTML(label)}
-                </div>
 
-                <div class="rt-detail-field-value">
-                  ${escapeHTML(value)}
-                </div>
+                return `
 
-              </div>
-            `;
-          }
-        ).join("")}
+                  <div class="rt-detail-field">
+
+                    <div class="rt-detail-field-label">
+                      ${escapeHTML(label)}
+                    </div>
+
+                    <div class="rt-detail-field-value">
+                      ${escapeHTML(value)}
+                    </div>
+
+                  </div>
+
+                `;
+
+              }
+            )
+            .join("")
+
+        }
 
       </div>
 
     </div>
+
   `;
+
 }
 
 
 /* =========================================================
-   LOCATION DATA HELPERS
+   GROUP PROFILE
    ========================================================= */
 
-function getLocationURL(location) {
-  return normalizeURL(
-    getURLFromObject(location) ||
-    firstValue(
-      location,
-      [
-        "slug",
-        "url",
-        "uri",
-        "link",
-        "href"
-      ]
+async function showGroupProfile(
+  group,
+  resultElement
+) {
+
+  const groupName =
+    getObjectName(group);
+
+
+  currentProfileType =
+    "RANSOMWARE GROUP";
+
+  currentProfile =
+    group;
+
+
+  /*
+   * Keep the GROUP result visible and
+   * create an expandable detail panel
+   * directly underneath it.
+   */
+
+  document
+    .querySelectorAll(
+      ".rt-group-inline-detail"
     )
-  );
+    .forEach(
+      element =>
+        element.remove()
+    );
+
+
+  const inlineDetail =
+    document.createElement(
+      "div"
+    );
+
+
+  inlineDetail.className =
+    "rt-group-inline-detail";
+
+
+  inlineDetail.innerHTML = `
+
+    <div class="rt-profile">
+
+      <div class="rt-profile-header">
+
+        <div class="rt-detail-type">
+          RANSOMWARE GROUP
+        </div>
+
+        <h2 class="rt-profile-title">
+          ${escapeHTML(groupName)}
+        </h2>
+
+        <div class="rt-profile-subtitle">
+          RANSOMLOOK GROUP PROFILE
+        </div>
+
+      </div>
+
+      <div class="rt-profile-content">
+
+        <div class="rt-profile-loading">
+          LOADING GROUP INTELLIGENCE...
+        </div>
+
+      </div>
+
+    </div>
+
+  `;
+
+
+  if (resultElement) {
+
+    resultElement.insertAdjacentElement(
+      "afterend",
+      inlineDetail
+    );
+
+  } else {
+
+    results.appendChild(
+      inlineDetail
+    );
+
+  }
+
+
+  inlineDetail.scrollIntoView({
+    behavior: "smooth",
+    block: "nearest"
+  });
+
+
+  try {
+
+    /*
+     * Fetch the actual RansomLook
+     * group-specific record.
+     */
+
+    const data =
+      await rtFetch(
+        "group",
+        groupName
+      );
+
+
+    /*
+     * Render the RansomLook-style
+     * group profile.
+     */
+
+    const profileHTML =
+      renderGroupProfile(
+        groupName,
+        group,
+        data
+      );
+
+
+    const content =
+      inlineDetail.querySelector(
+        ".rt-profile-content"
+      );
+
+
+    if (content) {
+
+      content.innerHTML =
+        profileHTML;
+
+    }
+
+
+  } catch (error) {
+
+    console.error(
+      "Group profile error:",
+      error
+    );
+
+
+    const content =
+      inlineDetail.querySelector(
+        ".rt-profile-content"
+      );
+
+
+    if (content) {
+
+      content.innerHTML = `
+
+        <div class="rt-profile-error">
+
+          <strong>
+            GROUP PROFILE REQUEST FAILED
+          </strong>
+
+          <br><br>
+
+          ${escapeHTML(
+            error.message ||
+            error
+          )}
+
+          <br><br>
+
+          The group itself was found in
+          the RansomLook group index, but
+          its detailed infrastructure record
+          could not be retrieved.
+
+        </div>
+
+      `;
+
+    }
+
+  }
+
 }
 
-function getLocationStatus(location) {
+
+/* =========================================================
+   GROUP PROFILE DATA HELPERS
+   ========================================================= */
+
+function getFirstValue(
+  object,
+  keys,
+  fallback = ""
+) {
+
+  if (
+    !object ||
+    typeof object !== "object"
+  ) {
+    return fallback;
+  }
+
+
+  for (
+    const key of keys
+  ) {
+
+    if (
+      object[key] !== undefined &&
+      object[key] !== null &&
+      object[key] !== ""
+    ) {
+
+      return object[key];
+
+    }
+
+  }
+
+
+  return fallback;
+
+}
+
+
+/* =========================================================
+   FIND GROUP LOCATIONS
+   ========================================================= */
+
+function getGroupLocations(
+  data
+) {
+
+  if (
+    Array.isArray(data)
+  ) {
+
+    return data;
+
+  }
+
+
+  if (
+    data &&
+    Array.isArray(
+      data.locations
+    )
+  ) {
+
+    return data.locations;
+
+  }
+
+
+  if (
+    data &&
+    Array.isArray(
+      data.urls
+    )
+  ) {
+
+    return data.urls;
+
+  }
+
+
+  if (
+    data &&
+    Array.isArray(
+      data.mirrors
+    )
+  ) {
+
+    return data.mirrors;
+
+  }
+
+
+  if (
+    data &&
+    Array.isArray(
+      data.location
+    )
+  ) {
+
+    return data.location;
+
+  }
+
+
+  return [];
+
+}
+
+
+/* =========================================================
+   FIND FILE SERVERS
+   ========================================================= */
+
+function getFileServers(
+  data
+) {
+
+  if (!data) {
+    return [];
+  }
+
+
+  if (
+    Array.isArray(
+      data.file_servers
+    )
+  ) {
+
+    return data.file_servers;
+
+  }
+
+
+  if (
+    Array.isArray(
+      data.fileservers
+    )
+  ) {
+
+    return data.fileservers;
+
+  }
+
+
+  if (
+    Array.isArray(
+      data.fileServers
+    )
+  ) {
+
+    return data.fileServers;
+
+  }
+
+
+  if (
+    data &&
+    Array.isArray(
+      data.files
+    )
+  ) {
+
+    return data.files;
+
+  }
+
+
+  return [];
+
+}
+
+
+/* =========================================================
+   LOCATION URL
+   ========================================================= */
+
+function getLocationURL(
+  location
+) {
+
+  if (
+    typeof location === "string"
+  ) {
+
+    return location;
+
+  }
+
+
+  if (!location) {
+    return "";
+  }
+
+
+  return getFirstValue(
+    location,
+    [
+      "url",
+      "uri",
+      "link",
+      "address",
+      "location",
+      "site"
+    ],
+    ""
+  );
+
+}
+
+
+/* =========================================================
+   LOCATION STATUS
+   ========================================================= */
+
+function getLocationStatus(
+  location
+) {
+
+  if (
+    typeof location === "string"
+  ) {
+
+    return "";
+
+  }
+
+
+  if (!location) {
+    return "";
+  }
+
+
+  const explicitStatus =
+    getFirstValue(
+      location,
+      [
+        "status",
+        "state"
+      ],
+      ""
+    );
+
+
+  if (explicitStatus) {
+    return String(
+      explicitStatus
+    );
+  }
+
 
   const available =
-    firstValue(
+    getFirstValue(
       location,
       [
         "available",
         "up",
-        "is_up",
         "online"
       ],
       null
     );
 
+
   if (
-    typeof available ===
-    "boolean"
+    available === true ||
+    available === 1 ||
+    available === "true"
   ) {
-    return available
-      ? "UP"
-      : "DOWN";
+
+    return "Up";
+
   }
 
-  const status =
-    cleanString(
-      firstValue(
-        location,
-        [
-          "status",
-          "state"
-        ]
-      )
-    );
 
-  if (status) {
-    return status.toUpperCase();
+  if (
+    available === false ||
+    available === 0 ||
+    available === "false"
+  ) {
+
+    return "Down";
+
   }
 
-  return "UNKNOWN";
+
+  return "Unknown";
+
 }
 
-function getLocationUptime(location) {
+
+/* =========================================================
+   LOCATION UPTIME
+   ========================================================= */
+
+function getLocationUptime(
+  location
+) {
+
+  if (
+    typeof location === "string"
+  ) {
+
+    return "";
+
+  }
+
+
+  if (!location) {
+    return "";
+  }
+
 
   const value =
-    firstValue(
+    getFirstValue(
       location,
       [
-        "uptime",
         "uptime30d",
         "uptime_30d",
-        "uptime_30_days",
+        "uptime_30",
         "uptime30",
+        "uptime",
         "availability"
-      ]
+      ],
+      ""
     );
 
-  if (
-    value === "" ||
-    value === null ||
-    value === undefined
-  ) {
-    return "—";
-  }
 
   if (
-    typeof value ===
-    "number"
+    typeof value === "number"
   ) {
-    return `${value}%`;
-  }
 
-  return String(value);
-}
-
-function getLocationHealth(location) {
-
-  const value =
-    firstValue(
-      location,
-      [
-        "health",
-        "health_score",
-        "score"
-      ]
+    return (
+      value <= 1
+        ? Math.round(value * 100) + "%"
+        : Math.round(value) + "%"
     );
 
-  if (
-    value === "" ||
-    value === null ||
-    value === undefined
-  ) {
-    return "—";
   }
 
+
   return String(value);
+
 }
 
-function getLastScrape(location) {
 
-  return firstValue(
+/* =========================================================
+   LOCATION HEALTH
+   ========================================================= */
+
+function getLocationHealth(
+  location
+) {
+
+  if (
+    typeof location === "string"
+  ) {
+
+    return "";
+
+  }
+
+
+  if (!location) {
+    return "";
+  }
+
+
+  return getFirstValue(
     location,
     [
-      "lastscrape",
-      "last_scrape",
-      "lastScrape",
-      "last_seen",
-      "lastSeen",
-      "updated",
-      "updated_at"
+      "health",
+      "health_score",
+      "healthScore",
+      "score"
     ],
     ""
   );
-}
 
-function getLocationScreen(location) {
-
-  const value =
-    firstValue(
-      location,
-      [
-        "screen",
-        "screenshot",
-        "screenshot_url",
-        "screenshotUrl",
-        "screen_url",
-        "screenUrl"
-      ],
-      ""
-    );
-
-  if (
-    typeof value === "string"
-  ) {
-    return value;
-  }
-
-  if (
-    value &&
-    typeof value === "object"
-  ) {
-    return firstValue(
-      value,
-      [
-        "url",
-        "src",
-        "href",
-        "path"
-      ],
-      ""
-    );
-  }
-
-  return "";
 }
 
 
 /* =========================================================
-   RENDER URL
+   LOCATION SCREEN
    ========================================================= */
 
-function renderURL(url) {
+function getLocationScreen(
+  location
+) {
 
-  if (!url) {
-    return `
-      <div class="rt-location-url">
-        URL NOT AVAILABLE
-      </div>
-    `;
+  if (
+    typeof location === "string"
+  ) {
+
+    return "";
+
   }
 
-  return `
-    <div class="rt-location-url-block">
 
-      <div class="rt-location-url-type">
-        URL
-      </div>
+  if (!location) {
+    return "";
+  }
 
-      <div class="rt-location-url">
-        ${escapeHTML(url)}
-      </div>
 
-    </div>
-  `;
+  return getFirstValue(
+    location,
+    [
+      "screen",
+      "screenshot",
+      "screenshot_url",
+      "screenshotUrl",
+      "image"
+    ],
+    ""
+  );
+
 }
 
 
 /* =========================================================
-   RENDER SCREENSHOT
+   SCREENSHOT HTML
    ========================================================= */
 
-function renderScreenshot(location) {
-
-  const screen =
-    getLocationScreen(
-      location
-    );
+function renderScreen(
+  screen,
+  index
+) {
 
   if (!screen) {
+    return "";
+  }
+
+
+  const value =
+    String(screen);
+
+
+  /*
+   * Direct image URL
+   */
+
+  if (
+    value.startsWith(
+      "http://"
+    ) ||
+    value.startsWith(
+      "https://"
+    )
+  ) {
+
     return `
+
       <div class="rt-location-screen">
 
-        <div class="rt-screen-frame">
-          NO SCREENSHOT AVAILABLE
+        <div class="rt-detail-field-label">
+          SCREEN
+        </div>
+
+        <button
+          type="button"
+          class="rt-screen-toggle"
+          onclick="this.nextElementSibling.hidden = !this.nextElementSibling.hidden"
+        >
+          VIEW SCREENSHOT
+        </button>
+
+        <div
+          class="rt-screen-frame"
+          hidden
+        >
+
+          <img
+            src="${escapeHTML(value)}"
+            alt="RansomLook screenshot ${index + 1}"
+            loading="lazy"
+          >
+
         </div>
 
       </div>
+
     `;
+
   }
 
-  return `
-    <div class="rt-location-screen">
 
-      <div class="rt-screen-frame">
+  /*
+   * Data URI
+   */
 
-        <img
-          src="${escapeHTML(screen)}"
-          alt="RansomLook infrastructure screenshot"
-          loading="lazy"
-          onerror="this.parentElement.innerHTML='SCREENSHOT UNAVAILABLE';"
+  if (
+    value.startsWith(
+      "data:image/"
+    )
+  ) {
+
+    return `
+
+      <div class="rt-location-screen">
+
+        <div class="rt-detail-field-label">
+          SCREEN
+        </div>
+
+        <button
+          type="button"
+          class="rt-screen-toggle"
+          onclick="this.nextElementSibling.hidden = !this.nextElementSibling.hidden"
         >
+          VIEW SCREENSHOT
+        </button>
+
+        <div
+          class="rt-screen-frame"
+          hidden
+        >
+
+          <img
+            src="${escapeHTML(value)}"
+            alt="RansomLook screenshot ${index + 1}"
+            loading="lazy"
+          >
+
+        </div>
 
       </div>
 
+    `;
+
+  }
+
+
+  /*
+   * Base64 image
+   */
+
+  if (
+    /^[A-Za-z0-9+/=\s]+$/.test(
+      value
+    ) &&
+    value.length > 100
+  ) {
+
+    const imageData =
+      "data:image/png;base64," +
+      value.replace(
+        /\s/g,
+        ""
+      );
+
+
+    return `
+
+      <div class="rt-location-screen">
+
+        <div class="rt-detail-field-label">
+          SCREEN
+        </div>
+
+        <button
+          type="button"
+          class="rt-screen-toggle"
+          onclick="this.nextElementSibling.hidden = !this.nextElementSibling.hidden"
+        >
+          VIEW SCREENSHOT
+        </button>
+
+        <div
+          class="rt-screen-frame"
+          hidden
+        >
+
+          <img
+            src="${imageData}"
+            alt="RansomLook screenshot ${index + 1}"
+            loading="lazy"
+          >
+
+        </div>
+
+      </div>
+
+    `;
+
+  }
+
+
+  return `
+
+    <div class="rt-location-screen">
+
+      <div class="rt-detail-field-label">
+        SCREEN
+      </div>
+
+      <div class="rt-detail-field-value">
+        ${escapeHTML(value)}
+      </div>
+
     </div>
+
   `;
+
 }
 
 
 /* =========================================================
-   RENDER LOCATION CARD
+   STATUS CLASS
+   ========================================================= */
+
+function getStatusClass(
+  status
+) {
+
+  const normalized =
+    String(
+      status || ""
+    ).toLowerCase();
+
+
+  if (
+    normalized === "up" ||
+    normalized === "online" ||
+    normalized === "available" ||
+    normalized === "true"
+  ) {
+
+    return "rt-status-up";
+
+  }
+
+
+  if (
+    normalized === "down" ||
+    normalized === "offline" ||
+    normalized === "unavailable" ||
+    normalized === "false"
+  ) {
+
+    return "rt-status-down";
+
+  }
+
+
+  return "";
+
+}
+
+
+/* =========================================================
+   LOCATION CARD
    ========================================================= */
 
 function renderLocationCard(
   location,
-  index
+  index,
+  label = "URL"
 ) {
 
   const url =
@@ -1540,59 +2190,125 @@ function renderLocationCard(
       location
     );
 
+
   const status =
     getLocationStatus(
       location
     );
+
 
   const uptime =
     getLocationUptime(
       location
     );
 
+
   const health =
     getLocationHealth(
       location
     );
 
-  const lastScrape =
-    getLastScrape(
+
+  const screen =
+    getLocationScreen(
       location
     );
 
+
   const statusClass =
-    status === "UP"
-      ? "rt-status-up"
-      : status === "DOWN"
-        ? "rt-status-down"
-        : "";
+    getStatusClass(
+      status
+    );
+
+
+  const safeHref =
+    safeURL(url);
+
+
+  const urlHTML =
+    safeHref
+      ? `
+        <a
+          class="rt-location-url"
+          href="${escapeHTML(safeHref)}"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+
+          <span>
+            ↗
+          </span>
+
+          <strong>
+            ${escapeHTML(url)}
+          </strong>
+
+        </a>
+      `
+      : `
+        <div class="rt-location-url">
+
+          <strong>
+            ${escapeHTML(
+              url || "URL NOT AVAILABLE"
+            )}
+          </strong>
+
+        </div>
+      `;
+
 
   return `
-    <article class="rt-location-card">
+
+    <div class="rt-location-card">
 
       <div class="rt-location-top">
 
-        <div class="rt-location-index">
-          LOCATION ${String(
-            index + 1
-          ).padStart(2, "0")}
+        <div>
+
+          <div class="rt-location-index">
+            ${escapeHTML(label)}
+            ${String(index + 1).padStart(2, "0")}
+          </div>
+
+          <h4 class="rt-location-title">
+            ${
+              url
+                ? escapeHTML(url)
+                : "UNKNOWN LOCATION"
+            }
+          </h4>
+
         </div>
 
-        <div class="rt-location-status ${statusClass}">
-          <span class="rt-location-status-dot"></span>
-          ${escapeHTML(status)}
+
+        <div
+          class="rt-location-status ${statusClass}"
+        >
+
+          <span
+            class="rt-location-status-dot"
+          ></span>
+
+          ${escapeHTML(
+            status || "UNKNOWN"
+          )}
+
         </div>
 
       </div>
 
-      <div class="rt-location-title">
-        ${escapeHTML(
-          url ||
-          `LOCATION ${index + 1}`
-        )}
+
+      <div class="rt-location-url-block">
+
+        <span class="rt-location-url-type">
+          MONITORED LOCATION
+        </span>
+
+        ${urlHTML}
+
       </div>
 
-      ${renderURL(url)}
 
       <div class="rt-location-grid">
 
@@ -1603,10 +2319,13 @@ function renderLocationCard(
           </div>
 
           <div class="rt-detail-field-value">
-            ${escapeHTML(status)}
+            ${escapeHTML(
+              status || "UNKNOWN"
+            )}
           </div>
 
         </div>
+
 
         <div class="rt-detail-field">
 
@@ -1615,10 +2334,13 @@ function renderLocationCard(
           </div>
 
           <div class="rt-detail-field-value">
-            ${escapeHTML(uptime)}
+            ${escapeHTML(
+              uptime || "—"
+            )}
           </div>
 
         </div>
+
 
         <div class="rt-detail-field">
 
@@ -1627,200 +2349,306 @@ function renderLocationCard(
           </div>
 
           <div class="rt-detail-field-value">
-            ${escapeHTML(health)}
+            ${escapeHTML(
+              health || "—"
+            )}
           </div>
 
         </div>
+
 
         <div class="rt-detail-field">
 
           <div class="rt-detail-field-label">
-            LAST SCRAPE
+            SCREEN
           </div>
 
           <div class="rt-detail-field-value">
-            ${lastScrape
-              ? formatDate(lastScrape)
-              : "—"}
+            ${
+              screen
+                ? "AVAILABLE"
+                : "—"
+            }
           </div>
 
         </div>
 
       </div>
 
-      ${renderScreenshot(location)}
 
-      <details class="rt-location-extra">
-
-        <summary>
-          VIEW RAW LOCATION DATA
-        </summary>
-
-        <pre>${escapeHTML(
-          JSON.stringify(
-            location,
-            null,
-            2
-          )
-        )}</pre>
-
-      </details>
-
-    </article>
-  `;
-}
-
-
-/* =========================================================
-   RENDER FILE SERVERS
-   ========================================================= */
-
-function renderFileServers(
-  servers
-) {
-
-  if (!servers.length) {
-    return "";
-  }
-
-  return `
-    <section class="rt-profile-section">
-
-      <div class="rt-group-location-heading">
-
-        <div class="rt-group-location-heading-title">
-          FILE SERVERS
-        </div>
-
-        <div class="rt-group-location-heading-count">
-          ${servers.length}
-        </div>
-
-      </div>
-
-      <div class="rt-group-locations">
-
-        ${servers.map(
-          (server, index) =>
-            renderLocationCard(
-              server,
+      ${
+        screen
+          ? renderScreen(
+              screen,
               index
             )
-        ).join("")}
+          : ""
+      }
 
-      </div>
+    </div>
 
-    </section>
   `;
+
 }
 
 
 /* =========================================================
-   RENDER GROUP SUMMARY
+   SUMMARY VALUE
+   ========================================================= */
+
+function getSummaryValue(
+  data,
+  keys,
+  fallback = "—"
+) {
+
+  const value =
+    getFirstValue(
+      data,
+      keys,
+      ""
+    );
+
+
+  if (
+    value === "" ||
+    value === null ||
+    value === undefined
+  ) {
+
+    return fallback;
+
+  }
+
+
+  return value;
+
+}
+
+
+/* =========================================================
+   FORMAT PERCENT
+   ========================================================= */
+
+function formatPercent(
+  value
+) {
+
+  if (
+    value === "" ||
+    value === null ||
+    value === undefined
+  ) {
+
+    return "—";
+
+  }
+
+
+  if (
+    typeof value === "number"
+  ) {
+
+    return (
+      value <= 1
+        ? Math.round(value * 100) + "%"
+        : Math.round(value) + "%"
+    );
+
+  }
+
+
+  const text =
+    String(value);
+
+
+  if (
+    text.includes("%")
+  ) {
+
+    return text;
+
+  }
+
+
+  const number =
+    Number(text);
+
+
+  if (
+    !Number.isNaN(number)
+  ) {
+
+    return (
+      number <= 1
+        ? Math.round(number * 100) + "%"
+        : Math.round(number) + "%"
+    );
+
+  }
+
+
+  return text;
+
+}
+
+
+/* =========================================================
+   GROUP SUMMARY
    ========================================================= */
 
 function renderGroupSummary(
-  group
+  data,
+  locations
 ) {
 
-  const locations =
-    collectLocationRecords(
-      group
+  const allPosts =
+    getSummaryValue(
+      data,
+      [
+        "posts",
+        "post_count",
+        "posts_count",
+        "total_posts",
+        "posts_all_time",
+        "postsAllTime"
+      ]
     );
 
-  const posts =
-    collectPosts(
-      group
+
+  const last30 =
+    getSummaryValue(
+      data,
+      [
+        "last30",
+        "last_30",
+        "posts_last30",
+        "posts_last_30",
+        "last_30_days",
+        "posts30"
+      ]
     );
 
-  const servers =
-    collectFileServers(
-      group
+
+  const last7 =
+    getSummaryValue(
+      data,
+      [
+        "last7",
+        "last_7",
+        "posts_last7",
+        "posts_last_7",
+        "last_7_days",
+        "posts7"
+      ]
     );
+
+
+  const uptime =
+    getFirstValue(
+      data,
+      [
+        "uptime30d",
+        "uptime_30d",
+        "avg_uptime_30d",
+        "average_uptime_30d",
+        "uptime"
+      ],
+      ""
+    );
+
 
   const parser =
-    firstValue(
-      group,
+    getFirstValue(
+      data,
       [
         "parser",
         "parsing",
-        "parse",
-        "parser_enabled"
-      ]
+        "parser_status",
+        "parsing_status"
+      ],
+      ""
     );
 
-  const crypto =
-    firstValue(
-      group,
+
+  const urlCount =
+    getFirstValue(
+      data,
       [
-        "crypto",
-        "crypto_count",
-        "cryptocurrency"
-      ]
+        "urls_count",
+        "url_count",
+        "urls",
+        "locations_count"
+      ],
+      locations.length
     );
 
-  const description =
-    firstValue(
-      group,
-      [
-        "description",
-        "desc",
-        "bio"
-      ]
-    );
-
-  const lastPost =
-    posts.length
-      ? posts
-          .map(
-            getPostDate
-          )
-          .filter(Boolean)
-          .sort(
-            (a, b) =>
-              new Date(b) -
-              new Date(a)
-          )[0]
-      : "";
 
   return `
+
     <div class="rt-group-summary">
 
       <div class="rt-group-summary-card">
 
         <div class="rt-group-summary-label">
-          POSTS
+          POSTS / ALL TIME
         </div>
 
         <div class="rt-group-summary-value">
-          ${posts.length || "—"}
+          ${escapeHTML(
+            allPosts
+          )}
         </div>
 
       </div>
+
 
       <div class="rt-group-summary-card">
 
         <div class="rt-group-summary-label">
-          URLS
+          LAST 30 DAYS
         </div>
 
         <div class="rt-group-summary-value">
-          ${locations.length || "—"}
+          ${escapeHTML(
+            last30
+          )}
         </div>
 
       </div>
+
 
       <div class="rt-group-summary-card">
 
         <div class="rt-group-summary-label">
-          FILE SERVERS
+          LAST 7 DAYS
         </div>
 
         <div class="rt-group-summary-value">
-          ${servers.length || "—"}
+          ${escapeHTML(
+            last7
+          )}
         </div>
 
       </div>
+
+
+      <div class="rt-group-summary-card">
+
+        <div class="rt-group-summary-label">
+          AVG UPTIME 30D
+        </div>
+
+        <div class="rt-group-summary-value rt-positive">
+          ${escapeHTML(
+            formatPercent(
+              uptime
+            )
+          )}
+        </div>
+
+      </div>
+
 
       <div class="rt-group-summary-card">
 
@@ -1829,400 +2657,479 @@ function renderGroupSummary(
         </div>
 
         <div class="rt-group-summary-value">
-          ${
-            parser === true ||
-            String(parser).toLowerCase() ===
-              "enabled"
-              ? "ENABLED"
-              : parser
-                ? String(parser).toUpperCase()
-                : "—"
-          }
+          ${escapeHTML(
+            parser || "—"
+          )}
         </div>
 
       </div>
 
-      ${
-        crypto
-          ? `
-            <div class="rt-group-summary-card">
 
-              <div class="rt-group-summary-label">
-                CRYPTO
-              </div>
+      <div class="rt-group-summary-card">
 
-              <div class="rt-group-summary-value">
-                ${escapeHTML(crypto)}
-              </div>
+        <div class="rt-group-summary-label">
+          URLS
+        </div>
 
-            </div>
-          `
-          : ""
-      }
+        <div class="rt-group-summary-value">
+          ${escapeHTML(
+            urlCount
+          )}
+        </div>
 
-      ${
-        lastPost
-          ? `
-            <div class="rt-group-summary-card">
-
-              <div class="rt-group-summary-label">
-                LAST POST
-              </div>
-
-              <div class="rt-group-summary-value">
-                ${formatDate(lastPost)}
-              </div>
-
-            </div>
-          `
-          : ""
-      }
+      </div>
 
     </div>
 
-    ${
-      description
-        ? `
-          <section class="rt-profile-section">
-
-            <div class="rt-profile-section-title">
-              DESCRIPTION
-            </div>
-
-            <div class="rt-group-profile-note">
-              ${escapeHTML(description)}
-            </div>
-
-          </section>
-        `
-        : ""
-    }
   `;
+
 }
 
 
 /* =========================================================
-   RENDER GROUP POSTS
+   GROUP CONTACT / DESCRIPTION
    ========================================================= */
 
-function renderGroupPosts(
-  group
+function renderGroupMetadata(
+  data
 ) {
 
-  const posts =
-    collectPosts(
-      group
-    );
-
-  if (!posts.length) {
+  if (!data) {
     return "";
   }
 
-  const limitedPosts =
-    posts.slice(0, 50);
+
+  const description =
+    getFirstValue(
+      data,
+      [
+        "description",
+        "desc",
+        "about"
+      ],
+      ""
+    );
+
+
+  const mail =
+    getFirstValue(
+      data,
+      [
+        "mail",
+        "email",
+        "contact",
+        "contact_email"
+      ],
+      ""
+    );
+
+
+  const pgp =
+    getFirstValue(
+      data,
+      [
+        "pgp",
+        "pgp_key",
+        "pgpKey"
+      ],
+      ""
+    );
+
+
+  if (
+    !description &&
+    !mail &&
+    !pgp
+  ) {
+
+    return "";
+
+  }
+
 
   return `
-    <section class="rt-profile-section">
+
+    <div class="rt-profile-section">
+
+      <div class="rt-profile-section-title">
+        GROUP INFORMATION
+      </div>
+
+
+      <div class="rt-profile-grid">
+
+        ${
+          description
+            ? `
+              <div class="rt-detail-field">
+
+                <div class="rt-detail-field-label">
+                  DESCRIPTION
+                </div>
+
+                <div class="rt-detail-field-value">
+                  ${escapeHTML(
+                    description
+                  )}
+                </div>
+
+              </div>
+            `
+            : ""
+        }
+
+
+        ${
+          mail
+            ? `
+              <div class="rt-detail-field">
+
+                <div class="rt-detail-field-label">
+                  MAIL
+                </div>
+
+                <div class="rt-detail-field-value">
+                  ${escapeHTML(
+                    mail
+                  )}
+                </div>
+
+              </div>
+            `
+            : ""
+        }
+
+
+        ${
+          pgp
+            ? `
+              <div
+                class="rt-detail-field"
+                style="grid-column:1/-1;"
+              >
+
+                <div class="rt-detail-field-label">
+                  PGP
+                </div>
+
+                <div
+                  class="rt-detail-field-value"
+                  style="font-family:'Space Mono',monospace;font-size:10px;"
+                >
+                  ${escapeHTML(
+                    pgp
+                  )}
+                </div>
+
+              </div>
+            `
+            : ""
+        }
+
+      </div>
+
+    </div>
+
+  `;
+
+}
+
+
+/* =========================================================
+   GROUP LAST POST
+   ========================================================= */
+
+function renderLastPost(
+  data
+) {
+
+  if (!data) {
+    return "";
+  }
+
+
+  const lastPost =
+    getFirstValue(
+      data,
+      [
+        "last_post",
+        "lastPost",
+        "lastpost",
+        "last_post_date",
+        "lastPostDate"
+      ],
+      ""
+    );
+
+
+  if (!lastPost) {
+    return "";
+  }
+
+
+  return `
+
+    <div class="rt-profile-section">
+
+      <div class="rt-profile-section-title">
+        ACTIVITY
+      </div>
+
+      <div class="rt-detail-field">
+
+        <div class="rt-detail-field-label">
+          LAST POST
+        </div>
+
+        <div class="rt-detail-field-value">
+          ${formatDate(lastPost)}
+        </div>
+
+      </div>
+
+    </div>
+
+  `;
+
+}
+
+
+/* =========================================================
+   GROUP PROFILE SOURCE
+   ========================================================= */
+
+function renderGroupSource(
+  groupName
+) {
+
+  const url =
+    "https://www.ransomlook.io/group/" +
+    encodeURIComponent(
+      groupName
+    );
+
+
+  return `
+
+    <a
+      class="rt-profile-source"
+      href="${escapeHTML(url)}"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+
+      VIEW SOURCE PROFILE ↗
+
+    </a>
+
+  `;
+
+}
+
+
+/* =========================================================
+   GROUP PROFILE RENDERER
+   ========================================================= */
+
+function renderGroupProfile(
+  groupName,
+  originalGroup,
+  data
+) {
+
+  /*
+   * Some RansomLook responses return
+   * the detail object directly.
+   *
+   * Others may wrap the actual group
+   * record inside "group" or "data".
+   */
+
+  let profile =
+    data;
+
+
+  if (
+    data &&
+    data.group &&
+    typeof data.group === "object"
+  ) {
+
+    profile =
+      data.group;
+
+  }
+
+
+  if (
+    data &&
+    data.data &&
+    typeof data.data === "object"
+  ) {
+
+    profile =
+      data.data;
+
+  }
+
+
+  const locations =
+    getGroupLocations(
+      profile
+    );
+
+
+  const fileServers =
+    getFileServers(
+      profile
+    );
+
+
+  /*
+   * If the endpoint returns only
+   * locations as the top-level array,
+   * use the original data as the location
+   * response.
+   */
+
+  const summarySource =
+    Array.isArray(data)
+      ? {}
+      : profile || {};
+
+
+  return `
+
+    ${renderGroupSummary(
+      summarySource,
+      locations
+    )}
+
+
+    <div class="rt-group-profile-note">
+
+      DATA SOURCE /
+      RANSOMLOOK GROUP INTELLIGENCE
+
+      <br>
+
+      This profile reflects publicly available
+      RansomLook collection data. Availability,
+      uptime, screenshots, and observed posts
+      can change as the source is updated.
+
+    </div>
+
+
+    ${renderGroupMetadata(
+      summarySource
+    )}
+
+
+    ${renderLastPost(
+      summarySource
+    )}
+
+
+    <div class="rt-profile-section">
 
       <div class="rt-group-location-heading">
 
         <div class="rt-group-location-heading-title">
-          ACTIVITY
+          URLS
         </div>
 
         <div class="rt-group-location-heading-count">
-          ${posts.length}
+          ${locations.length} MONITORED
         </div>
 
       </div>
 
-      <div class="rt-group-posts">
 
-        ${limitedPosts.map(
-          post => {
+      ${
+        locations.length
+          ? `
+            <div class="rt-group-locations">
 
-            const title =
-              getPostTitle(
-                post
-              );
+              ${
 
-            const date =
-              getPostDate(
-                post
-              );
-
-            const description =
-              firstValue(
-                post,
-                [
-                  "description",
-                  "content",
-                  "text",
-                  "body"
-                ]
-              );
-
-            return `
-              <article class="rt-result">
-
-                <div class="rt-result-type">
-                  POST
-                </div>
-
-                <div>
-
-                  <h3 class="rt-result-title">
-                    ${escapeHTML(title)}
-                  </h3>
-
-                  <div class="rt-result-meta">
-                    ${escapeHTML(
-                      description
-                        ? String(description)
-                            .slice(0, 220)
-                        : "OBSERVED ACTIVITY"
-                    )}
-                  </div>
-
-                </div>
-
-                <div class="rt-result-date">
-                  ${formatDate(date)}
-                </div>
-
-              </article>
-            `;
-          }
-        ).join("")}
-
-      </div>
-
-    </section>
-  `;
-}
-
-
-/* =========================================================
-   RENDER GROUP PROFILE
-   ========================================================= */
-
-function renderGroupProfile(
-  group
-) {
-
-  const locations =
-    collectLocationRecords(
-      group
-    );
-
-  const servers =
-    collectFileServers(
-      group
-    );
-
-  const groupObject =
-    Array.isArray(group)
-      ? group[0]
-      : group;
-
-  return `
-    <div class="rt-profile">
-
-      <div class="rt-profile-header">
-
-        <div class="rt-detail-type">
-          RANSOMWARE GROUP
-        </div>
-
-        <h2 class="rt-profile-title">
-          ${escapeHTML(
-            getObjectName(
-              groupObject
-            )
-          )}
-        </h2>
-
-        <div class="rt-profile-subtitle">
-          REMNANTTRACE INTELLIGENCE PROFILE
-        </div>
-
-      </div>
-
-      <div class="rt-profile-content">
-
-        ${renderGroupSummary(
-          group
-        )}
-
-        <section class="rt-profile-section">
-
-          <div class="rt-group-location-heading">
-
-            <div class="rt-group-location-heading-title">
-              INFRASTRUCTURE
-            </div>
-
-            <div class="rt-group-location-heading-count">
-              ${locations.length}
-            </div>
-
-          </div>
-
-          ${
-            locations.length
-              ? `
-                <div class="rt-group-locations">
-
-                  ${locations.map(
-                    (record, index) =>
+                locations
+                  .map(
+                    (location, index) =>
                       renderLocationCard(
-                        record.object,
-                        index
+                        location,
+                        index,
+                        "URL"
                       )
-                  ).join("")}
+                  )
+                  .join("")
 
-                </div>
-              `
-              : `
-                <div class="rt-empty">
-                  No infrastructure records were returned.
-                </div>
-              `
-          }
+              }
 
-        </section>
-
-        ${renderFileServers(
-          servers
-        )}
-
-        ${renderGroupPosts(
-          group
-        )}
-
-        <section class="rt-profile-section">
-
-          <div class="rt-profile-section-title">
-            RAW RANSOMLOOK RECORD
-          </div>
-
-          <details class="rt-location-extra">
-
-            <summary>
-              VIEW COMPLETE RETURNED DATA
-            </summary>
-
-            <pre>${escapeHTML(
-              JSON.stringify(
-                group,
-                null,
-                2
-              )
-            )}</pre>
-
-          </details>
-
-        </section>
-
-        <div class="rt-profile-source">
-
-          DATA SOURCE
-
-          <p>
-            Open ransomware intelligence.
-            Data is presented through the
-            RemnantTrace research interface
-            and remains subject to the source's
-            availability and collection methodology.
-          </p>
-
-        </div>
-
-      </div>
+            </div>
+          `
+          : `
+            <div class="rt-empty">
+              No URL infrastructure records
+              were returned for this group.
+            </div>
+          `
+      }
 
     </div>
+
+
+    ${
+      fileServers.length
+        ? `
+
+          <div class="rt-profile-section">
+
+            <div class="rt-group-location-heading">
+
+              <div class="rt-group-location-heading-title">
+                FILE SERVERS
+              </div>
+
+              <div class="rt-group-location-heading-count">
+                ${fileServers.length} MONITORED
+              </div>
+
+            </div>
+
+
+            <div class="rt-group-locations">
+
+              ${
+
+                fileServers
+                  .map(
+                    (server, index) =>
+                      renderLocationCard(
+                        server,
+                        index,
+                        "FILE SERVER"
+                      )
+                  )
+                  .join("")
+
+              }
+
+            </div>
+
+          </div>
+
+        `
+        : ""
+    }
+
+
+    ${renderGroupSource(
+      groupName
+    )}
+
   `;
-}
 
-
-/* =========================================================
-   GROUP PROFILE
-   ========================================================= */
-
-async function showGroupProfile(
-  group
-) {
-
-  const groupName =
-    getObjectName(
-      group
-    );
-
-  openProfileLoading(
-    "RANSOMWARE GROUP",
-    groupName
-  );
-
-  try {
-
-    /*
-      IMPORTANT:
-      We do NOT use the groups-list object
-      as the final profile.
-
-      We make a second request to:
-
-          /api/group/{name}
-
-      This retrieves the detailed group record,
-      including nested locations.
-    */
-
-    const detailedData =
-      await rtFetch(
-        "group",
-        groupName
-      );
-
-    currentProfile =
-      detailedData;
-
-    detailContent.innerHTML =
-      renderGroupProfile(
-        detailedData
-      );
-
-    detail.hidden = false;
-
-    detail.scrollIntoView({
-      behavior: "smooth",
-      block: "start"
-    });
-
-  } catch (error) {
-
-    console.error(
-      "Group profile error:",
-      error
-    );
-
-    detailContent.innerHTML = `
-      <div class="rt-profile-error">
-
-        <strong>
-          GROUP PROFILE REQUEST FAILED
-        </strong>
-
-        <p>
-          ${escapeHTML(
-            error.message ||
-            error
-          )}
-        </p>
-
-      </div>
-    `;
-  }
 }
 
 
@@ -2233,10 +3140,12 @@ async function showGroupProfile(
 function showActorProfile(
   actor
 ) {
+
   openProfileView(
     "THREAT ACTOR",
     actor
   );
+
 }
 
 
@@ -2247,145 +3156,12 @@ function showActorProfile(
 function showMarketProfile(
   market
 ) {
+
   openProfileView(
     "MARKET",
     market
   );
-}
 
-
-/* =========================================================
-   GENERIC PROFILE VIEW
-   ========================================================= */
-
-function openProfileView(
-  type,
-  item
-) {
-
-  currentProfileType =
-    type;
-
-  currentProfile =
-    item;
-
-  results.style.display =
-    "none";
-
-  document
-    .querySelector(
-      ".rt-results-heading"
-    )
-    .style.display =
-    "none";
-
-  document
-    .querySelector(
-      ".rt-filters"
-    )
-    .style.display =
-    "none";
-
-  detail.hidden =
-    false;
-
-  detailContent.innerHTML = `
-    <div class="rt-profile">
-
-      <div class="rt-profile-header">
-
-        <div class="rt-detail-type">
-          ${escapeHTML(type)}
-        </div>
-
-        <h2 class="rt-profile-title">
-          ${escapeHTML(
-            getObjectName(item)
-          )}
-        </h2>
-
-        <div class="rt-profile-subtitle">
-          REMNANTTRACE INTELLIGENCE PROFILE
-        </div>
-
-      </div>
-
-      <div class="rt-profile-content">
-
-        ${renderProfileFields(
-          item
-        )}
-
-      </div>
-
-    </div>
-  `;
-
-  detail.scrollIntoView({
-    behavior: "smooth",
-    block: "start"
-  });
-}
-
-
-/* =========================================================
-   PROFILE LOADING
-   ========================================================= */
-
-function openProfileLoading(
-  type,
-  name
-) {
-
-  results.style.display =
-    "none";
-
-  document
-    .querySelector(
-      ".rt-results-heading"
-    )
-    .style.display =
-    "none";
-
-  document
-    .querySelector(
-      ".rt-filters"
-    )
-    .style.display =
-    "none";
-
-  detail.hidden =
-    false;
-
-  detailContent.innerHTML = `
-    <div class="rt-profile">
-
-      <div class="rt-profile-header">
-
-        <div class="rt-detail-type">
-          ${escapeHTML(type)}
-        </div>
-
-        <h2 class="rt-profile-title">
-          ${escapeHTML(name)}
-        </h2>
-
-        <div class="rt-profile-subtitle">
-          LOADING RANSOMLOOK PROFILE
-        </div>
-
-      </div>
-
-      <div class="rt-profile-content">
-
-        <div class="rt-profile-loading">
-          QUERYING GROUP INFRASTRUCTURE...
-        </div>
-
-      </div>
-
-    </div>
-  `;
 }
 
 
@@ -2398,42 +3174,63 @@ function closeProfile() {
   detail.hidden =
     true;
 
+
   detailContent.innerHTML =
     "";
+
 
   results.style.display =
     "";
 
-  document
-    .querySelector(
-      ".rt-results-heading"
-    )
-    .style.display =
-    "";
 
-  document
-    .querySelector(
+  const heading =
+    document.querySelector(
+      ".rt-results-heading"
+    );
+
+
+  if (heading) {
+
+    heading.style.display =
+      "";
+
+  }
+
+
+  const filterContainer =
+    document.querySelector(
       ".rt-filters"
-    )
-    .style.display =
-    "";
+    );
+
+
+  if (filterContainer) {
+
+    filterContainer.style.display =
+      "";
+
+  }
+
 
   const wrapper =
     document.querySelector(
       ".rt-results-wrapper"
     );
 
+
   if (wrapper) {
 
     window.scrollTo({
+
       top:
-        wrapper.offsetTop -
-        100,
+        wrapper.offsetTop - 100,
+
       behavior:
         "smooth"
+
     });
 
   }
+
 }
 
 
@@ -2455,14 +3252,18 @@ filters.forEach(
             )
         );
 
+
         filter.classList.add(
           "active"
         );
 
+
         closeProfile();
+
 
         const type =
           filter.dataset.type;
+
 
         if (
           type === "all" ||
@@ -2472,9 +3273,12 @@ filters.forEach(
           await loadRecent();
 
           return;
+
         }
 
+
         showLoading();
+
 
         try {
 
@@ -2483,12 +3287,12 @@ filters.forEach(
               type
             );
 
+
           renderNameList(
-            normalizeArray(
-              data
-            ),
+            normalizeArray(data),
             type.toUpperCase()
           );
+
 
         } catch (error) {
 
@@ -2497,9 +3301,8 @@ filters.forEach(
             error
           );
 
-          showError(
-            error
-          );
+          showError(error);
+
         }
 
       }
@@ -2516,7 +3319,9 @@ filters.forEach(
 backButton.addEventListener(
   "click",
   () => {
+
     closeProfile();
+
   }
 );
 
@@ -2540,13 +3345,13 @@ searchInput.addEventListener(
   event => {
 
     if (
-      event.key ===
-      "Enter"
+      event.key === "Enter"
     ) {
 
       event.preventDefault();
 
       performSearch();
+
     }
 
   }
