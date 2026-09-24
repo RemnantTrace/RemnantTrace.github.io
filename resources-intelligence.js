@@ -614,16 +614,16 @@ function renderPosts(
     );
 }
 
-
 /* =========================================================
    POST DETAIL
    ========================================================= */
 
 function showPostDetail(
-  post
+  post,
+  resultElement
 ) {
 
-  if (!post) {
+  if (!post || !resultElement) {
     return;
   }
 
@@ -664,10 +664,27 @@ function showPostDetail(
     "";
 
 
-  detail.hidden = false;
+  /* Remove any previously opened detail */
+
+  document
+    .querySelectorAll(".rt-inline-detail")
+    .forEach(
+      element => {
+        element.remove();
+      }
+    );
 
 
-  detailContent.innerHTML = `
+  /* Create the inline detail panel */
+
+  const inlineDetail =
+    document.createElement("div");
+
+  inlineDetail.className =
+    "rt-inline-detail";
+
+
+  inlineDetail.innerHTML = `
 
     <div class="rt-detail-header">
 
@@ -724,9 +741,7 @@ function showPostDetail(
               </div>
 
               <div class="rt-detail-field-value">
-                ${escapeHTML(
-                  description
-                )}
+                ${escapeHTML(description)}
               </div>
 
             </div>
@@ -735,15 +750,21 @@ function showPostDetail(
       }
 
     </div>
+
   `;
 
 
-  detail.scrollIntoView({
-    behavior: "smooth",
-    block: "start"
-  });
-}
+  /*
+     Put the detail directly underneath
+     the result that was clicked.
+  */
 
+  resultElement.insertAdjacentElement(
+    "afterend",
+    inlineDetail
+  );
+
+}
 
 /* =========================================================
    NAME LIST
