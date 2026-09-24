@@ -7,6 +7,10 @@ const RT_PROXY =
   "https://script.google.com/macros/s/AKfycbwE_8EVl8qOTHCLvRLIUsGXeW530hQ1tLrftGLO5xARuQn8TYxLIBNGxuyne6rR0pYcNw/exec";
 
 
+/* =========================================================
+   ELEMENTS
+   ========================================================= */
+
 const searchInput =
   document.getElementById("rt-search");
 
@@ -36,6 +40,12 @@ const filters =
 
 
 let currentResults = [];
+
+let currentView = "posts";
+
+let currentProfileType = "";
+
+let currentProfile = null;
 
 
 /* =========================================================
@@ -153,17 +163,24 @@ function rtFetch(
           script &&
           script.parentNode
         ) {
+
           script.parentNode.removeChild(
             script
           );
+
         }
 
         try {
+
           delete window[callbackName];
+
         } catch (error) {
+
           window[callbackName] =
             undefined;
+
         }
+
       }
 
 
@@ -251,6 +268,7 @@ function rtFetch(
 
     }
   );
+
 }
 
 
@@ -263,7 +281,9 @@ function normalizeArray(data) {
   if (
     Array.isArray(data)
   ) {
+
     return data;
+
   }
 
 
@@ -273,7 +293,9 @@ function normalizeArray(data) {
       data.results
     )
   ) {
+
     return data.results;
+
   }
 
 
@@ -283,7 +305,9 @@ function normalizeArray(data) {
       data.posts
     )
   ) {
+
     return data.posts;
+
   }
 
 
@@ -293,7 +317,9 @@ function normalizeArray(data) {
       data.groups
     )
   ) {
+
     return data.groups;
+
   }
 
 
@@ -303,7 +329,9 @@ function normalizeArray(data) {
       data.actors
     )
   ) {
+
     return data.actors;
+
   }
 
 
@@ -313,11 +341,108 @@ function normalizeArray(data) {
       data.markets
     )
   ) {
+
     return data.markets;
+
   }
 
 
   return [];
+
+}
+
+
+/* =========================================================
+   GET OBJECT NAME
+   ========================================================= */
+
+function getObjectName(item) {
+
+  if (
+    typeof item === "string"
+  ) {
+
+    return item;
+
+  }
+
+
+  if (!item) {
+    return "UNKNOWN";
+  }
+
+
+  return (
+    item.name ||
+    item.group_name ||
+    item.groupName ||
+    item.actor_name ||
+    item.actorName ||
+    item.market_name ||
+    item.marketName ||
+    item.handle ||
+    item.title ||
+    item.company ||
+    item.victim ||
+    item.victim_name ||
+    "UNKNOWN"
+  );
+
+}
+
+
+/* =========================================================
+   GET GROUP NAME
+   ========================================================= */
+
+function getGroupName(post) {
+
+  return (
+    post.group_name ||
+    post.group ||
+    post.groupName ||
+    post.actor ||
+    "UNKNOWN GROUP"
+  );
+
+}
+
+
+/* =========================================================
+   GET POST TITLE
+   ========================================================= */
+
+function getPostTitle(post) {
+
+  return (
+    post.post_title ||
+    post.title ||
+    post.name ||
+    post.company ||
+    post.victim ||
+    post.victim_name ||
+    "UNTITLED POST"
+  );
+
+}
+
+
+/* =========================================================
+   GET POST DATE
+   ========================================================= */
+
+function getPostDate(post) {
+
+  return (
+    post.discovered ||
+    post.date ||
+    post.created ||
+    post.created_at ||
+    post.timestamp ||
+    post.first_seen ||
+    ""
+  );
+
 }
 
 
@@ -334,6 +459,7 @@ function showLoading() {
   `;
 
   resultsCount.textContent = "";
+
 }
 
 
@@ -351,13 +477,21 @@ function showError(error) {
 
   results.innerHTML = `
     <div class="rt-error">
-      <strong>INTELLIGENCE REQUEST FAILED</strong>
+
+      <strong>
+        INTELLIGENCE REQUEST FAILED
+      </strong>
+
       <br><br>
+
       ${escapeHTML(message)}
+
     </div>
   `;
 
+
   resultsCount.textContent = "";
+
 }
 
 
@@ -375,6 +509,7 @@ function showEmpty(message) {
 
   resultsCount.textContent =
     "0 RESULTS";
+
 }
 
 
@@ -383,6 +518,8 @@ function showEmpty(message) {
    ========================================================= */
 
 async function loadRecent() {
+
+  currentView = "posts";
 
   showLoading();
 
@@ -419,6 +556,7 @@ async function loadRecent() {
     showError(error);
 
   }
+
 }
 
 
@@ -437,6 +575,7 @@ async function performSearch() {
     await loadRecent();
 
     return;
+
   }
 
 
@@ -449,8 +588,11 @@ async function performSearch() {
     );
 
     return;
+
   }
 
+
+  currentView = "search";
 
   showLoading();
 
@@ -488,6 +630,7 @@ async function performSearch() {
     showError(error);
 
   }
+
 }
 
 
@@ -512,6 +655,7 @@ function renderPosts(
     );
 
     return;
+
   }
 
 
@@ -523,34 +667,25 @@ function renderPosts(
       ) => {
 
         const group =
-          post.group_name ||
-          post.group ||
-          post.groupName ||
-          post.actor ||
-          "UNKNOWN GROUP";
+          getGroupName(
+            post
+          );
 
 
         const title =
-          post.post_title ||
-          post.title ||
-          post.name ||
-          post.company ||
-          post.victim ||
-          post.victim_name ||
-          "UNTITLED POST";
+          getPostTitle(
+            post
+          );
 
 
         const date =
-          post.discovered ||
-          post.date ||
-          post.created ||
-          post.created_at ||
-          post.timestamp ||
-          post.first_seen ||
-          "";
+          getPostDate(
+            post
+          );
 
 
         return `
+
           <article
             class="rt-result"
             data-index="${index}"
@@ -581,7 +716,9 @@ function renderPosts(
             </div>
 
           </article>
+
         `;
+
       }
     ).join("");
 
@@ -604,7 +741,8 @@ function renderPosts(
 
 
             showPostDetail(
-              currentResults[index]
+              currentResults[index],
+              item
             );
 
           }
@@ -612,7 +750,9 @@ function renderPosts(
 
       }
     );
+
 }
+
 
 /* =========================================================
    POST DETAIL
@@ -623,37 +763,32 @@ function showPostDetail(
   resultElement
 ) {
 
-  if (!post || !resultElement) {
+  if (
+    !post ||
+    !resultElement
+  ) {
+
     return;
+
   }
 
 
   const group =
-    post.group_name ||
-    post.group ||
-    post.groupName ||
-    post.actor ||
-    "Unknown";
+    getGroupName(
+      post
+    );
 
 
   const title =
-    post.post_title ||
-    post.title ||
-    post.name ||
-    post.company ||
-    post.victim ||
-    post.victim_name ||
-    "Untitled Post";
+    getPostTitle(
+      post
+    );
 
 
   const date =
-    post.discovered ||
-    post.date ||
-    post.created ||
-    post.created_at ||
-    post.timestamp ||
-    post.first_seen ||
-    "";
+    getPostDate(
+      post
+    );
 
 
   const description =
@@ -664,21 +799,24 @@ function showPostDetail(
     "";
 
 
-  /* Remove any previously opened detail */
-
   document
-    .querySelectorAll(".rt-inline-detail")
+    .querySelectorAll(
+      ".rt-inline-detail"
+    )
     .forEach(
       element => {
+
         element.remove();
+
       }
     );
 
 
-  /* Create the inline detail panel */
-
   const inlineDetail =
-    document.createElement("div");
+    document.createElement(
+      "div"
+    );
+
 
   inlineDetail.className =
     "rt-inline-detail";
@@ -702,6 +840,7 @@ function showPostDetail(
     <div class="rt-detail-body">
 
       <div class="rt-detail-grid">
+
 
         <div class="rt-detail-field">
 
@@ -728,13 +867,18 @@ function showPostDetail(
 
         </div>
 
+
       </div>
 
 
       ${
         description
           ? `
-            <div class="rt-detail-description">
+
+            <div
+              class="rt-detail-description"
+              style="margin-top:10px;"
+            >
 
               <div class="rt-detail-field-label">
                 DESCRIPTION
@@ -745,35 +889,46 @@ function showPostDetail(
               </div>
 
             </div>
+
           `
           : ""
       }
+
 
     </div>
 
   `;
 
 
-  /*
-     Put the detail directly underneath
-     the result that was clicked.
-  */
-
   resultElement.insertAdjacentElement(
     "afterend",
     inlineDetail
   );
 
+
+  inlineDetail.scrollIntoView({
+    behavior: "smooth",
+    block: "nearest"
+  });
+
 }
 
+
 /* =========================================================
-   NAME LIST
+   PROFILE LIST
    ========================================================= */
 
 function renderNameList(
   items,
   type
 ) {
+
+  currentResults =
+    items;
+
+  currentProfileType =
+    type;
+
 
   resultsTitle.textContent =
     type;
@@ -792,62 +947,525 @@ function renderNameList(
     );
 
     return;
+
   }
 
 
   results.innerHTML =
     items.map(
-      item => {
+      (
+        item,
+        index
+      ) => {
 
         const name =
-          typeof item === "string"
-            ? item
-            : item.name ||
-              item.group_name ||
-              item.actor_name ||
-              item.market_name ||
-              item.handle ||
-              "UNKNOWN";
+          getObjectName(
+            item
+          );
+
+
+        const profileType =
+          type === "GROUPS"
+            ? "RANSOMWARE GROUP"
+            : type === "ACTORS"
+              ? "THREAT ACTOR"
+              : "MARKET";
 
 
         return `
+
           <article
-            class="rt-result"
+            class="rt-result rt-profile-result"
+            data-index="${index}"
           >
 
             <div class="rt-result-type">
-              ${escapeHTML(
-                type === "GROUPS"
-                  ? "GROUP"
-                  : type === "ACTORS"
-                    ? "ACTOR"
-                    : "MARKET"
-              )}
+
+              ${profileType}
+
             </div>
 
 
             <div>
 
               <h3 class="rt-result-title">
+
                 ${escapeHTML(name)}
+
               </h3>
 
 
               <div class="rt-result-meta">
+
                 REMNANTTRACE INTELLIGENCE INDEX
+
               </div>
 
             </div>
 
 
             <div class="rt-result-date">
-              PROFILE
+
+              VIEW PROFILE →
+
             </div>
 
           </article>
+
         `;
+
       }
     ).join("");
+
+
+  document
+    .querySelectorAll(
+      ".rt-profile-result"
+    )
+    .forEach(
+      card => {
+
+        card.addEventListener(
+          "click",
+          () => {
+
+            const index =
+              Number(
+                card.dataset.index
+              );
+
+
+            const item =
+              currentResults[
+                index
+              ];
+
+
+            if (
+              currentProfileType ===
+              "GROUPS"
+            ) {
+
+              showGroupProfile(
+                item
+              );
+
+            }
+
+
+            else if (
+              currentProfileType ===
+              "ACTORS"
+            ) {
+
+              showActorProfile(
+                item
+              );
+
+            }
+
+
+            else if (
+              currentProfileType ===
+              "MARKETS"
+            ) {
+
+              showMarketProfile(
+                item
+              );
+
+            }
+
+          }
+        );
+
+      }
+    );
+
+}
+
+
+/* =========================================================
+   PROFILE VIEW
+   ========================================================= */
+
+function openProfileView(
+  type,
+  item
+) {
+
+  currentProfileType =
+    type;
+
+  currentProfile =
+    item;
+
+
+  results.style.display =
+    "none";
+
+
+  document
+    .querySelector(
+      ".rt-results-heading"
+    )
+    .style.display =
+    "none";
+
+
+  document
+    .querySelector(
+      ".rt-filters"
+    )
+    .style.display =
+    "none";
+
+
+  detail.hidden =
+    false;
+
+
+  detailContent.innerHTML = `
+
+    <div class="rt-profile">
+
+      <div class="rt-profile-header">
+
+        <div class="rt-detail-type">
+
+          ${escapeHTML(type)}
+
+        </div>
+
+
+        <h2 class="rt-profile-title">
+
+          ${escapeHTML(
+            getObjectName(item)
+          )}
+
+        </h2>
+
+
+        <div class="rt-profile-subtitle">
+
+          REMNANTTRACE INTELLIGENCE PROFILE
+
+        </div>
+
+      </div>
+
+
+      <div class="rt-profile-content">
+
+        ${renderProfileFields(item)}
+
+      </div>
+
+    </div>
+
+  `;
+
+
+  detail.scrollIntoView({
+    behavior: "smooth",
+    block: "start"
+  });
+
+}
+
+
+/* =========================================================
+   GENERIC PROFILE FIELDS
+   ========================================================= */
+
+function renderProfileFields(
+  item
+) {
+
+  if (
+    typeof item === "string"
+  ) {
+
+    return `
+
+      <div class="rt-profile-section">
+
+        <div class="rt-profile-section-title">
+          PROFILE
+        </div>
+
+        <div class="rt-detail-field">
+
+          <div class="rt-detail-field-value">
+            ${escapeHTML(item)}
+          </div>
+
+        </div>
+
+      </div>
+
+    `;
+
+  }
+
+
+  if (!item) {
+
+    return `
+
+      <div class="rt-empty">
+        No profile information was returned.
+      </div>
+
+    `;
+
+  }
+
+
+  const ignoredKeys = [
+    "name",
+    "group_name",
+    "groupName",
+    "actor_name",
+    "actorName",
+    "market_name",
+    "marketName"
+  ];
+
+
+  const fields =
+    Object.entries(
+      item
+    )
+    .filter(
+      ([key, value]) => {
+
+        if (
+          ignoredKeys.includes(
+            key
+          )
+        ) {
+
+          return false;
+
+        }
+
+
+        if (
+          value === null ||
+          value === undefined ||
+          value === ""
+        ) {
+
+          return false;
+
+        }
+
+
+        if (
+          typeof value === "object"
+        ) {
+
+          return false;
+
+        }
+
+
+        return true;
+
+      }
+    );
+
+
+  if (!fields.length) {
+
+    return `
+
+      <div class="rt-profile-section">
+
+        <div class="rt-profile-section-title">
+          PROFILE
+        </div>
+
+        <div class="rt-detail-field">
+
+          <div class="rt-detail-field-value">
+            Profile information is not available
+            in the returned intelligence record.
+          </div>
+
+        </div>
+
+      </div>
+
+    `;
+
+  }
+
+
+  return `
+
+    <div class="rt-profile-section">
+
+      <div class="rt-profile-section-title">
+        PROFILE INFORMATION
+      </div>
+
+
+      <div class="rt-profile-grid">
+
+        ${fields.map(
+          ([key, value]) => {
+
+            const label =
+              key
+                .replace(
+                  /_/g,
+                  " "
+                )
+                .replace(
+                  /\b\w/g,
+                  char =>
+                    char.toUpperCase()
+                );
+
+
+            return `
+
+              <div class="rt-detail-field">
+
+                <div class="rt-detail-field-label">
+
+                  ${escapeHTML(label)}
+
+                </div>
+
+
+                <div class="rt-detail-field-value">
+
+                  ${escapeHTML(value)}
+
+                </div>
+
+              </div>
+
+            `;
+
+          }
+        ).join("")}
+
+      </div>
+
+    </div>
+
+  `;
+
+}
+
+
+/* =========================================================
+   GROUP PROFILE
+   ========================================================= */
+
+function showGroupProfile(
+  group
+) {
+
+  openProfileView(
+    "RANSOMWARE GROUP",
+    group
+  );
+
+}
+
+
+/* =========================================================
+   ACTOR PROFILE
+   ========================================================= */
+
+function showActorProfile(
+  actor
+) {
+
+  openProfileView(
+    "THREAT ACTOR",
+    actor
+  );
+
+}
+
+
+/* =========================================================
+   MARKET PROFILE
+   ========================================================= */
+
+function showMarketProfile(
+  market
+) {
+
+  openProfileView(
+    "MARKET",
+    market
+  );
+
+}
+
+
+/* =========================================================
+   CLOSE PROFILE
+   ========================================================= */
+
+function closeProfile() {
+
+  detail.hidden =
+    true;
+
+
+  detailContent.innerHTML =
+    "";
+
+
+  results.style.display =
+    "";
+
+
+  document
+    .querySelector(
+      ".rt-results-heading"
+    )
+    .style.display =
+    "";
+
+
+  document
+    .querySelector(
+      ".rt-filters"
+    )
+    .style.display =
+    "";
+
+
+  const wrapper =
+    document.querySelector(
+      ".rt-results-wrapper"
+    );
+
+
+  if (wrapper) {
+
+    window.scrollTo({
+
+      top:
+        wrapper.offsetTop - 100,
+
+      behavior:
+        "smooth"
+
+    });
+
+  }
+
 }
 
 
@@ -864,9 +1482,11 @@ filters.forEach(
 
         filters.forEach(
           button => {
+
             button.classList.remove(
               "active"
             );
+
           }
         );
 
@@ -874,6 +1494,9 @@ filters.forEach(
         filter.classList.add(
           "active"
         );
+
+
+        closeProfile();
 
 
         const type =
@@ -888,6 +1511,7 @@ filters.forEach(
           await loadRecent();
 
           return;
+
         }
 
 
@@ -917,7 +1541,9 @@ filters.forEach(
             error
           );
 
-          showError(error);
+          showError(
+            error
+          );
 
         }
 
@@ -936,28 +1562,7 @@ backButton.addEventListener(
   "click",
   () => {
 
-    detail.hidden = true;
-
-
-    const wrapper =
-      document.querySelector(
-        ".rt-results-wrapper"
-      );
-
-
-    if (wrapper) {
-
-      window.scrollTo({
-
-        top:
-          wrapper.offsetTop - 100,
-
-        behavior:
-          "smooth"
-
-      });
-
-    }
+    closeProfile();
 
   }
 );
