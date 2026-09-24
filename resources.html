@@ -51,9 +51,7 @@
 </header>
 
 
-
 <main>
-
 
   <section class="pagehero">
 
@@ -68,49 +66,34 @@
   </section>
 
 
-
   <section class="rt-intel">
 
 
-    <div class="rt-intel-header">
+    <p class="rt-intel-description">
+      Search publicly available ransomware intelligence,
+      including groups, actors, markets, and observed
+      victim posts.
+    </p>
 
 
-      <div>
+    <div class="rt-intel-status">
 
-        <p class="rt-intel-description">
-          Search publicly available ransomware intelligence,
-          including groups, actors, markets, and observed
-          victim posts.
-        </p>
+      <span class="rt-status-dot"></span>
 
-      </div>
-
-
-      <div class="rt-intel-status">
-
-        <span class="rt-status-dot"></span>
-
-        <span>
-          LIVE DATA
-        </span>
-
-      </div>
-
+      <span>
+        LIVE DATA
+      </span>
 
     </div>
 
 
-
     <div class="rt-search-panel">
-
 
       <div class="rt-search-label">
         SEARCH INTELLIGENCE
       </div>
 
-
       <div class="rt-search-row">
-
 
         <input
           type="search"
@@ -119,7 +102,6 @@
           autocomplete="off"
         >
 
-
         <button
           type="button"
           id="rt-search-button"
@@ -127,24 +109,17 @@
           SEARCH
         </button>
 
-
       </div>
-
 
       <div class="rt-search-hint">
-
         Search is performed against publicly available
         RansomLook intelligence.
-
       </div>
-
 
     </div>
 
 
-
     <div class="rt-filters">
-
 
       <button
         class="rt-filter active"
@@ -154,7 +129,6 @@
         ALL
       </button>
 
-
       <button
         class="rt-filter"
         data-type="groups"
@@ -162,7 +136,6 @@
       >
         GROUPS
       </button>
-
 
       <button
         class="rt-filter"
@@ -172,7 +145,6 @@
         ACTORS
       </button>
 
-
       <button
         class="rt-filter"
         data-type="markets"
@@ -180,7 +152,6 @@
       >
         MARKETS
       </button>
-
 
       <button
         class="rt-filter"
@@ -190,13 +161,10 @@
         VICTIMS / POSTS
       </button>
 
-
     </div>
 
 
-
     <div class="rt-results-wrapper">
-
 
       <div class="rt-results-heading">
 
@@ -208,7 +176,6 @@
 
       </div>
 
-
       <div id="rt-results">
 
         <div class="rt-loading">
@@ -217,9 +184,7 @@
 
       </div>
 
-
     </div>
-
 
 
     <div
@@ -227,7 +192,6 @@
       class="rt-detail"
       hidden
     >
-
 
       <button
         type="button"
@@ -237,41 +201,30 @@
         ← BACK TO RESULTS
       </button>
 
-
       <div id="rt-detail-content"></div>
-
 
     </div>
 
 
-
     <div class="rt-attribution">
-
 
       <span>
         DATA SOURCE
       </span>
 
-
       <p>
-
         Open ransomware intelligence.
         Data is presented through the RemnantTrace research
         interface and remains subject to the source's
         availability and collection methodology.
-
       </p>
-
 
     </div>
 
 
   </section>
 
-
 </main>
-
-
 
 <footer>
 
