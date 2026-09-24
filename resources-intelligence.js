@@ -39,123 +39,7 @@ let currentResults = [];
 
 
 /* =========================================================
-   JSONP REQUEST
-   ========================================================= */
-
-function rtFetch(action, parameter = "") {
-
-  return new Promise((resolve, reject) => {
-
-    const callbackName =
-      "rtCallback_" +
-      Date.now() +
-      "_" +
-      Math.random()
-        .toString(36)
-        .substring(2);
-
-
-    const script =
-      document.createElement("script");
-
-
-    const timeout =
-      setTimeout(() => {
-
-        cleanup();
-
-        reject(
-          new Error(
-            "Request timed out."
-          )
-        );
-
-      }, 20000);
-
-
-    function cleanup() {
-
-      clearTimeout(timeout);
-
-      if (script.parentNode) {
-        script.parentNode.removeChild(script);
-      }
-
-      try {
-        delete window[callbackName];
-      } catch (e) {
-        window[callbackName] = undefined;
-      }
-
-    }
-
-
-    window[callbackName] =
-      function(data) {
-
-        cleanup();
-
-        if (
-          data &&
-          data.error
-        ) {
-
-          reject(
-            new Error(data.error)
-          );
-
-          return;
-
-        }
-
-        resolve(data);
-
-      };
-
-
-    let url =
-      RT_PROXY +
-      "?action=" +
-      encodeURIComponent(action) +
-      "&callback=" +
-      encodeURIComponent(callbackName);
-
-
-    if (parameter) {
-
-      url +=
-        "&q=" +
-        encodeURIComponent(parameter);
-
-    }
-
-
-    script.src = url;
-
-
-    script.onerror =
-      function() {
-
-        cleanup();
-
-        reject(
-          new Error(
-            "Unable to contact the intelligence service."
-          )
-        );
-
-      };
-
-
-    document.body.appendChild(script);
-
-  });
-
-}
-
-
-/* =========================================================
-   ESCAPE HTML
+   HTML ESCAPING
    ========================================================= */
 
 function escapeHTML(value) {
@@ -173,12 +57,11 @@ function escapeHTML(value) {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
-
 }
 
 
 /* =========================================================
-   DATE FORMAT
+   DATE
    ========================================================= */
 
 function formatDate(value) {
@@ -187,21 +70,16 @@ function formatDate(value) {
     return "DATE UNKNOWN";
   }
 
-
   const date =
     new Date(value);
-
 
   if (
     Number.isNaN(
       date.getTime()
     )
   ) {
-
     return escapeHTML(value);
-
   }
-
 
   return date.toLocaleString(
     undefined,
@@ -213,24 +91,187 @@ function formatDate(value) {
       minute: "2-digit"
     }
   );
-
 }
 
 
 /* =========================================================
-   NORMALIZE RESPONSE
+   API REQUEST
+   ========================================================= */
+
+function rtFetch(
+  action,
+  query = ""
+) {
+
+  return new Promise(
+    (resolve, reject) => {
+
+      const callbackName =
+        "rt_" +
+        Date.now() +
+        "_" +
+        Math.random()
+          .toString(36)
+          .slice(2);
+
+
+      const script =
+        document.createElement("script");
+
+
+      let finished = false;
+
+
+      const timeout =
+        setTimeout(
+          () => {
+
+            if (finished) {
+              return;
+            }
+
+            finished = true;
+
+            cleanup();
+
+            reject(
+              new Error(
+                "The intelligence service timed out."
+              )
+            );
+
+          },
+          20000
+        );
+
+
+      function cleanup() {
+
+        clearTimeout(timeout);
+
+        if (
+          script &&
+          script.parentNode
+        ) {
+          script.parentNode.removeChild(
+            script
+          );
+        }
+
+        try {
+          delete window[callbackName];
+        } catch (error) {
+          window[callbackName] =
+            undefined;
+        }
+      }
+
+
+      window[callbackName] =
+        function(data) {
+
+          if (finished) {
+            return;
+          }
+
+          finished = true;
+
+          cleanup();
+
+
+          if (
+            data &&
+            data.error
+          ) {
+
+            reject(
+              new Error(
+                data.error
+              )
+            );
+
+            return;
+          }
+
+
+          resolve(data);
+
+        };
+
+
+      let url =
+        RT_PROXY +
+        "?action=" +
+        encodeURIComponent(
+          action
+        ) +
+        "&callback=" +
+        encodeURIComponent(
+          callbackName
+        );
+
+
+      if (query) {
+
+        url +=
+          "&q=" +
+          encodeURIComponent(
+            query
+          );
+
+      }
+
+
+      script.src = url;
+
+
+      script.onerror =
+        function() {
+
+          if (finished) {
+            return;
+          }
+
+          finished = true;
+
+          cleanup();
+
+          reject(
+            new Error(
+              "The Google Apps Script proxy could not be reached."
+            )
+          );
+
+        };
+
+
+      document.body.appendChild(
+        script
+      );
+
+    }
+  );
+}
+
+
+/* =========================================================
+   NORMALIZE API RESPONSE
    ========================================================= */
 
 function normalizeArray(data) {
 
-  if (Array.isArray(data)) {
+  if (
+    Array.isArray(data)
+  ) {
     return data;
   }
 
 
   if (
     data &&
-    Array.isArray(data.results)
+    Array.isArray(
+      data.results
+    )
   ) {
     return data.results;
   }
@@ -238,7 +279,9 @@ function normalizeArray(data) {
 
   if (
     data &&
-    Array.isArray(data.posts)
+    Array.isArray(
+      data.posts
+    )
   ) {
     return data.posts;
   }
@@ -246,7 +289,9 @@ function normalizeArray(data) {
 
   if (
     data &&
-    Array.isArray(data.groups)
+    Array.isArray(
+      data.groups
+    )
   ) {
     return data.groups;
   }
@@ -254,7 +299,9 @@ function normalizeArray(data) {
 
   if (
     data &&
-    Array.isArray(data.actors)
+    Array.isArray(
+      data.actors
+    )
   ) {
     return data.actors;
   }
@@ -262,14 +309,15 @@ function normalizeArray(data) {
 
   if (
     data &&
-    Array.isArray(data.markets)
+    Array.isArray(
+      data.markets
+    )
   ) {
     return data.markets;
   }
 
 
   return [];
-
 }
 
 
@@ -286,7 +334,6 @@ function showLoading() {
   `;
 
   resultsCount.textContent = "";
-
 }
 
 
@@ -294,16 +341,23 @@ function showLoading() {
    ERROR
    ========================================================= */
 
-function showError(message) {
+function showError(error) {
+
+  const message =
+    error instanceof Error
+      ? error.message
+      : String(error);
+
 
   results.innerHTML = `
     <div class="rt-error">
+      <strong>INTELLIGENCE REQUEST FAILED</strong>
+      <br><br>
       ${escapeHTML(message)}
     </div>
   `;
 
   resultsCount.textContent = "";
-
 }
 
 
@@ -321,7 +375,50 @@ function showEmpty(message) {
 
   resultsCount.textContent =
     "0 RESULTS";
+}
 
+
+/* =========================================================
+   RECENT ACTIVITY
+   ========================================================= */
+
+async function loadRecent() {
+
+  showLoading();
+
+  resultsTitle.textContent =
+    "RECENT ACTIVITY";
+
+
+  try {
+
+    const data =
+      await rtFetch(
+        "recent"
+      );
+
+
+    currentResults =
+      normalizeArray(
+        data
+      );
+
+
+    renderPosts(
+      currentResults
+    );
+
+
+  } catch (error) {
+
+    console.error(
+      "RemnantTrace intelligence error:",
+      error
+    );
+
+    showError(error);
+
+  }
 }
 
 
@@ -337,26 +434,25 @@ async function performSearch() {
 
   if (!query) {
 
-    loadRecent();
+    await loadRecent();
 
     return;
-
   }
 
 
-  if (query.length < 2) {
+  if (
+    query.length < 2
+  ) {
 
     showEmpty(
       "Enter at least two characters."
     );
 
     return;
-
   }
 
 
   showLoading();
-
 
   resultsTitle.textContent =
     "SEARCH / " + query;
@@ -372,114 +468,65 @@ async function performSearch() {
 
 
     currentResults =
-      normalizeArray(data);
+      normalizeArray(
+        data
+      );
 
 
     renderPosts(
-      currentResults,
-      "SEARCH RESULTS"
+      currentResults
     );
 
 
   } catch (error) {
 
     console.error(
-      "RansomLook search error:",
+      "Search error:",
       error
     );
 
-
-    showError(
-      "Search could not be completed."
-    );
+    showError(error);
 
   }
-
 }
 
 
 /* =========================================================
-   RECENT POSTS
-   ========================================================= */
-
-async function loadRecent() {
-
-  showLoading();
-
-
-  resultsTitle.textContent =
-    "RECENT ACTIVITY";
-
-
-  try {
-
-    const data =
-      await rtFetch("recent");
-
-
-    currentResults =
-      normalizeArray(data);
-
-
-    renderPosts(
-      currentResults,
-      "RECENT ACTIVITY"
-    );
-
-
-  } catch (error) {
-
-    console.error(
-      "RansomLook recent activity error:",
-      error
-    );
-
-
-    showError(
-      "Unable to retrieve RansomLook intelligence."
-    );
-
-  }
-
-}
-
-
-/* =========================================================
-   RENDER POSTS
+   POST RENDERER
    ========================================================= */
 
 function renderPosts(
-  posts,
-  title
+  posts
 ) {
-
-  resultsTitle.textContent =
-    title;
-
 
   resultsCount.textContent =
     `${posts.length} RESULTS`;
 
 
-  if (!posts.length) {
+  if (
+    !posts.length
+  ) {
 
     showEmpty(
       "No matching intelligence was found."
     );
 
     return;
-
   }
 
 
   results.innerHTML =
     posts.map(
-      (post, index) => {
+      (
+        post,
+        index
+      ) => {
 
         const group =
           post.group_name ||
           post.group ||
           post.groupName ||
+          post.actor ||
           "UNKNOWN GROUP";
 
 
@@ -489,20 +536,21 @@ function renderPosts(
           post.name ||
           post.company ||
           post.victim ||
+          post.victim_name ||
           "UNTITLED POST";
 
 
-        const discovered =
+        const date =
           post.discovered ||
           post.date ||
           post.created ||
           post.created_at ||
           post.timestamp ||
+          post.first_seen ||
           "";
 
 
         return `
-
           <article
             class="rt-result"
             data-index="${index}"
@@ -512,11 +560,13 @@ function renderPosts(
               POST
             </div>
 
+
             <div>
 
               <h3 class="rt-result-title">
                 ${escapeHTML(title)}
               </h3>
+
 
               <div class="rt-result-meta">
                 GROUP /
@@ -525,41 +575,43 @@ function renderPosts(
 
             </div>
 
+
             <div class="rt-result-date">
-              ${formatDate(discovered)}
+              ${formatDate(date)}
             </div>
 
           </article>
-
         `;
-
       }
     ).join("");
 
 
   document
-    .querySelectorAll(".rt-result")
-    .forEach(item => {
+    .querySelectorAll(
+      ".rt-result"
+    )
+    .forEach(
+      item => {
 
-      item.addEventListener(
-        "click",
-        () => {
+        item.addEventListener(
+          "click",
+          () => {
 
-          const index =
-            Number(
-              item.dataset.index
+            const index =
+              Number(
+                item.dataset.index
+              );
+
+
+            showPostDetail(
+              currentResults[index]
             );
 
+          }
+        );
 
-          showPostDetail(
-            currentResults[index]
-          );
-
-        }
-      );
-
-    });
-
+      }
+    );
 }
 
 
@@ -567,7 +619,9 @@ function renderPosts(
    POST DETAIL
    ========================================================= */
 
-function showPostDetail(post) {
+function showPostDetail(
+  post
+) {
 
   if (!post) {
     return;
@@ -578,6 +632,7 @@ function showPostDetail(post) {
     post.group_name ||
     post.group ||
     post.groupName ||
+    post.actor ||
     "Unknown";
 
 
@@ -587,15 +642,17 @@ function showPostDetail(post) {
     post.name ||
     post.company ||
     post.victim ||
+    post.victim_name ||
     "Untitled Post";
 
 
-  const discovered =
+  const date =
     post.discovered ||
     post.date ||
     post.created ||
     post.created_at ||
     post.timestamp ||
+    post.first_seen ||
     "";
 
 
@@ -649,7 +706,7 @@ function showPostDetail(post) {
           </div>
 
           <div class="rt-detail-field-value">
-            ${formatDate(discovered)}
+            ${formatDate(date)}
           </div>
 
         </div>
@@ -667,7 +724,9 @@ function showPostDetail(post) {
               </div>
 
               <div class="rt-detail-field-value">
-                ${escapeHTML(description)}
+                ${escapeHTML(
+                  description
+                )}
               </div>
 
             </div>
@@ -676,7 +735,6 @@ function showPostDetail(post) {
       }
 
     </div>
-
   `;
 
 
@@ -684,124 +742,7 @@ function showPostDetail(post) {
     behavior: "smooth",
     block: "start"
   });
-
 }
-
-
-/* =========================================================
-   FILTERS
-   ========================================================= */
-
-filters.forEach(filter => {
-
-  filter.addEventListener(
-    "click",
-    async () => {
-
-      filters.forEach(button => {
-
-        button.classList.remove(
-          "active"
-        );
-
-      });
-
-
-      filter.classList.add(
-        "active"
-      );
-
-
-      const type =
-        filter.dataset.type;
-
-
-      if (type === "all") {
-
-        await loadRecent();
-
-        return;
-
-      }
-
-
-      if (type === "posts") {
-
-        await loadRecent();
-
-        return;
-
-      }
-
-
-      showLoading();
-
-
-      try {
-
-        let data;
-
-
-        if (type === "groups") {
-
-          data =
-            await rtFetch("groups");
-
-
-          renderNameList(
-            normalizeArray(data),
-            "GROUPS"
-          );
-
-        }
-
-
-        else if (type === "actors") {
-
-          data =
-            await rtFetch("actors");
-
-
-          renderNameList(
-            normalizeArray(data),
-            "ACTORS"
-          );
-
-        }
-
-
-        else if (type === "markets") {
-
-          data =
-            await rtFetch("markets");
-
-
-          renderNameList(
-            normalizeArray(data),
-            "MARKETS"
-          );
-
-        }
-
-
-      } catch (error) {
-
-        console.error(
-          "RansomLook category error:",
-          error
-        );
-
-
-        showError(
-          "Unable to retrieve this intelligence category."
-        );
-
-      }
-
-    }
-  );
-
-});
 
 
 /* =========================================================
@@ -821,45 +762,44 @@ function renderNameList(
     `${items.length} RESULTS`;
 
 
-  if (!items.length) {
+  if (
+    !items.length
+  ) {
 
     showEmpty(
       `No ${type.toLowerCase()} were returned.`
     );
 
     return;
-
   }
 
 
   results.innerHTML =
     items.map(
-      (item, index) => {
+      item => {
 
         const name =
           typeof item === "string"
             ? item
             : item.name ||
               item.group_name ||
+              item.actor_name ||
               item.market_name ||
               item.handle ||
-              item.actor_name ||
-              "Unknown";
+              "UNKNOWN";
 
 
         return `
-
           <article
             class="rt-result"
-            data-index="${index}"
           >
 
             <div class="rt-result-type">
               ${escapeHTML(
-                type === "ACTORS"
-                  ? "ACTOR"
-                  : type === "GROUPS"
-                    ? "GROUP"
+                type === "GROUPS"
+                  ? "GROUP"
+                  : type === "ACTORS"
+                    ? "ACTOR"
                     : "MARKET"
               )}
             </div>
@@ -884,17 +824,91 @@ function renderNameList(
             </div>
 
           </article>
-
         `;
-
       }
     ).join("");
-
 }
 
 
 /* =========================================================
-   BACK
+   FILTERS
+   ========================================================= */
+
+filters.forEach(
+  filter => {
+
+    filter.addEventListener(
+      "click",
+      async () => {
+
+        filters.forEach(
+          button => {
+            button.classList.remove(
+              "active"
+            );
+          }
+        );
+
+
+        filter.classList.add(
+          "active"
+        );
+
+
+        const type =
+          filter.dataset.type;
+
+
+        if (
+          type === "all" ||
+          type === "posts"
+        ) {
+
+          await loadRecent();
+
+          return;
+        }
+
+
+        showLoading();
+
+
+        try {
+
+          const data =
+            await rtFetch(
+              type
+            );
+
+
+          renderNameList(
+            normalizeArray(
+              data
+            ),
+            type.toUpperCase()
+          );
+
+
+        } catch (error) {
+
+          console.error(
+            "Category error:",
+            error
+          );
+
+          showError(error);
+
+        }
+
+      }
+    );
+
+  }
+);
+
+
+/* =========================================================
+   BACK BUTTON
    ========================================================= */
 
 backButton.addEventListener(
@@ -917,7 +931,8 @@ backButton.addEventListener(
         top:
           wrapper.offsetTop - 100,
 
-        behavior: "smooth"
+        behavior:
+          "smooth"
 
       });
 
@@ -945,7 +960,9 @@ searchInput.addEventListener(
   "keydown",
   event => {
 
-    if (event.key === "Enter") {
+    if (
+      event.key === "Enter"
+    ) {
 
       event.preventDefault();
 
