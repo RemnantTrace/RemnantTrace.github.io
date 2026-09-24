@@ -698,12 +698,134 @@
 }
 
 
+
+
 @media (max-width: 420px) {
 
   .rt-filter {
     flex: 1 1 auto;
 
     text-align: center;
+  }
+
+}
+
+/* =========================================================
+   CLICKABLE PROFILES
+   ========================================================= */
+
+.rt-profile-result {
+  cursor: pointer;
+}
+
+.rt-profile-result .rt-result-date {
+  color: var(--green);
+}
+
+.rt-profile-result:hover .rt-result-date {
+  color: var(--green);
+}
+
+
+/* =========================================================
+   PROFILE VIEW
+   ========================================================= */
+
+.rt-profile {
+  border-top: 1px solid var(--line);
+}
+
+.rt-profile-header {
+  padding: 35px 30px 40px;
+  border-bottom: 1px solid var(--line);
+  background:
+    linear-gradient(
+      145deg,
+      rgba(140,255,50,.025),
+      transparent 55%
+    ),
+    var(--panel);
+}
+
+.rt-profile-title {
+  margin: 12px 0 10px;
+  font-size: clamp(38px, 6vw, 72px);
+  line-height: .95;
+  letter-spacing: -.055em;
+}
+
+.rt-profile-subtitle {
+  color: #687168;
+  font: 9px 'Space Mono', monospace;
+  letter-spacing: .12em;
+}
+
+.rt-profile-content {
+  padding: 30px;
+}
+
+.rt-profile-section {
+  margin-bottom: 35px;
+}
+
+.rt-profile-section-title {
+  margin-bottom: 12px;
+  color: var(--green);
+  font: 9px 'Space Mono', monospace;
+  letter-spacing: .12em;
+}
+
+.rt-profile-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+
+/* =========================================================
+   PROFILE HOVER
+   ========================================================= */
+
+.rt-profile-result::after {
+  content: "↗";
+
+  position: absolute;
+
+  right: 18px;
+  bottom: 8px;
+
+  color: #4f584f;
+
+  font: 12px 'Space Mono', monospace;
+
+  transition:
+    color .2s ease,
+    transform .2s ease;
+}
+
+.rt-profile-result:hover::after {
+  color: var(--green);
+  transform: translate(2px, -2px);
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 760px) {
+
+  .rt-profile-header {
+    padding: 25px 20px 30px;
+  }
+
+  .rt-profile-content {
+    padding: 20px;
+  }
+
+  .rt-profile-grid {
+    grid-template-columns: 1fr;
   }
 
 }
