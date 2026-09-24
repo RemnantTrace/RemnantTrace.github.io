@@ -39,6 +39,10 @@ const filters =
   document.querySelectorAll(".rt-filter");
 
 
+/* =========================================================
+   STATE
+   ========================================================= */
+
 let currentResults = [];
 
 let currentView = "posts";
@@ -67,6 +71,34 @@ function escapeHTML(value) {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
+
+}
+
+
+/* =========================================================
+   URL SAFETY
+   ========================================================= */
+
+function safeURL(value) {
+
+  if (!value) {
+    return "";
+  }
+
+  const stringValue =
+    String(value).trim();
+
+  if (
+    stringValue.startsWith("http://") ||
+    stringValue.startsWith("https://")
+  ) {
+
+    return stringValue;
+
+  }
+
+  return "";
+
 }
 
 
@@ -88,7 +120,9 @@ function formatDate(value) {
       date.getTime()
     )
   ) {
+
     return escapeHTML(value);
+
   }
 
   return date.toLocaleString(
@@ -101,6 +135,7 @@ function formatDate(value) {
       minute: "2-digit"
     }
   );
+
 }
 
 
@@ -151,7 +186,7 @@ function rtFetch(
             );
 
           },
-          20000
+          30000
         );
 
 
@@ -208,6 +243,7 @@ function rtFetch(
             );
 
             return;
+
           }
 
 
@@ -239,7 +275,8 @@ function rtFetch(
       }
 
 
-      script.src = url;
+      script.src =
+        url;
 
 
       script.onerror =
@@ -347,6 +384,18 @@ function normalizeArray(data) {
   }
 
 
+  if (
+    data &&
+    Array.isArray(
+      data.locations
+    )
+  ) {
+
+    return data.locations;
+
+  }
+
+
   return [];
 
 }
@@ -397,6 +446,10 @@ function getObjectName(item) {
 
 function getGroupName(post) {
 
+  if (!post) {
+    return "UNKNOWN GROUP";
+  }
+
   return (
     post.group_name ||
     post.group ||
@@ -413,6 +466,10 @@ function getGroupName(post) {
    ========================================================= */
 
 function getPostTitle(post) {
+
+  if (!post) {
+    return "UNTITLED POST";
+  }
 
   return (
     post.post_title ||
@@ -433,6 +490,10 @@ function getPostTitle(post) {
 
 function getPostDate(post) {
 
+  if (!post) {
+    return "";
+  }
+
   return (
     post.discovered ||
     post.date ||
@@ -440,6 +501,197 @@ function getPostDate(post) {
     post.created_at ||
     post.timestamp ||
     post.first_seen ||
+    ""
+  );
+
+}
+
+
+/* =========================================================
+   GET GROUP PROFILE NAME
+   ========================================================= */
+
+function getGroupProfileName(group) {
+
+  if (
+    typeof group === "string"
+  ) {
+
+    return group;
+
+  }
+
+  if (!group) {
+    return "UNKNOWN GROUP";
+  }
+
+  return (
+    group.group_name ||
+    group.name ||
+    group.groupName ||
+    "UNKNOWN GROUP"
+  );
+
+}
+
+
+/* =========================================================
+   GET LOCATION URL
+   ========================================================= */
+
+function getLocationURL(location) {
+
+  if (!location) {
+    return "";
+  }
+
+  return (
+    location.url ||
+    location.uri ||
+    location.address ||
+    location.link ||
+    location.location ||
+    ""
+  );
+
+}
+
+
+/* =========================================================
+   GET LOCATION STATUS
+   ========================================================= */
+
+function getLocationStatus(location) {
+
+  if (!location) {
+    return "UNKNOWN";
+  }
+
+  if (
+    location.available === true ||
+    location.available === 1 ||
+    String(location.available).toLowerCase() === "true"
+  ) {
+
+    return "UP";
+
+  }
+
+
+  if (
+    location.available === false ||
+    location.available === 0 ||
+    String(location.available).toLowerCase() === "false"
+  ) {
+
+    return "DOWN";
+
+  }
+
+
+  return (
+    location.status ||
+    location.state ||
+    "UNKNOWN"
+  );
+
+}
+
+
+/* =========================================================
+   GET UPTIME
+   ========================================================= */
+
+function getUptime(location) {
+
+  if (!location) {
+    return "—";
+  }
+
+  const value =
+    location.uptime_30d ??
+    location.uptime30d ??
+    location.uptime ??
+    location.uptime_30 ??
+    location.uptime30 ??
+    null;
+
+  if (
+    value === null ||
+    value === undefined ||
+    value === ""
+  ) {
+
+    return "—";
+
+  }
+
+  const stringValue =
+    String(value);
+
+  if (
+    stringValue.includes("%")
+  ) {
+
+    return stringValue;
+
+  }
+
+  const numberValue =
+    Number(value);
+
+  if (
+    !Number.isNaN(numberValue)
+  ) {
+
+    return (
+      numberValue <= 1
+        ? `${(numberValue * 100).toFixed(0)}%`
+        : `${numberValue}%`
+    );
+
+  }
+
+  return stringValue;
+
+}
+
+
+/* =========================================================
+   GET HEALTH
+   ========================================================= */
+
+function getHealth(location) {
+
+  if (!location) {
+    return "—";
+  }
+
+  return (
+    location.health ||
+    location.health_status ||
+    location.healthStatus ||
+    "—"
+  );
+
+}
+
+
+/* =========================================================
+   GET SCREEN
+   ========================================================= */
+
+function getScreen(location) {
+
+  if (!location) {
+    return "";
+  }
+
+  return (
+    location.screen ||
+    location.screenshot ||
+    location.screenshot_url ||
+    location.screenshotUrl ||
     ""
   );
 
@@ -519,7 +771,8 @@ function showEmpty(message) {
 
 async function loadRecent() {
 
-  currentView = "posts";
+  currentView =
+    "posts";
 
   showLoading();
 
@@ -592,7 +845,8 @@ async function performSearch() {
   }
 
 
-  currentView = "search";
+  currentView =
+    "search";
 
   showLoading();
 
@@ -638,17 +892,13 @@ async function performSearch() {
    POST RENDERER
    ========================================================= */
 
-function renderPosts(
-  posts
-) {
+function renderPosts(posts) {
 
   resultsCount.textContent =
     `${posts.length} RESULTS`;
 
 
-  if (
-    !posts.length
-  ) {
+  if (!posts.length) {
 
     showEmpty(
       "No matching intelligence was found."
@@ -841,7 +1091,6 @@ function showPostDetail(
 
       <div class="rt-detail-grid">
 
-
         <div class="rt-detail-field">
 
           <div class="rt-detail-field-label">
@@ -866,7 +1115,6 @@ function showPostDetail(
           </div>
 
         </div>
-
 
       </div>
 
@@ -893,7 +1141,6 @@ function showPostDetail(
           `
           : ""
       }
-
 
     </div>
 
@@ -938,9 +1185,7 @@ function renderNameList(
     `${items.length} RESULTS`;
 
 
-  if (
-    !items.length
-  ) {
+  if (!items.length) {
 
     showEmpty(
       `No ${type.toLowerCase()} were returned.`
@@ -1052,7 +1297,6 @@ function renderNameList(
 
             }
 
-
             else if (
               currentProfileType ===
               "ACTORS"
@@ -1063,7 +1307,6 @@ function renderNameList(
               );
 
             }
-
 
             else if (
               currentProfileType ===
@@ -1086,7 +1329,765 @@ function renderNameList(
 
 
 /* =========================================================
-   PROFILE VIEW
+   HIDE RESULTS FOR PROFILE
+   ========================================================= */
+
+function prepareProfileView() {
+
+  results.style.display =
+    "none";
+
+
+  const heading =
+    document.querySelector(
+      ".rt-results-heading"
+    );
+
+  if (heading) {
+
+    heading.style.display =
+      "none";
+
+  }
+
+
+  const filterBar =
+    document.querySelector(
+      ".rt-filters"
+    );
+
+  if (filterBar) {
+
+    filterBar.style.display =
+      "none";
+
+  }
+
+
+  detail.hidden =
+    false;
+
+}
+
+
+/* =========================================================
+   PROFILE HEADER
+   ========================================================= */
+
+function renderProfileHeader(
+  type,
+  name
+) {
+
+  return `
+
+    <div class="rt-profile-header">
+
+      <div class="rt-detail-type">
+
+        ${escapeHTML(type)}
+
+      </div>
+
+
+      <h2 class="rt-profile-title">
+
+        ${escapeHTML(name)}
+
+      </h2>
+
+
+      <div class="rt-profile-subtitle">
+
+        REMNANTTRACE INTELLIGENCE PROFILE
+
+      </div>
+
+    </div>
+
+  `;
+
+}
+
+
+/* =========================================================
+   GROUP PROFILE
+   ========================================================= */
+
+async function showGroupProfile(
+  group
+) {
+
+  const groupName =
+    getGroupProfileName(
+      group
+    );
+
+
+  currentProfileType =
+    "RANSOMWARE GROUP";
+
+  currentProfile =
+    group;
+
+
+  prepareProfileView();
+
+
+  detailContent.innerHTML = `
+
+    <div class="rt-profile">
+
+      ${renderProfileHeader(
+        "RANSOMWARE GROUP",
+        groupName
+      )}
+
+      <div class="rt-profile-content">
+
+        <div class="rt-profile-section">
+
+          <div class="rt-profile-section-title">
+            INFRASTRUCTURE
+          </div>
+
+          <div class="rt-loading">
+            LOADING GROUP INFRASTRUCTURE...
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  `;
+
+
+  detail.scrollIntoView({
+    behavior: "smooth",
+    block: "start"
+  });
+
+
+  try {
+
+    const data =
+      await rtFetch(
+        "group",
+        groupName
+      );
+
+
+    const locations =
+      normalizeLocations(
+        data
+      );
+
+
+    detailContent.innerHTML = `
+
+      <div class="rt-profile">
+
+        ${renderProfileHeader(
+          "RANSOMWARE GROUP",
+          groupName
+        )}
+
+        <div class="rt-profile-content">
+
+          ${renderGroupLocations(
+            locations
+          )}
+
+        </div>
+
+      </div>
+
+    `;
+
+
+  } catch (error) {
+
+    console.error(
+      "Group profile error:",
+      error
+    );
+
+
+    detailContent.innerHTML = `
+
+      <div class="rt-profile">
+
+        ${renderProfileHeader(
+          "RANSOMWARE GROUP",
+          groupName
+        )}
+
+        <div class="rt-profile-content">
+
+          <div class="rt-error">
+
+            <strong>
+              GROUP PROFILE COULD NOT BE LOADED
+            </strong>
+
+            <br><br>
+
+            ${escapeHTML(
+              error.message
+            )}
+
+          </div>
+
+        </div>
+
+      </div>
+
+    `;
+
+  }
+
+}
+
+
+/* =========================================================
+   NORMALIZE GROUP LOCATIONS
+   ========================================================= */
+
+function normalizeLocations(
+  data
+) {
+
+  if (!data) {
+    return [];
+  }
+
+
+  if (
+    Array.isArray(data)
+  ) {
+
+    return data;
+
+  }
+
+
+  if (
+    Array.isArray(
+      data.locations
+    )
+  ) {
+
+    return data.locations;
+
+  }
+
+
+  if (
+    data.data &&
+    Array.isArray(
+      data.data.locations
+    )
+  ) {
+
+    return data.data.locations;
+
+  }
+
+
+  if (
+    data.result &&
+    Array.isArray(
+      data.result.locations
+    )
+  ) {
+
+    return data.result.locations;
+
+  }
+
+
+  if (
+    data.location
+  ) {
+
+    return [
+      data.location
+    ];
+
+  }
+
+
+  if (
+    data.url ||
+    data.uri ||
+    data.address
+  ) {
+
+    return [
+      data
+    ];
+
+  }
+
+
+  return [];
+
+}
+
+
+/* =========================================================
+   RENDER GROUP LOCATIONS
+   ========================================================= */
+
+function renderGroupLocations(
+  locations
+) {
+
+  if (!locations.length) {
+
+    return `
+
+      <div class="rt-profile-section">
+
+        <div class="rt-profile-section-title">
+          INFRASTRUCTURE
+        </div>
+
+        <div class="rt-detail-field">
+
+          <div class="rt-detail-field-value">
+
+            No infrastructure records were returned
+            for this group.
+
+          </div>
+
+        </div>
+
+      </div>
+
+    `;
+
+  }
+
+
+  return `
+
+    <div class="rt-profile-section">
+
+      <div class="rt-profile-section-title">
+        INFRASTRUCTURE / ${locations.length}
+      </div>
+
+
+      <div class="rt-group-locations">
+
+        ${locations.map(
+          (
+            location,
+            index
+          ) => {
+
+            return renderLocationCard(
+              location,
+              index
+            );
+
+          }
+        ).join("")}
+
+      </div>
+
+    </div>
+
+  `;
+
+}
+
+
+/* =========================================================
+   RENDER LOCATION CARD
+   ========================================================= */
+
+function renderLocationCard(
+  location,
+  index
+) {
+
+  const url =
+    getLocationURL(
+      location
+    );
+
+
+  const status =
+    getLocationStatus(
+      location
+    );
+
+
+  const uptime =
+    getUptime(
+      location
+    );
+
+
+  const health =
+    getHealth(
+      location
+    );
+
+
+  const screen =
+    getScreen(
+      location
+    );
+
+
+  const lastScrape =
+    location.lastscrape ||
+    location.last_scrape ||
+    location.lastScrape ||
+    location.scraped ||
+    location.updated ||
+    "";
+
+
+  const title =
+    location.title ||
+    location.name ||
+    `LOCATION ${index + 1}`;
+
+
+  const crawler =
+    location.crawler ||
+    location.parser ||
+    "";
+
+
+  const statusClass =
+    String(status)
+      .toLowerCase()
+      .includes("up")
+        ? "rt-status-up"
+        : String(status)
+            .toLowerCase()
+            .includes("down")
+              ? "rt-status-down"
+              : "";
+
+
+  return `
+
+    <div class="rt-location-card">
+
+      <div class="rt-location-top">
+
+        <div>
+
+          <div class="rt-location-index">
+            LOCATION ${String(
+              index + 1
+            ).padStart(2, "0")}
+          </div>
+
+          <h3 class="rt-location-title">
+            ${escapeHTML(title)}
+          </h3>
+
+        </div>
+
+
+        <div class="
+          rt-location-status
+          ${statusClass}
+        ">
+
+          <span class="rt-location-status-dot"></span>
+
+          ${escapeHTML(
+            String(status).toUpperCase()
+          )}
+
+        </div>
+
+      </div>
+
+
+      <div class="rt-location-url-block">
+
+        <div class="rt-detail-field-label">
+          URL
+        </div>
+
+
+        ${
+          url
+            ? `
+
+              <a
+                class="rt-location-url"
+                href="${escapeHTML(
+                  safeURL(url)
+                )}"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+
+                ${escapeHTML(url)}
+
+                <span>↗</span>
+
+              </a>
+
+            `
+            : `
+
+              <div class="rt-detail-field-value">
+                URL NOT AVAILABLE
+              </div>
+
+            `
+        }
+
+      </div>
+
+
+      <div class="rt-location-grid">
+
+        <div class="rt-detail-field">
+
+          <div class="rt-detail-field-label">
+            STATUS
+          </div>
+
+          <div class="
+            rt-detail-field-value
+            ${statusClass}
+          ">
+
+            ${escapeHTML(
+              String(status).toUpperCase()
+            )}
+
+          </div>
+
+        </div>
+
+
+        <div class="rt-detail-field">
+
+          <div class="rt-detail-field-label">
+            UPTIME 30D
+          </div>
+
+          <div class="rt-detail-field-value">
+
+            ${escapeHTML(
+              uptime
+            )}
+
+          </div>
+
+        </div>
+
+
+        <div class="rt-detail-field">
+
+          <div class="rt-detail-field-label">
+            HEALTH
+          </div>
+
+          <div class="rt-detail-field-value">
+
+            ${escapeHTML(
+              health
+            )}
+
+          </div>
+
+        </div>
+
+
+        <div class="rt-detail-field">
+
+          <div class="rt-detail-field-label">
+            LAST SCRAPE
+          </div>
+
+          <div class="rt-detail-field-value">
+
+            ${
+              lastScrape
+                ? formatDate(
+                    lastScrape
+                  )
+                : "—"
+            }
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      ${
+        screen
+          ? renderLocationScreen(
+              screen
+            )
+          : ""
+      }
+
+
+      ${
+        crawler
+          ? `
+
+            <div class="rt-location-extra">
+
+              <div class="rt-detail-field-label">
+                CRAWLER
+              </div>
+
+              <div class="rt-detail-field-value">
+                ${escapeHTML(crawler)}
+              </div>
+
+            </div>
+
+          `
+          : ""
+      }
+
+
+    </div>
+
+  `;
+
+}
+
+
+/* =========================================================
+   RENDER SCREENSHOT
+   ========================================================= */
+
+function renderLocationScreen(
+  screen
+) {
+
+  if (!screen) {
+    return "";
+  }
+
+
+  let imageSource =
+    "";
+
+
+  const stringScreen =
+    String(screen);
+
+
+  if (
+    stringScreen.startsWith(
+      "data:image/"
+    )
+  ) {
+
+    imageSource =
+      stringScreen;
+
+  }
+
+  else if (
+    stringScreen.startsWith(
+      "http://"
+    ) ||
+    stringScreen.startsWith(
+      "https://"
+    )
+  ) {
+
+    imageSource =
+      stringScreen;
+
+  }
+
+  else {
+
+    imageSource =
+      "data:image/png;base64," +
+      stringScreen;
+
+  }
+
+
+  return `
+
+    <div class="rt-location-screen">
+
+      <div class="rt-detail-field-label">
+        SCREEN
+      </div>
+
+
+      <div class="rt-screen-frame">
+
+        <img
+          src="${escapeHTML(
+            imageSource
+          )}"
+          alt="RansomLook captured screen"
+          loading="lazy"
+        >
+
+      </div>
+
+    </div>
+
+  `;
+
+}
+
+
+/* =========================================================
+   ACTOR PROFILE
+   ========================================================= */
+
+function showActorProfile(
+  actor
+) {
+
+  openProfileView(
+    "THREAT ACTOR",
+    actor
+  );
+
+}
+
+
+/* =========================================================
+   MARKET PROFILE
+   ========================================================= */
+
+function showMarketProfile(
+  market
+) {
+
+  openProfileView(
+    "MARKET",
+    market
+  );
+
+}
+
+
+/* =========================================================
+   GENERIC PROFILE VIEW
    ========================================================= */
 
 function openProfileView(
@@ -1101,64 +2102,23 @@ function openProfileView(
     item;
 
 
-  results.style.display =
-    "none";
-
-
-  document
-    .querySelector(
-      ".rt-results-heading"
-    )
-    .style.display =
-    "none";
-
-
-  document
-    .querySelector(
-      ".rt-filters"
-    )
-    .style.display =
-    "none";
-
-
-  detail.hidden =
-    false;
+  prepareProfileView();
 
 
   detailContent.innerHTML = `
 
     <div class="rt-profile">
 
-      <div class="rt-profile-header">
-
-        <div class="rt-detail-type">
-
-          ${escapeHTML(type)}
-
-        </div>
-
-
-        <h2 class="rt-profile-title">
-
-          ${escapeHTML(
-            getObjectName(item)
-          )}
-
-        </h2>
-
-
-        <div class="rt-profile-subtitle">
-
-          REMNANTTRACE INTELLIGENCE PROFILE
-
-        </div>
-
-      </div>
-
+      ${renderProfileHeader(
+        type,
+        getObjectName(item)
+      )}
 
       <div class="rt-profile-content">
 
-        ${renderProfileFields(item)}
+        ${renderProfileFields(
+          item
+        )}
 
       </div>
 
@@ -1224,13 +2184,21 @@ function renderProfileFields(
 
 
   const ignoredKeys = [
+
     "name",
+
     "group_name",
+
     "groupName",
+
     "actor_name",
+
     "actorName",
+
     "market_name",
+
     "marketName"
+
   ];
 
 
@@ -1291,8 +2259,10 @@ function renderProfileFields(
         <div class="rt-detail-field">
 
           <div class="rt-detail-field-value">
+
             Profile information is not available
             in the returned intelligence record.
+
           </div>
 
         </div>
@@ -1365,54 +2335,6 @@ function renderProfileFields(
 
 
 /* =========================================================
-   GROUP PROFILE
-   ========================================================= */
-
-function showGroupProfile(
-  group
-) {
-
-  openProfileView(
-    "RANSOMWARE GROUP",
-    group
-  );
-
-}
-
-
-/* =========================================================
-   ACTOR PROFILE
-   ========================================================= */
-
-function showActorProfile(
-  actor
-) {
-
-  openProfileView(
-    "THREAT ACTOR",
-    actor
-  );
-
-}
-
-
-/* =========================================================
-   MARKET PROFILE
-   ========================================================= */
-
-function showMarketProfile(
-  market
-) {
-
-  openProfileView(
-    "MARKET",
-    market
-  );
-
-}
-
-
-/* =========================================================
    CLOSE PROFILE
    ========================================================= */
 
@@ -1430,20 +2352,30 @@ function closeProfile() {
     "";
 
 
-  document
-    .querySelector(
+  const heading =
+    document.querySelector(
       ".rt-results-heading"
-    )
-    .style.display =
-    "";
+    );
+
+  if (heading) {
+
+    heading.style.display =
+      "";
+
+  }
 
 
-  document
-    .querySelector(
+  const filterBar =
+    document.querySelector(
       ".rt-filters"
-    )
-    .style.display =
-    "";
+    );
+
+  if (filterBar) {
+
+    filterBar.style.display =
+      "";
+
+  }
 
 
   const wrapper =
