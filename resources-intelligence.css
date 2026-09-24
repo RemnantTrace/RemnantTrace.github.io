@@ -92,6 +92,7 @@
 
 .rt-status-dot {
   width: 7px;
+
   height: 7px;
 
   border-radius: 50%;
@@ -138,7 +139,9 @@
 .rt-search-row {
   display: grid;
 
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns:
+    minmax(0, 1fr)
+    auto;
 
   gap: 10px;
 }
@@ -320,7 +323,10 @@
 
   display: grid;
 
-  grid-template-columns: 130px minmax(0, 1fr) 160px;
+  grid-template-columns:
+    130px
+    minmax(0, 1fr)
+    160px;
 
   gap: 25px;
 
@@ -344,7 +350,9 @@
   position: absolute;
 
   left: 0;
+
   top: 0;
+
   bottom: 0;
 
   width: 2px;
@@ -415,7 +423,7 @@
 
 
 /* =========================================================
-   LOADING
+   LOADING / EMPTY / ERROR
    ========================================================= */
 
 .rt-loading,
@@ -438,7 +446,8 @@
 .rt-loading {
   color: var(--green);
 
-  animation: rt-pulse 1.5s ease-in-out infinite;
+  animation:
+    rt-pulse 1.5s ease-in-out infinite;
 }
 
 
@@ -621,6 +630,679 @@
 
 
 /* =========================================================
+   CLICKABLE PROFILES
+   ========================================================= */
+
+.rt-profile-result {
+  cursor: pointer;
+}
+
+
+.rt-profile-result .rt-result-date {
+  color: var(--green);
+}
+
+
+.rt-profile-result:hover .rt-result-date {
+  color: var(--green);
+}
+
+
+/* =========================================================
+   PROFILE VIEW
+   ========================================================= */
+
+.rt-profile {
+  border-top: 1px solid var(--line);
+}
+
+
+.rt-profile-header {
+  padding: 35px 30px 40px;
+
+  border-bottom: 1px solid var(--line);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(140,255,50,.025),
+      transparent 55%
+    ),
+    var(--panel);
+}
+
+
+.rt-profile-title {
+  margin: 12px 0 10px;
+
+  font-size: clamp(38px, 6vw, 72px);
+
+  line-height: .95;
+
+  letter-spacing: -.055em;
+}
+
+
+.rt-profile-subtitle {
+  color: #687168;
+
+  font: 9px 'Space Mono', monospace;
+
+  letter-spacing: .12em;
+}
+
+
+.rt-profile-content {
+  padding: 30px;
+}
+
+
+.rt-profile-section {
+  margin-bottom: 35px;
+}
+
+
+.rt-profile-section-title {
+  margin-bottom: 12px;
+
+  color: var(--green);
+
+  font: 9px 'Space Mono', monospace;
+
+  letter-spacing: .12em;
+}
+
+
+.rt-profile-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 10px;
+}
+
+
+/* =========================================================
+   PROFILE HOVER
+   ========================================================= */
+
+.rt-profile-result::after {
+  content: "↗";
+
+  position: absolute;
+
+  right: 18px;
+
+  bottom: 8px;
+
+  color: #4f584f;
+
+  font: 12px 'Space Mono', monospace;
+
+  transition:
+    color .2s ease,
+    transform .2s ease;
+}
+
+
+.rt-profile-result:hover::after {
+  color: var(--green);
+
+  transform:
+    translate(2px, -2px);
+}
+
+
+/* =========================================================
+   RANSOMLOOK GROUP INFRASTRUCTURE
+   ========================================================= */
+
+.rt-group-locations {
+  display: grid;
+
+  grid-template-columns:
+    1fr;
+
+  gap: 12px;
+}
+
+
+.rt-location-card {
+  padding: 24px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(140,255,50,.018),
+      transparent 60%
+    ),
+    #080b08;
+
+  border: 1px solid var(--line);
+
+  transition:
+    border-color .2s ease,
+    background .2s ease;
+}
+
+
+.rt-location-card:hover {
+  border-color: #303830;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(140,255,50,.028),
+      transparent 60%
+    ),
+    #090c09;
+}
+
+
+/* =========================================================
+   LOCATION HEADER
+   ========================================================= */
+
+.rt-location-top {
+  display: flex;
+
+  align-items: flex-start;
+
+  justify-content: space-between;
+
+  gap: 25px;
+
+  padding-bottom: 20px;
+
+  margin-bottom: 20px;
+
+  border-bottom: 1px solid var(--line);
+}
+
+
+.rt-location-index {
+  margin-bottom: 7px;
+
+  color: #596259;
+
+  font: 8px 'Space Mono', monospace;
+
+  letter-spacing: .14em;
+}
+
+
+.rt-location-title {
+  margin: 0;
+
+  color: var(--text);
+
+  font-size: 18px;
+
+  line-height: 1.3;
+
+  font-weight: 600;
+}
+
+
+/* =========================================================
+   LOCATION STATUS
+   ========================================================= */
+
+.rt-location-status {
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  padding: 7px 10px;
+
+  border: 1px solid var(--line-bright);
+
+  color: #8b948b;
+
+  font: 8px 'Space Mono', monospace;
+
+  letter-spacing: .1em;
+
+  white-space: nowrap;
+}
+
+
+.rt-location-status-dot {
+  width: 6px;
+
+  height: 6px;
+
+  border-radius: 50%;
+
+  background: #687168;
+}
+
+
+.rt-location-status.rt-status-up {
+  color: var(--green);
+
+  border-color:
+    rgba(140,255,50,.25);
+}
+
+
+.rt-location-status.rt-status-up
+.rt-location-status-dot {
+  background: var(--green);
+
+  box-shadow:
+    0 0 10px
+    rgba(140,255,50,.45);
+}
+
+
+.rt-location-status.rt-status-down {
+  color: #ff7777;
+
+  border-color:
+    rgba(255,119,119,.25);
+}
+
+
+.rt-location-status.rt-status-down
+.rt-location-status-dot {
+  background: #ff7777;
+
+  box-shadow:
+    0 0 10px
+    rgba(255,119,119,.3);
+}
+
+
+/* =========================================================
+   LOCATION URL
+   ========================================================= */
+
+.rt-location-url-block {
+  margin-bottom: 10px;
+
+  padding: 18px;
+
+  background: #050705;
+
+  border: 1px solid var(--line);
+}
+
+
+.rt-location-url {
+  display: flex;
+
+  align-items: flex-start;
+
+  justify-content: space-between;
+
+  gap: 15px;
+
+  color: var(--text);
+
+  font: 11px 'Space Mono', monospace;
+
+  line-height: 1.6;
+
+  word-break: break-all;
+
+  text-decoration: none;
+}
+
+
+.rt-location-url:hover {
+  color: var(--green);
+}
+
+
+.rt-location-url span {
+  flex: 0 0 auto;
+
+  color: var(--green);
+
+  font-size: 13px;
+}
+
+
+/* =========================================================
+   LOCATION DATA GRID
+   ========================================================= */
+
+.rt-location-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+
+  gap: 10px;
+}
+
+
+.rt-location-grid
+.rt-detail-field {
+  min-width: 0;
+}
+
+
+/* =========================================================
+   LOCATION SCREENSHOT
+   ========================================================= */
+
+.rt-location-screen {
+  margin-top: 10px;
+
+  padding: 18px;
+
+  background: #050705;
+
+  border: 1px solid var(--line);
+}
+
+
+.rt-screen-frame {
+  margin-top: 12px;
+
+  overflow: hidden;
+
+  background: #000;
+
+  border: 1px solid var(--line);
+
+  max-height: 520px;
+}
+
+
+.rt-screen-frame img {
+  display: block;
+
+  width: 100%;
+
+  height: auto;
+
+  max-height: 520px;
+
+  object-fit: contain;
+}
+
+
+/* =========================================================
+   LOCATION EXTRA DATA
+   ========================================================= */
+
+.rt-location-extra {
+  margin-top: 10px;
+
+  padding: 18px;
+
+  background: #050705;
+
+  border: 1px solid var(--line);
+}
+
+
+/* =========================================================
+   GROUP SUMMARY
+   ========================================================= */
+
+.rt-group-summary {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 10px;
+
+  margin-bottom: 35px;
+}
+
+
+.rt-group-summary-card {
+  min-width: 0;
+
+  padding: 20px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(140,255,50,.02),
+      transparent 60%
+    ),
+    #080b08;
+
+  border: 1px solid var(--line);
+}
+
+
+.rt-group-summary-label {
+  margin-bottom: 10px;
+
+  color: #687168;
+
+  font: 8px 'Space Mono', monospace;
+
+  letter-spacing: .1em;
+}
+
+
+.rt-group-summary-value {
+  color: var(--text);
+
+  font: 20px 'Space Mono', monospace;
+
+  line-height: 1.2;
+
+  word-break: break-word;
+}
+
+
+.rt-group-summary-value.rt-positive {
+  color: var(--green);
+}
+
+
+/* =========================================================
+   GROUP PROFILE NOTICE
+   ========================================================= */
+
+.rt-group-profile-note {
+  margin-bottom: 30px;
+
+  padding: 15px 18px;
+
+  border-left: 2px solid var(--green);
+
+  background:
+    rgba(140,255,50,.025);
+
+  color: #7d877d;
+
+  font: 9px 'Space Mono', monospace;
+
+  line-height: 1.7;
+}
+
+
+/* =========================================================
+   GROUP LOCATION HEADING
+   ========================================================= */
+
+.rt-group-location-heading {
+  display: flex;
+
+  align-items: flex-end;
+
+  justify-content: space-between;
+
+  gap: 20px;
+
+  margin-bottom: 12px;
+}
+
+
+.rt-group-location-heading-title {
+  color: var(--green);
+
+  font: 9px 'Space Mono', monospace;
+
+  letter-spacing: .12em;
+}
+
+
+.rt-group-location-heading-count {
+  color: #596259;
+
+  font: 8px 'Space Mono', monospace;
+
+  letter-spacing: .08em;
+}
+
+
+/* =========================================================
+   GROUP SCREENSHOT BUTTON
+   ========================================================= */
+
+.rt-screen-toggle {
+  display: inline-block;
+
+  margin-top: 12px;
+
+  padding: 8px 11px;
+
+  border: 1px solid var(--line-bright);
+
+  background: transparent;
+
+  color: #788178;
+
+  font: 8px 'Space Mono', monospace;
+
+  letter-spacing: .08em;
+
+  cursor: pointer;
+
+  transition:
+    color .2s ease,
+    border-color .2s ease,
+    background .2s ease;
+}
+
+
+.rt-screen-toggle:hover {
+  color: var(--green);
+
+  border-color:
+    rgba(140,255,50,.35);
+
+  background:
+    rgba(140,255,50,.025);
+}
+
+
+/* =========================================================
+   GROUP URL TYPE
+   ========================================================= */
+
+.rt-location-url-type {
+  display: block;
+
+  margin-bottom: 8px;
+
+  color: #596259;
+
+  font: 8px 'Space Mono', monospace;
+
+  letter-spacing: .1em;
+}
+
+
+/* =========================================================
+   GROUP PROFILE LOADING
+   ========================================================= */
+
+.rt-profile-loading {
+  padding: 45px 20px;
+
+  color: var(--green);
+
+  text-align: center;
+
+  font: 9px 'Space Mono', monospace;
+
+  letter-spacing: .1em;
+
+  animation:
+    rt-pulse 1.5s ease-in-out infinite;
+}
+
+
+/* =========================================================
+   GROUP PROFILE ERROR
+   ========================================================= */
+
+.rt-profile-error {
+  padding: 25px;
+
+  border: 1px solid
+    rgba(255,119,119,.2);
+
+  background:
+    rgba(255,119,119,.025);
+
+  color: #ff7777;
+
+  font: 9px 'Space Mono', monospace;
+
+  line-height: 1.7;
+}
+
+
+/* =========================================================
+   GROUP PROFILE LINK
+   ========================================================= */
+
+.rt-profile-source {
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  margin-top: 20px;
+
+  padding: 9px 12px;
+
+  border: 1px solid var(--line-bright);
+
+  color: #7c857c;
+
+  font: 8px 'Space Mono', monospace;
+
+  letter-spacing: .08em;
+
+  text-decoration: none;
+
+  transition:
+    color .2s ease,
+    border-color .2s ease,
+    background .2s ease;
+}
+
+
+.rt-profile-source:hover {
+  color: var(--green);
+
+  border-color:
+    rgba(140,255,50,.35);
+
+  background:
+    rgba(140,255,50,.025);
+}
+
+
+/* =========================================================
    MOBILE
    ========================================================= */
 
@@ -643,7 +1325,8 @@
 
 
   .rt-intel-header h2 {
-    font-size: clamp(40px, 12vw, 58px);
+    font-size:
+      clamp(40px, 12vw, 58px);
   }
 
 
@@ -658,7 +1341,8 @@
 
 
   .rt-search-row {
-    grid-template-columns: 1fr;
+    grid-template-columns:
+      1fr;
   }
 
 
@@ -668,7 +1352,8 @@
 
 
   .rt-result {
-    grid-template-columns: 1fr;
+    grid-template-columns:
+      1fr;
 
     gap: 7px;
 
@@ -682,7 +1367,8 @@
 
 
   .rt-detail-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns:
+      1fr;
   }
 
 
@@ -695,10 +1381,91 @@
     padding: 20px;
   }
 
+
+  .rt-profile-header {
+    padding: 25px 20px 30px;
+  }
+
+
+  .rt-profile-content {
+    padding: 20px;
+  }
+
+
+  .rt-profile-grid {
+    grid-template-columns:
+      1fr;
+  }
+
+
+  .rt-location-top {
+    flex-direction: column;
+
+    gap: 15px;
+  }
+
+
+  .rt-location-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+
+  .rt-location-card {
+    padding: 18px;
+  }
+
+
+  .rt-group-summary {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
 }
 
 
+/* =========================================================
+   SMALL MOBILE
+   ========================================================= */
 
+@media (max-width: 480px) {
+
+  .rt-location-grid {
+    grid-template-columns:
+      1fr;
+  }
+
+
+  .rt-location-url {
+    font-size: 10px;
+  }
+
+
+  .rt-group-summary {
+    grid-template-columns:
+      1fr;
+  }
+
+
+  .rt-group-summary-card {
+    padding: 18px;
+  }
+
+
+  .rt-group-location-heading {
+    align-items: flex-start;
+
+    flex-direction: column;
+
+    gap: 7px;
+  }
+
+}
+
+
+/* =========================================================
+   VERY SMALL MOBILE
+   ========================================================= */
 
 @media (max-width: 420px) {
 
@@ -706,126 +1473,6 @@
     flex: 1 1 auto;
 
     text-align: center;
-  }
-
-}
-
-/* =========================================================
-   CLICKABLE PROFILES
-   ========================================================= */
-
-.rt-profile-result {
-  cursor: pointer;
-}
-
-.rt-profile-result .rt-result-date {
-  color: var(--green);
-}
-
-.rt-profile-result:hover .rt-result-date {
-  color: var(--green);
-}
-
-
-/* =========================================================
-   PROFILE VIEW
-   ========================================================= */
-
-.rt-profile {
-  border-top: 1px solid var(--line);
-}
-
-.rt-profile-header {
-  padding: 35px 30px 40px;
-  border-bottom: 1px solid var(--line);
-  background:
-    linear-gradient(
-      145deg,
-      rgba(140,255,50,.025),
-      transparent 55%
-    ),
-    var(--panel);
-}
-
-.rt-profile-title {
-  margin: 12px 0 10px;
-  font-size: clamp(38px, 6vw, 72px);
-  line-height: .95;
-  letter-spacing: -.055em;
-}
-
-.rt-profile-subtitle {
-  color: #687168;
-  font: 9px 'Space Mono', monospace;
-  letter-spacing: .12em;
-}
-
-.rt-profile-content {
-  padding: 30px;
-}
-
-.rt-profile-section {
-  margin-bottom: 35px;
-}
-
-.rt-profile-section-title {
-  margin-bottom: 12px;
-  color: var(--green);
-  font: 9px 'Space Mono', monospace;
-  letter-spacing: .12em;
-}
-
-.rt-profile-grid {
-  display: grid;
-  grid-template-columns:
-    repeat(2, minmax(0, 1fr));
-  gap: 10px;
-}
-
-
-/* =========================================================
-   PROFILE HOVER
-   ========================================================= */
-
-.rt-profile-result::after {
-  content: "↗";
-
-  position: absolute;
-
-  right: 18px;
-  bottom: 8px;
-
-  color: #4f584f;
-
-  font: 12px 'Space Mono', monospace;
-
-  transition:
-    color .2s ease,
-    transform .2s ease;
-}
-
-.rt-profile-result:hover::after {
-  color: var(--green);
-  transform: translate(2px, -2px);
-}
-
-
-/* =========================================================
-   MOBILE
-   ========================================================= */
-
-@media (max-width: 760px) {
-
-  .rt-profile-header {
-    padding: 25px 20px 30px;
-  }
-
-  .rt-profile-content {
-    padding: 20px;
-  }
-
-  .rt-profile-grid {
-    grid-template-columns: 1fr;
   }
 
 }
