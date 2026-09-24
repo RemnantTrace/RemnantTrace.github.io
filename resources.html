@@ -1,233 +1,237 @@
-<!DOCTYPE html>
-
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-
-<title>Resources — RemnantTrace Forensics</title>
-
-<link rel="stylesheet" href="style.css">
-<link rel="stylesheet" href="resources-intelligence.css">
-</head>
-
-<body>
-
-<header>
-
-  <a class="brand" href="index.html">
-    <img src="assets/remnanttrace-banner.png" alt="RemnantTrace Forensics">
-  </a>
-
-  <nav>
-    <a href="index.html">Home</a>
-    <a href="about.html">About</a>
-    <a href="research.html">Research</a>
-    <a href="publications.html">Publications</a>
-    <a class="active" href="resources.html">Resources</a>
-    <a href="leadership.html">Leadership</a>
-    <a href="contact.html">Contact</a>
-  </nav>
-
-  
-</header>
-
-
 <main>
 
-<section class="pagehero">
+  <section class="pagehero">
 
-  <p class="eyebrow">04 / RESOURCES</p>
-      
-      <h1>Resources.</h1>
+    <p class="eyebrow">04 / RESOURCES</p>
 
-      <p class="rt-intel-description">
-        Search publicly available ransomware intelligence,
-        including groups, actors, markets, and observed victim
-        posts.
+    <h1>Resources.</h1>
+
+    <p>
+      Independent resources for digital forensics,
+      cybersecurity research, and open intelligence.
+    </p>
+
+  </section>
+
+
+  <!-- RESOURCE LIBRARY -->
+
+  <section class="resource-grid">
+
+    <a class="resource-card" href="#">
+      <span class="resource-number">01</span>
+      <h2>Datasets.</h2>
+      <p>
+        Public datasets and forensic research material
+        for analysis and experimentation.
       </p>
+    </a>
 
-    </div>
+    <a class="resource-card" href="#">
+      <span class="resource-number">02</span>
+      <h2>Tools.</h2>
+      <p>
+        Tools and utilities relevant to digital
+        forensics and investigative research.
+      </p>
+    </a>
 
-    <div class="rt-intel-status">
+    <a class="resource-card" href="#">
+      <span class="resource-number">03</span>
+      <h2>Methodology.</h2>
+      <p>
+        Research methods, workflows, and forensic
+        methodology references.
+      </p>
+    </a>
 
-      <span class="rt-status-dot"></span>
+    <a class="resource-card" href="#">
+      <span class="resource-number">04</span>
+      <h2>Education.</h2>
+      <p>
+        Educational material covering digital evidence,
+        forensic techniques, and emerging technologies.
+      </p>
+    </a>
 
-      <span>
-        LIVE DATA
-      </span>
-
-    </div>
-
-  </div>
-
-
-  <!-- SEARCH -->
-
-  <div class="rt-search-panel">
-
-    <div class="rt-search-label">
-      SEARCH INTELLIGENCE
-    </div>
-
-    <div class="rt-search-row">
-
-      <input
-        type="search"
-        id="rt-search"
-        placeholder="Search groups, victims, actors..."
-        autocomplete="off"
-      >
-
-      <button
-        type="button"
-        id="rt-search-button"
-      >
-        SEARCH
-      </button>
-
-    </div>
-
-    <div class="rt-search-hint">
-      Search is performed against publicly available RansomLook
-      intelligence.
-    </div>
-
-  </div>
+  </section>
 
 
-  <!-- FILTERS -->
+  <!-- OPEN INTELLIGENCE -->
 
-  <div class="rt-filters">
+  <section class="rt-intel">
 
-    <button
-      class="rt-filter active"
-      data-type="all"
-      type="button"
-    >
-      ALL
-    </button>
+    <div class="rt-intel-header">
 
-    <button
-      class="rt-filter"
-      data-type="groups"
-      type="button"
-    >
-      GROUPS
-    </button>
+      <div>
 
-    <button
-      class="rt-filter"
-      data-type="actors"
-      type="button"
-    >
-      ACTORS
-    </button>
+        <p class="rt-intel-eyebrow">
+          05 / OPEN INTELLIGENCE
+        </p>
 
-    <button
-      class="rt-filter"
-      data-type="markets"
-      type="button"
-    >
-      MARKETS
-    </button>
+        <h2>Threat Intelligence.</h2>
 
-    <button
-      class="rt-filter"
-      data-type="posts"
-      type="button"
-    >
-      VICTIMS / POSTS
-    </button>
+        <p class="rt-intel-description">
+          Search publicly available ransomware intelligence,
+          including groups, actors, markets, and observed
+          victim posts.
+        </p>
 
-  </div>
+      </div>
 
+      <div class="rt-intel-status">
 
-  <!-- RESULTS -->
+        <span class="rt-status-dot"></span>
 
-  <div class="rt-results-wrapper">
+        <span>LIVE DATA</span>
 
-    <div class="rt-results-heading">
-
-      <span id="rt-results-title">
-        RECENT ACTIVITY
-      </span>
-
-      <span id="rt-results-count"></span>
-
-    </div>
-
-
-    <div id="rt-results">
-
-      <div class="rt-loading">
-        Loading intelligence...
       </div>
 
     </div>
 
-  </div>
+
+    <!-- SEARCH -->
+
+    <div class="rt-search-panel">
+
+      <div class="rt-search-label">
+        SEARCH INTELLIGENCE
+      </div>
+
+      <div class="rt-search-row">
+
+        <input
+          type="search"
+          id="rt-search"
+          placeholder="Search groups, victims, actors..."
+          autocomplete="off"
+        >
+
+        <button
+          type="button"
+          id="rt-search-button"
+        >
+          SEARCH
+        </button>
+
+      </div>
+
+      <div class="rt-search-hint">
+        Search is performed against publicly available
+        RansomLook intelligence.
+      </div>
+
+    </div>
 
 
-  <!-- DETAIL VIEW -->
+    <!-- FILTERS -->
 
-  <div
-    id="rt-detail"
-    class="rt-detail"
-    hidden
-  >
+    <div class="rt-filters">
 
-    <button
-      type="button"
-      class="rt-back"
-      id="rt-back"
+      <button
+        class="rt-filter active"
+        data-type="all"
+        type="button"
+      >
+        ALL
+      </button>
+
+      <button
+        class="rt-filter"
+        data-type="groups"
+        type="button"
+      >
+        GROUPS
+      </button>
+
+      <button
+        class="rt-filter"
+        data-type="actors"
+        type="button"
+      >
+        ACTORS
+      </button>
+
+      <button
+        class="rt-filter"
+        data-type="markets"
+        type="button"
+      >
+        MARKETS
+      </button>
+
+      <button
+        class="rt-filter"
+        data-type="posts"
+        type="button"
+      >
+        VICTIMS / POSTS
+      </button>
+
+    </div>
+
+
+    <!-- RESULTS -->
+
+    <div class="rt-results-wrapper">
+
+      <div class="rt-results-heading">
+
+        <span id="rt-results-title">
+          RECENT ACTIVITY
+        </span>
+
+        <span id="rt-results-count"></span>
+
+      </div>
+
+      <div id="rt-results">
+
+        <div class="rt-loading">
+          Loading intelligence...
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- DETAIL VIEW -->
+
+    <div
+      id="rt-detail"
+      class="rt-detail"
+      hidden
     >
-      ← BACK TO RESULTS
-    </button>
 
-    <div id="rt-detail-content"></div>
+      <button
+        type="button"
+        class="rt-back"
+        id="rt-back"
+      >
+        ← BACK TO RESULTS
+      </button>
 
-  </div>
+      <div id="rt-detail-content"></div>
+
+    </div>
 
 
-  <!-- ATTRIBUTION -->
+    <!-- ATTRIBUTION -->
 
-  <div class="rt-attribution">
+    <div class="rt-attribution">
 
-    <span>DATA SOURCE</span>
+      <span>DATA SOURCE</span>
 
-    <p>
-      Open ransomware intelligence.
-      Data is presented through the RemnantTrace research
-      interface and remains subject to the source's availability
-      and collection methodology.
-    </p>
+      <p>
+        Open ransomware intelligence.
+        Data is presented through the RemnantTrace research
+        interface and remains subject to the source's
+        availability and collection methodology.
+      </p>
 
-  </div>
+    </div>
 
-</section>
+  </section>
 
 </main>
-
-
-<footer>
-
-  <b>
-    REMNANTTRACE <span>FORENSICS</span>
-  </b>
-
-  <p>
-    Independent Digital Forensics Research
-  </p>
-
-  <small>
-    © 2026 RemnantTrace Forensics. All rights reserved.
-  </small>
-
-</footer>
-
-
-<script src="resources-intelligence.js?v=2"></script>
-
-</body>
-</html>
