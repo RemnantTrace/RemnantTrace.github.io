@@ -205,7 +205,7 @@ function rtFetch(
         encodeURIComponent(
           action
         ) +
-        "&callback=" +
+        "&prefix=" +
         encodeURIComponent(
           callbackName
         );
