@@ -3013,10 +3013,9 @@ function renderGroupProfile(
 
       <br>
 
-      This profile reflects publicly available
-      RansomLook collection data. Availability,
-      uptime, screenshots, and observed posts
-      can change as the source is updated.
+      This profile reflects publicly available. 
+      Availability, uptime, screenshots, and 
+      observed posts can change as the source is updated.
 
     </div>
 
