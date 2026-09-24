@@ -3,15 +3,8 @@
    RansomLook interface
    ========================================================= */
 
-/*
- * PUT YOUR GOOGLE APPS SCRIPT /exec URL HERE
- *
- * Example:
- * https://script.google.com/macros/s/XXXXXXXX/exec
- */
-
 const RT_PROXY =
-  "YOUR_GOOGLE_APPS_SCRIPT_EXEC_URL";
+  "https://script.google.com/macros/s/AKfycbyYotjS0BlsFxo5FXwOAJ7w1QVbnSqLsfWdCIJ4Z7eh1kkCNHDLbSpYQxuEU9p0aVwyuQ/exec";
 
 
 const searchInput =
@@ -61,8 +54,10 @@ function rtFetch(action, parameter = "") {
         .toString(36)
         .substring(2);
 
+
     const script =
       document.createElement("script");
+
 
     const timeout =
       setTimeout(() => {
@@ -110,6 +105,7 @@ function rtFetch(action, parameter = "") {
           );
 
           return;
+
         }
 
         resolve(data);
@@ -135,6 +131,7 @@ function rtFetch(action, parameter = "") {
 
 
     script.src = url;
+
 
     script.onerror =
       function() {
@@ -190,8 +187,10 @@ function formatDate(value) {
     return "DATE UNKNOWN";
   }
 
+
   const date =
     new Date(value);
+
 
   if (
     Number.isNaN(
@@ -202,6 +201,7 @@ function formatDate(value) {
     return escapeHTML(value);
 
   }
+
 
   return date.toLocaleString(
     undefined,
@@ -227,12 +227,14 @@ function normalizeArray(data) {
     return data;
   }
 
+
   if (
     data &&
     Array.isArray(data.results)
   ) {
     return data.results;
   }
+
 
   if (
     data &&
@@ -241,12 +243,14 @@ function normalizeArray(data) {
     return data.posts;
   }
 
+
   if (
     data &&
     Array.isArray(data.groups)
   ) {
     return data.groups;
   }
+
 
   if (
     data &&
@@ -255,12 +259,14 @@ function normalizeArray(data) {
     return data.actors;
   }
 
+
   if (
     data &&
     Array.isArray(data.markets)
   ) {
     return data.markets;
   }
+
 
   return [];
 
@@ -377,7 +383,11 @@ async function performSearch() {
 
   } catch (error) {
 
-    console.error(error);
+    console.error(
+      "RansomLook search error:",
+      error
+    );
+
 
     showError(
       "Search could not be completed."
@@ -395,6 +405,7 @@ async function performSearch() {
 async function loadRecent() {
 
   showLoading();
+
 
   resultsTitle.textContent =
     "RECENT ACTIVITY";
@@ -418,7 +429,11 @@ async function loadRecent() {
 
   } catch (error) {
 
-    console.error(error);
+    console.error(
+      "RansomLook recent activity error:",
+      error
+    );
+
 
     showError(
       "Unable to retrieve RansomLook intelligence."
@@ -464,6 +479,7 @@ function renderPosts(
         const group =
           post.group_name ||
           post.group ||
+          post.groupName ||
           "UNKNOWN GROUP";
 
 
@@ -471,6 +487,8 @@ function renderPosts(
           post.post_title ||
           post.title ||
           post.name ||
+          post.company ||
+          post.victim ||
           "UNTITLED POST";
 
 
@@ -478,6 +496,8 @@ function renderPosts(
           post.discovered ||
           post.date ||
           post.created ||
+          post.created_at ||
+          post.timestamp ||
           "";
 
 
@@ -557,6 +577,7 @@ function showPostDetail(post) {
   const group =
     post.group_name ||
     post.group ||
+    post.groupName ||
     "Unknown";
 
 
@@ -564,6 +585,8 @@ function showPostDetail(post) {
     post.post_title ||
     post.title ||
     post.name ||
+    post.company ||
+    post.victim ||
     "Untitled Post";
 
 
@@ -571,6 +594,16 @@ function showPostDetail(post) {
     post.discovered ||
     post.date ||
     post.created ||
+    post.created_at ||
+    post.timestamp ||
+    "";
+
+
+  const description =
+    post.description ||
+    post.content ||
+    post.text ||
+    post.body ||
     "";
 
 
@@ -622,6 +655,25 @@ function showPostDetail(post) {
         </div>
 
       </div>
+
+
+      ${
+        description
+          ? `
+            <div class="rt-detail-description">
+
+              <div class="rt-detail-field-label">
+                DESCRIPTION
+              </div>
+
+              <div class="rt-detail-field-value">
+                ${escapeHTML(description)}
+              </div>
+
+            </div>
+          `
+          : ""
+      }
 
     </div>
 
@@ -695,6 +747,7 @@ filters.forEach(filter => {
           data =
             await rtFetch("groups");
 
+
           renderNameList(
             normalizeArray(data),
             "GROUPS"
@@ -707,6 +760,7 @@ filters.forEach(filter => {
 
           data =
             await rtFetch("actors");
+
 
           renderNameList(
             normalizeArray(data),
@@ -721,6 +775,7 @@ filters.forEach(filter => {
           data =
             await rtFetch("markets");
 
+
           renderNameList(
             normalizeArray(data),
             "MARKETS"
@@ -731,7 +786,11 @@ filters.forEach(filter => {
 
       } catch (error) {
 
-        console.error(error);
+        console.error(
+          "RansomLook category error:",
+          error
+        );
+
 
         showError(
           "Unable to retrieve this intelligence category."
@@ -784,6 +843,7 @@ function renderNameList(
               item.group_name ||
               item.market_name ||
               item.handle ||
+              item.actor_name ||
               "Unknown";
 
 
@@ -810,6 +870,7 @@ function renderNameList(
               <h3 class="rt-result-title">
                 ${escapeHTML(name)}
               </h3>
+
 
               <div class="rt-result-meta">
                 REMNANTTRACE INTELLIGENCE INDEX
