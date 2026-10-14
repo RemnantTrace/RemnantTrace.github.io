@@ -1401,3 +1401,21 @@ footer small {
     margin-top: 32px;
   }
 }
+
+.linkedin-button {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 12px 20px;
+  border: 1px solid #39ff14;
+  color: #39ff14;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.linkedin-button:hover {
+  background: #39ff14;
+  color: #000;
+}
