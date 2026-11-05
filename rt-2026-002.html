@@ -1,1 +1,1008 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta
+    name="description"
+    content="RT-2026-002 — Tor, Onion Services & Darknet Forum Monitoring. RemnantTrace Forensics research note examining Tor architecture, v3 onion addresses, Tails OS, and underground forum monitoring."
+  >
+  <title>RT-2026-002 · Tor, Onion Services &amp; Darknet Forum Monitoring</title>
+  <link rel="stylesheet" href="style.css">
+</head>
 
+<body>
+
+<header>
+  <a href="index.html" class="brand">
+    <img
+      src="assets/remnanttrace-banner.png"
+      alt="RemnantTrace Forensics"
+    >
+  </a>
+
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="research.html">Research</a>
+    <a href="publications.html" class="active">Publications</a>
+    <a href="resources.html">Resources</a>
+    <a href="leadership.html">Leadership</a>
+    <a href="contact.html">Contact</a>
+  </nav>
+</header>
+
+<main>
+
+  <section class="pagehero">
+
+    <p class="eyebrow">
+      RT-2026-002 · RESEARCH NOTE · 2026
+    </p>
+
+    <h1>
+      Tor, Onion Services &amp; Darknet Forum Monitoring
+    </h1>
+
+    <p class="lead">
+      An examination of Tor network architecture, version 3 onion
+      addressing, Tails operating system, and the collection and
+      interpretation of intelligence from darknet forums and marketplaces.
+    </p>
+
+    <p>
+      <strong>Meg Sissel</strong> · RemnantTrace Forensics
+    </p>
+
+    <p>
+      Published November 5, 2026 · 11:00 AM CST
+    </p>
+
+  </section>
+
+  <section class="split">
+
+    <div class="label">
+      RESEARCH NOTE
+    </div>
+
+    <article>
+
+      <h2>Abstract</h2>
+
+      <p>
+        The Tor network provides a distributed communications system
+        designed to reduce the ability of a single network observer to
+        associate a user's origin with their destination. One of its
+        applications is the hosting and discovery of onion services:
+        websites and other services that are reachable through Tor rather
+        than through the conventional public internet.
+      </p>
+
+      <p>
+        Onion services are frequently associated with darknet forums,
+        illicit marketplaces, leak sites, and other underground
+        communities. However, the technology itself is not inherently
+        criminal. The same infrastructure supports legitimate privacy,
+        journalism, whistleblowing, censorship resistance, and secure
+        communication.
+      </p>
+
+      <p>
+        This research note examines the relationship between Tor and
+        onion services, the structure of modern 56-character version 3
+        onion addresses, the use and limitations of Tails OS, and
+        investigative approaches to monitoring publicly observable
+        activity on underground forums and marketplaces.
+      </p>
+
+      <p>
+        <strong>Keywords:</strong>
+        Tor, onion services, darknet, dark web, v3 onion address,
+        Tails OS, threat intelligence, forum monitoring, cybercrime,
+        digital forensics, OSINT, attribution, evidence preservation
+      </p>
+
+      <h3>1. Introduction</h3>
+
+      <p>
+        The terms deep web, dark web, and darknet are often used
+        interchangeably in general discussion. They describe different
+        concepts, however, and should not be treated as equivalent.
+        The deep web generally refers to content that is not indexed by
+        conventional search engines, such as private account portals,
+        subscription databases, and internal systems. The dark web
+        generally refers to services hosted on networks that require
+        specialized software or configurations to access.
+      </p>
+
+      <p>
+        Tor is one of the best-known anonymity networks used to access
+        these services. It can also be used to access ordinary websites
+        through a privacy-preserving connection. A website does not
+        become a darknet service merely because a visitor uses Tor to
+        reach it.
+      </p>
+
+      <p>
+        Within threat intelligence, Tor is relevant because some
+        underground communities use onion services to publish stolen
+        data claims, advertise access to compromised systems, coordinate
+        activity, communicate with other users, and operate marketplaces.
+      </p>
+
+      <h3>2. Research Questions</h3>
+
+      <p>This research note addresses the following questions:</p>
+
+      <p><strong>1.</strong> How does Tor route traffic, and how does that architecture differ from an ordinary connection to a public website?</p>
+
+      <p><strong>2.</strong> What is an onion service, and how does a version 3 onion address identify a service?</p>
+
+      <p><strong>3.</strong> Why are modern onion addresses 56 characters long, and what information is represented within the address?</p>
+
+      <p><strong>4.</strong> What role does Tails OS play when conducting research involving Tor-accessible services?</p>
+
+      <p><strong>5.</strong> What information can analysts collect by monitoring underground forums, marketplaces, and threat-actor channels?</p>
+
+      <p><strong>6.</strong> How should analysts preserve, corroborate, and qualify observations obtained from these environments?</p>
+
+      <h3>3. Understanding the Tor Network</h3>
+
+      <p>
+        Tor, originally derived from the concept of onion routing, is a
+        distributed network that directs user connections through a
+        sequence of volunteer-operated relays. Rather than connecting
+        directly to a destination using the user's ordinary network
+        address, a Tor client constructs a circuit through multiple
+        relays.
+      </p>
+
+      <p>
+        In a typical Tor Browser connection to a conventional website,
+        the circuit uses three relays. The first relay is commonly
+        referred to as the guard or entry relay. The middle relay passes
+        traffic through the circuit, and the final relay is the exit
+        relay.
+      </p>
+
+      <p>
+        The entry relay can observe the network address connecting to it,
+        but it does not ordinarily know the final destination. The exit
+        relay connects to the destination website, but it does not
+        ordinarily know the original user's network address.
+      </p>
+
+      <p>
+        This layered routing is intended to prevent any single relay
+        from independently identifying both ends of a connection.
+        It does not make a user's activity immune to endpoint compromise,
+        traffic correlation, or operational mistakes.
+      </p>
+
+      <div class="archive">
+        <article>
+
+          <span>ILLUSTRATIVE MODEL 01 · ORDINARY TOR CONNECTION</span>
+
+          <h3>Three-Relay Circuit</h3>
+
+          <p><strong>Client device.</strong> The user initiates a connection through Tor Browser.</p>
+
+          <p><strong>Entry relay.</strong> The first relay receives the connection from the client.</p>
+
+          <p><strong>Middle relay.</strong> The second relay forwards traffic through the circuit.</p>
+
+          <p><strong>Exit relay.</strong> The final relay connects to the requested public website.</p>
+
+          <p><strong>Destination website.</strong> The website receives a connection from the exit relay rather than directly from the user's ordinary public IP address.</p>
+
+          <p>
+            <strong>Interpretation:</strong>
+            The circuit separates knowledge of the user's network origin
+            from knowledge of the destination.
+          </p>
+
+        </article>
+      </div>
+
+      <h3>4. Onion Services and the .onion Domain</h3>
+
+      <p>
+        An onion service is a website or other network service that is
+        accessible through the Tor network. The service uses the special
+        top-level domain <strong>.onion</strong> rather than a
+        conventional domain such as .com, .net, or .org.
+      </p>
+
+      <p>
+        Onion services are sometimes described as hidden services.
+        The terminology refers to the way the service's network location
+        is concealed through Tor's architecture. The service does not
+        need to publish a conventional public IP address for visitors
+        to connect to it.
+      </p>
+
+      <p>
+        An onion service establishes Tor circuits to a set of
+        introduction points and publishes an encrypted service
+        descriptor through the Tor network. A client that knows the
+        onion address can retrieve the relevant descriptor, verify
+        service information, and establish a connection through a
+        rendezvous point.
+      </p>
+
+      <p>
+        The rendezvous point acts as an intermediary within the Tor
+        network. The client and onion service each establish their own
+        Tor circuits to that point.
+      </p>
+
+      <div class="archive">
+        <article>
+
+          <span>ILLUSTRATIVE MODEL 02 · ONION SERVICE CONNECTION</span>
+
+          <h3>Client-to-Service Rendezvous</h3>
+
+          <p><strong>Step 01 — Service initialization.</strong> The onion service establishes circuits to its introduction points.</p>
+
+          <p><strong>Step 02 — Service descriptor.</strong> The service publishes an encrypted descriptor containing connection information.</p>
+
+          <p><strong>Step 03 — Client lookup.</strong> A Tor client uses the known onion address to locate the service descriptor.</p>
+
+          <p><strong>Step 04 — Introduction.</strong> The client uses an introduction point to communicate its request.</p>
+
+          <p><strong>Step 05 — Rendezvous.</strong> The client and service establish circuits to a selected rendezvous point.</p>
+
+          <p><strong>Interpretation:</strong> Both sides communicate through Tor without requiring the service to expose its ordinary network address.</p>
+
+        </article>
+      </div>
+
+      <h3>5. Understanding the 56-Character .onion Address</h3>
+
+      <p>
+        Modern Tor onion services use version 3 addresses, commonly
+        referred to as v3 onion addresses. These addresses contain
+        56 lowercase letters and numbers before the .onion suffix.
+        The 56-character portion is the address itself; the
+        <strong>.onion</strong> suffix is not included in that count.
+      </p>
+
+      <p>
+        The length is not an arbitrary naming convention. A v3 onion
+        address is a Base32 representation of cryptographic information
+        associated with the onion service. It incorporates the service's
+        Ed25519 public identity key, a checksum, and a version field.
+      </p>
+
+      <p>
+        The public key provides the cryptographic identity associated
+        with the service. The checksum allows the address to be checked
+        for certain errors, and the version field identifies the
+        address format.
+      </p>
+
+      <p>
+        This design differs from the older version 2 format, which used
+        shorter 16-character onion addresses. Version 2 onion services
+        have been deprecated and are no longer supported by current Tor
+        software.
+      </p>
+
+      <div class="archive">
+        <article>
+
+          <span>ILLUSTRATIVE EXAMPLE 03 · V3 ONION ADDRESS</span>
+
+          <h3>Address Structure</h3>
+
+          <p><strong>Example address:</strong></p>
+
+          <p><code>l5satjgud6gucryazcyvyvhuxhr74u6ygigiuyixe3a6ysis67ororad.onion</code></p>
+
+          <p><strong>56-character hostname.</strong> The Base32-encoded portion identifies the onion service through its public key, checksum, and version information.</p>
+
+          <p><strong>.onion suffix.</strong> The special-use domain suffix indicates that the address is intended to be resolved through Tor.</p>
+
+          <p>
+            <strong>Forensic significance:</strong>
+            An onion address is more than a memorable website name.
+            It is cryptographically associated with a service identity.
+          </p>
+
+        </article>
+      </div>
+
+      <p>
+        The address should be recorded exactly as observed. A single
+        incorrect character can prevent a connection or direct an
+        analyst to a different address. When collecting an address from
+        a forum post, directory, screenshot, or intelligence report,
+        analysts should preserve the original source and independently
+        verify the address before treating it as an active service.
+      </p>
+
+      <h3>6. How Darknet Sites and Forums Operate</h3>
+
+      <p>
+        Darknet websites can provide many of the same functions as
+        conventional websites. They may contain user accounts,
+        discussion boards, private messages, search functions,
+        administrator announcements, vendor profiles, product listings,
+        reviews, and other familiar web application components.
+      </p>
+
+      <p>
+        Some underground forums operate as discussion communities.
+        Users may create threads, reply to posts, maintain profiles,
+        publish announcements, and exchange information. Other sites
+        operate as marketplaces, where listings, vendor accounts,
+        payment mechanisms, escrow arrangements, and dispute systems
+        are presented through a web interface.
+      </p>
+
+      <p>
+        The presence of these features does not establish that a
+        marketplace transaction occurred or that a vendor fulfilled
+        an advertised service. Forum content is user-generated and
+        should be treated as a claim until corroborated.
+      </p>
+
+      <p><strong>Common forum components</strong></p>
+
+      <p><strong>Threads and posts:</strong> Provide the primary discussion structure, including initial claims, replies, updates, and administrator intervention.</p>
+
+      <p><strong>User profiles and handles:</strong> Identify accounts within the platform. A handle is a platform identifier, not proof of a real-world identity.</p>
+
+      <p><strong>Announcements and pinned posts:</strong> May contain forum rules, operational updates, vendor notices, and administrator statements.</p>
+
+      <p><strong>Marketplace listings:</strong> May advertise databases, credentials, access to compromised systems, malware, or other goods and services.</p>
+
+      <p><strong>Reputation and dispute systems:</strong> May include reviews, ratings, escrow references, complaints, and claims of successful transactions.</p>
+
+      <div class="archive">
+        <article>
+
+          <span>ILLUSTRATIVE EXAMPLE 04 · FORUM STRUCTURE</span>
+
+          <h3>Interpreting a Threat-Actor Post</h3>
+
+          <p>
+            A forum account publishes a thread claiming that a healthcare
+            organization has been compromised. The post includes the
+            organization's name, a claimed incident date, a sample
+            screenshot, and a statement that additional data is available.
+          </p>
+
+          <p>
+            Replies from other users question the claim. A separate
+            account posts a link to a marketplace listing that appears
+            to reference the same organization.
+          </p>
+
+          <p>
+            The initial post establishes that an account made a public
+            compromise claim. The replies establish that other accounts
+            discussed the claim. The related listing establishes that
+            another offer was published. None of these observations
+            independently proves that the organization experienced
+            a breach.
+          </p>
+
+          <p>
+            <strong>Analytical significance:</strong>
+            The thread, replies, listing, account identifiers, timestamps,
+            and subsequent edits should be preserved as separate
+            observations and compared with independent evidence.
+          </p>
+
+        </article>
+      </div>
+
+      <h3>7. Tails OS and Privacy-Focused Research</h3>
+
+      <p>
+        <strong>Tails</strong>, short for The Amnesic Incognito Live
+        System, is a Linux-based operating system designed to help
+        protect user privacy and anonymity. It is commonly started
+        from a USB drive and is designed to leave as little trace as
+        possible on the computer being used.
+      </p>
+
+      <p>
+        Tails routes internet connections through the Tor network.
+        Its network restrictions are designed to prevent applications
+        from making ordinary internet connections outside Tor.
+      </p>
+
+      <p>
+        Tails includes Tor Browser for web access and other privacy
+        and security tools. It can be useful for researchers who need
+        to access Tor services while keeping investigative activity
+        separated from their everyday operating environment.
+      </p>
+
+      <p>
+        Tails is not the same thing as Tor Browser. Tor Browser is an
+        application that routes browser traffic through Tor. Tails is
+        an operating system that applies Tor-oriented network protections
+        across the system.
+      </p>
+
+      <p>
+        Tails also supports optional Persistent Storage. When configured,
+        selected data can be retained between sessions in an encrypted
+        storage area. This means that the amnesic behavior of a session
+        depends in part on how the system is configured and used.
+      </p>
+
+      <div class="archive">
+        <article>
+
+          <span>ILLUSTRATIVE EXAMPLE 05 · RESEARCH ENVIRONMENT</span>
+
+          <h3>Tails and Tor Browser</h3>
+
+          <p><strong>Operating environment.</strong> The researcher boots Tails from a prepared USB device rather than conducting research inside their ordinary desktop operating system.</p>
+
+          <p><strong>Network routing.</strong> Tails directs internet traffic through Tor and blocks connections that cannot use the configured Tor network.</p>
+
+          <p><strong>Research activity.</strong> The researcher uses Tor Browser to access a known onion service and records publicly visible forum content.</p>
+
+          <p><strong>Data handling.</strong> Relevant observations are documented and retained according to the researcher's evidence-handling procedure.</p>
+
+          <p><strong>Interpretation:</strong> Tails can reduce certain risks associated with local traces and direct network connections. It does not independently establish anonymity.</p>
+
+        </article>
+      </div>
+
+      <h3>8. Security Limitations and Operational Considerations</h3>
+
+      <p>
+        Tor and Tails provide privacy protections, but neither should
+        be treated as a complete anonymity guarantee. A user can still
+        disclose identifying information through account activity,
+        browser behavior, downloaded documents, communication patterns,
+        or other actions.
+      </p>
+
+      <p>
+        A person who signs into a personally identifiable account while
+        conducting supposedly anonymous research may associate that
+        activity with their identity. Similarly, using the same account
+        handle across multiple platforms can create a link between
+        otherwise separate online identities.
+      </p>
+
+      <p>
+        Downloaded documents can contain metadata or active content.
+        Opening an untrusted file in an ordinary desktop environment
+        may introduce risks that are unrelated to Tor's network
+        protections.
+      </p>
+
+      <p>
+        Tor also has limitations against powerful observers capable of
+        monitoring traffic at multiple points in a circuit. Timing and
+        traffic-pattern correlation are recognized research concerns.
+      </p>
+
+      <h3>9. Monitoring Underground Forums and Marketplaces</h3>
+
+      <p>
+        Monitoring underground forums is a form of threat intelligence
+        collection that focuses on identifying, documenting, and
+        evaluating information published by users within online
+        communities. The objective is not simply to visit a forum.
+        It is to identify relevant activity, determine whether it
+        relates to an organization or threat actor, and establish
+        whether the information can be corroborated.
+      </p>
+
+      <p>
+        Monitoring may involve publicly accessible forum threads,
+        marketplace listings, actor announcements, breach claims,
+        data-leak posts, credential advertisements, and discussions
+        about specific organizations or sectors.
+      </p>
+
+      <p>
+        An analyst may monitor a defined set of forums over time,
+        recording new posts and changes to existing content. Relevant
+        observations can include the account handle, post title,
+        publication time, claimed victim, alleged incident date,
+        type of material advertised, and any supporting sample or
+        reference supplied by the poster.
+      </p>
+
+      <p>
+        Monitoring should also account for changes in forum structure.
+        Sites may change domains, move to new onion addresses, restrict
+        access, remove posts, or reappear under different branding.
+      </p>
+
+      <p><strong>Common monitoring categories</strong></p>
+
+      <p><strong>Forum activity:</strong> New threads, replies, pinned posts, administrator notices, complaints, user disputes, and changes to forum rules.</p>
+
+      <p><strong>Threat-actor activity:</strong> Changes in aliases, public statements, claimed affiliations, advertised capabilities, and references to prior campaigns.</p>
+
+      <p><strong>Victim and breach claims:</strong> Organization names, claimed compromise dates, alleged data types, sample descriptions, and statements about publication or sale.</p>
+
+      <p><strong>Marketplace activity:</strong> Listings, vendor accounts, product descriptions, pricing claims, reviews, escrow references, and disputes.</p>
+
+      <p><strong>Infrastructure changes:</strong> New onion addresses, mirror announcements, service outages, redirects, and references to replacement platforms.</p>
+
+      <div class="archive">
+        <article>
+
+          <span>ILLUSTRATIVE EXAMPLE 06 · CONTINUOUS MONITORING</span>
+
+          <h3>Tracking a Claimed Data Leak</h3>
+
+          <p><strong>Day 01 — Initial claim.</strong> A forum account publishes a thread claiming to possess information belonging to a named organization.</p>
+
+          <p><strong>Day 02 — Additional discussion.</strong> Other users reply to the thread. One account questions whether the sample is authentic, while another references a separate listing.</p>
+
+          <p><strong>Day 04 — Listing update.</strong> The original account changes the post title and adds a statement that the material is no longer available.</p>
+
+          <p><strong>Day 07 — Reappearance.</strong> A similar claim appears on another forum under a different account name.</p>
+
+          <p>
+            <strong>Analytical significance:</strong>
+            The sequence may indicate that the same claim is being
+            redistributed, but similarity alone does not prove that
+            the accounts are controlled by the same person.
+          </p>
+
+        </article>
+      </div>
+
+      <h3>10. Collection and Evidence Preservation</h3>
+
+      <p>
+        Online content can change quickly. Forum posts may be edited,
+        deleted, moved, or made inaccessible. A monitoring process
+        should therefore preserve relevant observations at the time
+        they are identified.
+      </p>
+
+      <p>
+        A useful collection record should identify the source, the
+        exact onion address or conventional URL, the date and time
+        observed, the time zone used, and the specific content
+        reviewed. Where available, the record should include the
+        thread title, post identifier, account handle, publication
+        timestamp, and any visible edit or update information.
+      </p>
+
+      <p>
+        Screenshots can help preserve the appearance and context of
+        a page, but they should not be the only record when additional
+        source information can be collected.
+      </p>
+
+      <p>
+        When permitted and appropriate, analysts may retain a
+        contemporaneous capture of the page or relevant source data.
+        Files should be handled according to organizational procedures,
+        and cryptographic hashes can be used to document the integrity
+        of collected files after acquisition.
+      </p>
+
+      <p>
+        The collection record should distinguish between the time a
+        post claims an event occurred and the time the analyst observed
+        the post. These are separate temporal values.
+      </p>
+
+      <div class="archive">
+        <article>
+
+          <span>ILLUSTRATIVE EXAMPLE 07 · COLLECTION RECORD</span>
+
+          <h3>Preserving a Forum Observation</h3>
+
+          <p><strong>Source:</strong> The onion address and forum name are recorded exactly as displayed at the time of collection.</p>
+
+          <p><strong>Observation time:</strong> The analyst records the date, time, and time zone when the page was accessed.</p>
+
+          <p><strong>Content:</strong> The thread title, account handle, post identifier, visible text, and relevant replies are documented.</p>
+
+          <p><strong>Context:</strong> The analyst records whether the content was an original post, an edited post, a reply, a repost, or a reference to another source.</p>
+
+          <p><strong>Integrity:</strong> Collected files are retained in accordance with the applicable evidence-handling procedure.</p>
+
+          <p><strong>Interpretation:</strong> The record establishes what was visible to the analyst at the documented time. It does not independently authenticate the truth of the poster's statements.</p>
+
+        </article>
+      </div>
+
+      <h3>11. Correlation, Reposts, and Attribution</h3>
+
+      <p>
+        A single forum post rarely provides enough information to
+        establish the identity of a threat actor or the validity of
+        a breach claim. Stronger analysis comes from comparing
+        observations across multiple sources and time periods.
+      </p>
+
+      <p>
+        An organization may be named in a forum thread, a marketplace
+        listing, a separate leak site, and a public threat-actor
+        announcement. These references may describe the same alleged
+        incident, but they may also be copies of one original claim.
+      </p>
+
+      <p>
+        Analysts should determine whether sources are independent
+        or whether they repeat information from the same post.
+        Repetition across multiple websites does not necessarily
+        constitute independent corroboration.
+      </p>
+
+      <p>
+        Account attribution requires similar caution. Usernames,
+        profile descriptions, writing style, language, posting
+        schedules, and shared links may provide investigative
+        indicators. They do not independently establish that two
+        accounts belong to the same person.
+      </p>
+
+      <div class="archive">
+        <article>
+
+          <span>ILLUSTRATIVE EXAMPLE 08 · CROSS-SOURCE CORROBORATION</span>
+
+          <h3>Multiple Posts Referencing One Organization</h3>
+
+          <p>
+            An analyst identifies three references to the same
+            organization. The first appears in a forum thread, the
+            second appears in a marketplace listing, and the third
+            appears in a threat-actor announcement.
+          </p>
+
+          <p>
+            All three references use similar language and describe
+            the same alleged dataset. The marketplace listing links
+            to the forum thread, while the announcement appears to
+            repeat details from the original post.
+          </p>
+
+          <p>
+            The three references demonstrate that the claim circulated
+            across multiple locations. Because the sources appear to
+            reference the same original material, they should not
+            automatically be treated as three independent confirmations.
+          </p>
+
+          <p>
+            <strong>Analytical significance:</strong>
+            Source relationships should be documented. An analyst
+            should identify the earliest observed reference, note
+            apparent reposts, and seek evidence independent of the
+            original claim.
+          </p>
+
+        </article>
+      </div>
+
+      <h3>12. Indicators and Analytical Value</h3>
+
+      <p>
+        Underground forum monitoring can produce indicators that
+        support broader cyber threat intelligence and digital
+        investigations. These indicators may include organization
+        names, domains, email addresses, IP addresses, usernames,
+        cryptocurrency addresses, file names, malware references,
+        and descriptions of alleged access.
+      </p>
+
+      <p>
+        The value of an indicator depends on its context. A domain
+        mentioned in a forum post may be a victim domain, a reference
+        to a third-party service, a phishing domain, or simply text
+        copied from another source.
+      </p>
+
+      <p>
+        Indicators should therefore be normalized, deduplicated,
+        time-stamped, and evaluated in relation to the source from
+        which they were obtained. Where possible, they should be
+        compared with independent technical evidence, public
+        disclosures, organizational records, or other reliable sources.
+      </p>
+
+      <h3>13. Limitations</h3>
+
+      <p>
+        Darknet sources are inherently difficult to evaluate.
+        Forums may be operated by anonymous administrators, accounts
+        may be disposable, and content may be deliberately fabricated
+        to attract attention, damage reputations, or create leverage.
+      </p>
+
+      <p>
+        A posted sample may be incomplete, outdated, publicly available,
+        or unrelated to the organization named in the post. A seller
+        may advertise the same material repeatedly or claim exclusive
+        access to information that has already circulated elsewhere.
+      </p>
+
+      <p>
+        Access to a forum may also be intermittent. Onion services
+        can become unavailable, change addresses, restrict access,
+        or disappear without notice. A failed connection does not
+        establish that a service has permanently shut down.
+      </p>
+
+      <p>
+        Monitoring coverage is limited by the sources known to the
+        analyst, the time period examined, access restrictions,
+        language, search functionality, and the availability of
+        archived content.
+      </p>
+
+      <h3>14. Findings and Clearnet Resource Directories</h3>
+
+      <p>
+        This publication does not directly disclose or reproduce
+        <strong>.onion</strong> addresses. Onion service links can change,
+        become inactive, or lead to unsafe or impersonated resources.
+        Rather than publishing unverified links, RemnantTrace identifies
+        publicly accessible clearnet resources that provide directories,
+        reporting, research, and access information for individuals
+        conducting darknet research.
+      </p>
+
+      <p>
+        Examples of these resources include:
+      </p>
+
+      <p><strong>The Hidden Wiki:</strong> A directory-style resource that has historically catalogued onion services.</p>
+
+      <p><strong>Ransomware.live:</strong> Ransomware activity tracking, including victim listings and threat actor information.</p>
+
+      <p><strong>RansomLook:</strong> A monitoring resource for ransomware leak sites and related activity.</p>
+
+      <p><strong>Daunt Link:</strong> A clearnet resource associated with darknet link directories.</p>
+
+      <p><strong>The Tor Times:</strong> News and reporting related to Tor and darknet activity.</p>
+
+      <p><strong>Ahmia:</strong> A search engine for Tor onion services.</p>
+
+      <p><strong>The DarkWeb Informer:</strong> A resource covering darknet websites, activity, and related developments.</p>
+
+      <p>
+        These resources are provided for research and informational
+        purposes. Their inclusion does not constitute an endorsement
+        of the services or websites they reference. Researchers should
+        independently verify destinations, exercise caution when
+        accessing unfamiliar services, and understand that the
+        availability and legitimacy of listed resources may change
+        over time.
+      </p>
+
+      <p>
+        <strong>Research note:</strong> These are clearnet starting points,
+        not a guarantee that every directory or listing is safe, active,
+        or legitimate.
+      </p>
+
+      <h3>15. Recommended Analytical Methodology</h3>
+
+      <p>
+        A structured monitoring process should begin by defining
+        the investigative scope. The analyst should identify the
+        organizations, domains, aliases, sectors, and incident
+        indicators relevant to the research question.
+      </p>
+
+      <p>
+        The analyst should then identify known sources and document
+        how each source can be accessed. Onion addresses should be
+        recorded exactly and verified where possible. Source
+        descriptions should distinguish between a forum, marketplace,
+        leak site, directory, mirror, and other service type.
+      </p>
+
+      <p>
+        During collection, relevant posts and listings should be
+        documented with their source location, observation time,
+        visible publication time, account identifiers, and surrounding
+        context. The analyst should preserve changes and reposts
+        rather than treating a later version as though it were the
+        original observation.
+      </p>
+
+      <p>
+        Collected claims should then be evaluated for credibility.
+        Analysts should consider the source's history, the specificity
+        of the claim, whether supporting material is present, whether
+        the material can be independently validated, and whether
+        other sources are merely repeating the same information.
+      </p>
+
+      <h3>16. Conclusion</h3>
+
+      <p>
+        Tor provides a distributed network architecture that allows
+        users and services to communicate without relying on a direct
+        connection between the user's ordinary network address and
+        the destination. Onion services extend this architecture by
+        allowing websites and other services to operate within Tor
+        without publishing a conventional public IP address.
+      </p>
+
+      <p>
+        Modern v3 onion addresses contain 56 characters before the
+        .onion suffix. These characters encode the service's public
+        identity key, checksum, and version information.
+      </p>
+
+      <p>
+        Tails provides a separate operating environment designed
+        around privacy and Tor-based network access. It can help
+        reduce certain risks associated with local traces and
+        accidental direct connections, but it does not eliminate
+        endpoint, account, behavioral, or traffic-analysis risks.
+      </p>
+
+      <p>
+        For threat-intelligence and digital-forensics work, the
+        practical value of these technologies extends beyond access.
+        Monitoring forums, marketplaces, and threat-actor channels
+        can reveal claims, advertisements, aliases, infrastructure
+        references, and changes in underground activity.
+      </p>
+
+      <p>
+        The central analytical principle is that visibility is not
+        verification. A post establishes that a statement was
+        published; a listing establishes that an offer was advertised;
+        and repeated claims establish that information circulated.
+        None of these observations independently proves the truth
+        of the underlying allegation.
+      </p>
+
+      <p>
+        Reliable darknet research therefore depends on source
+        provenance, careful preservation, cross-source analysis,
+        independent corroboration, and appropriately qualified
+        conclusions.
+      </p>
+
+      <h2>References</h2>
+
+      <div class="archive">
+
+        <article>
+          <span>TOR PROJECT · SUPPORT DOCUMENTATION</span>
+          <h3>What are .onion sites and onion services?</h3>
+          <p>
+            Tor Project documentation describing onion services,
+            the .onion domain, and the purposes for which onion
+            services are used.
+          </p>
+          <a
+            href="https://support.torproject.org/about-tor/onion-services/what-is-a-dot-onion/"
+            class="textlink"
+            target="_blank"
+            rel="noopener noreferrer"
+          >VIEW SOURCE →</a>
+        </article>
+
+        <article>
+          <span>TOR PROJECT · ONION SERVICE SPECIFICATION</span>
+          <h3>Protocol Overview and v3 Onion Address Format</h3>
+          <p>
+            Technical specification describing version 3 onion
+            addresses, including Base32 encoding, the public key,
+            checksum, and version field.
+          </p>
+          <a
+            href="https://spec.torproject.org/rend-spec/protocol-overview.html"
+            class="textlink"
+            target="_blank"
+            rel="noopener noreferrer"
+          >VIEW SOURCE →</a>
+        </article>
+
+        <article>
+          <span>TOR PROJECT · ONION SERVICE ARCHITECTURE</span>
+          <h3>How do Onion Services work?</h3>
+          <p>
+            Tor Project technical overview of introduction points,
+            service descriptors, rendezvous points, and the
+            connection process.
+          </p>
+          <a
+            href="https://community.torproject.org/onion-services/overview/"
+            class="textlink"
+            target="_blank"
+            rel="noopener noreferrer"
+          >VIEW SOURCE →</a>
+        </article>
+
+        <article>
+          <span>TOR PROJECT · TOR BROWSER SUPPORT</span>
+          <h3>Understanding and Using Onion Services</h3>
+          <p>
+            Documentation describing how to access onion services,
+            the 56-character v3 address format, and the status of
+            the older v2 address format.
+          </p>
+          <a
+            href="https://support.torproject.org/tor-browser/features/onion-services/"
+            class="textlink"
+            target="_blank"
+            rel="noopener noreferrer"
+          >VIEW SOURCE →</a>
+        </article>
+
+        <article>
+          <span>TAILS · OFFICIAL DOCUMENTATION</span>
+          <h3>Tails Documentation</h3>
+          <p>
+            Official documentation covering the Tails operating
+            system, its privacy design, network behavior, and
+            available security features.
+          </p>
+          <a
+            href="https://tails.net/doc/"
+            class="textlink"
+            target="_blank"
+            rel="noopener noreferrer"
+          >VIEW SOURCE →</a>
+        </article>
+
+        <article>
+          <span>TAILS · SECURITY CONSIDERATIONS</span>
+          <h3>Warnings: Tails Is Safe but Not Magic</h3>
+          <p>
+            Tails documentation describing limitations involving
+            identity protection, Tor, and the use of untrusted computers.
+          </p>
+          <a
+            href="https://tails.net/doc/about/warnings/"
+            class="textlink"
+            target="_blank"
+            rel="noopener noreferrer"
+          >VIEW SOURCE →</a>
+        </article>
+
+        <article>
+          <span>REMNANTTRACE FORENSICS</span>
+          <h3>RT-2026-002</h3>
+          <p>RemnantTrace Forensics research note · 2026.</p>
+        </article>
+
+      </div>
+
+    </article>
+
+  </section>
+
+</main>
+
+<footer>
+
+  <b>
+    REMNANT<span>TRACE</span> FORENSICS
+  </b>
+
+  <p>
+    Independent digital forensics research.
+  </p>
+
+  <small>
+    © 2026 RemnantTrace Forensics · All rights reserved.
+  </small>
+
+</footer>
+
+</body>
+</html>
